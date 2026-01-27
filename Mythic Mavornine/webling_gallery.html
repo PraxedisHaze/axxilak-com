@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Webling Gallery</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 24px;
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .back-button:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .webling-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .webling-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .webling-card:hover {
+            border-color: #00F0FF;
+            background: rgba(20, 184, 166, 0.08);
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+            transform: translateY(-6px);
+        }
+
+        .webling-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            position: relative;
+            z-index: 2;
+            height: 120px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(217, 70, 239, 0.05));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .webling-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .card-content {
+            position: relative;
+            z-index: 2;
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .webling-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .webling-tagline {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .webling-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .feature-tag {
+            font-size: 10px;
+            padding: 4px 8px;
+            border: 1px solid #00F0FF;
+            border-radius: 3px;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .resonance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(0, 240, 255, 0.05);
+            border-radius: 4px;
+            border-left: 2px solid #D946EF;
+        }
+
+        .resonance-label {
+            font-size: 10px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .resonance-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #D946EF;
+        }
+
+        .card-footer {
+            position: relative;
+            z-index: 2;
+            padding: 16px 24px;
+            border-top: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00F0FF;
+        }
+
+        .cta-button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 4px;
+            color: #0F1115;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 40px;
+            padding: 24px;
+            border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 10px;
+            color: #64748b;
+            font-family: 'Roboto Mono', monospace;
+            border-top: 1px solid #334155;
+            padding-top: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="goBack()">← Back to Discovery</button>
+            <div class="title">Webling Gallery</div>
+            <div class="subtitle">All Templates. Infinite Possibilities.</div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterWeblings('all')">All Weblings</button>
+            <button class="filter-btn" onclick="filterWeblings('portfolio')">Portfolios</button>
+            <button class="filter-btn" onclick="filterWeblings('business')">Business</button>
+            <button class="filter-btn" onclick="filterWeblings('creative')">Creative</button>
+            <button class="filter-btn" onclick="filterWeblings('minimal')">Minimal</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid"></div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Weblings</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Customizations</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">0%</div>
+                <div class="stat-label">Lock-in</div>
+            </div>
+        </div>
+
+        <div class="footer-text">
+            > Every webling ships with a visual editor. Customize without code. Own forever.
+        </div>
+    </div>
+
+    <script>
+        const weblings = [
+            {
+                id: 'liquid-gold',
+                name: 'Liquid Gold',
+                tagline: 'Premium portfolio with glass morphism and refined elegance',
+                icon: '✨',
+                price: 49,
+                features: ['Responsive', 'Animations', 'Contact Form'],
+                category: 'portfolio',
+                resonanceScore: 92,
+                description: 'A premium portfolio template designed for creatives and professionals who demand sophistication.'
+            },
+            {
+                id: 'summit',
+                name: 'Summit',
+                tagline: 'Bold startup landing page built for conversion',
+                icon: '🏔️',
+                price: 39,
+                features: ['SaaS Ready', 'Analytics', 'Mobile First'],
+                category: 'business',
+                resonanceScore: 78,
+                description: 'Perfect for startups ready to make an impact. Built with conversion optimization in mind.'
+            },
+            {
+                id: 'oracle',
+                name: 'Oracle',
+                tagline: 'Mystical consulting site with prophecy of results',
+                icon: '🔮',
+                price: 59,
+                features: ['Services', 'Testimonials', 'Booking'],
+                category: 'business',
+                resonanceScore: 85,
+                description: 'For consultants, coaches, and advisors who speak to transformation.'
+            },
+            {
+                id: 'velvet',
+                name: 'Velvet',
+                tagline: 'Luxe brand experience with soft interactions',
+                icon: '💎',
+                price: 69,
+                features: ['Shop Ready', 'Gallery', 'Premium Feel'],
+                category: 'creative',
+                resonanceScore: 88,
+                description: 'Luxury brands deserve luxury experiences. Velvet delivers elegance.'
+            },
+            {
+                id: 'scholar',
+                name: 'Scholar',
+                tagline: 'Educational platform for knowledge builders',
+                icon: '📚',
+                price: 44,
+                features: ['Course Layout', 'Resources', 'Clean Design'],
+                category: 'business',
+                resonanceScore: 76,
+                description: 'Educators and trainers choose Scholar for clarity and impact.'
+            },
+            {
+                id: 'neon-tokyo',
+                name: 'Neon Tokyo',
+                tagline: 'Cyberpunk aesthetic meets modern web',
+                icon: '🌃',
+                price: 54,
+                features: ['Dark Mode', 'Animations', 'Immersive'],
+                category: 'creative',
+                resonanceScore: 82,
+                description: 'For creators pushing boundaries. Neon Tokyo is pure presence.'
+            },
+            {
+                id: 'ether',
+                name: 'Ether',
+                tagline: 'Minimal and ethereal, powerful and purposeful',
+                icon: '☁️',
+                price: 39,
+                features: ['Minimalist', 'Fast Load', 'Serene'],
+                category: 'minimal',
+                resonanceScore: 79,
+                description: 'Sometimes less is more. Ether proves it.'
+            },
+            {
+                id: 'canvas',
+                name: 'Canvas',
+                tagline: 'Artist portfolio with living gallery',
+                icon: '🎨',
+                price: 64,
+                features: ['Portfolio', 'Light Box', 'Artist Bio'],
+                category: 'portfolio',
+                resonanceScore: 86,
+                description: 'Designed specifically for visual artists and creatives to showcase work.'
+            },
+            {
+                id: 'zenith',
+                name: 'Zenith',
+                tagline: 'Meditation app landing with calm conversion',
+                icon: '🧘',
+                price: 44,
+                features: ['Wellness', 'Guided', 'Peaceful'],
+                category: 'business',
+                resonanceScore: 81,
+                description: 'Wellness brands find their voice in Zenith.'
+            },
+            {
+                id: 'forge',
+                name: 'Forge',
+                tagline: 'Industrial strength design for builders',
+                icon: '⚙️',
+                price: 54,
+                features: ['Technical', 'Specs', 'Robust'],
+                category: 'business',
+                resonanceScore: 77,
+                description: 'Engineers and makers. This is your template.'
+            },
+            {
+                id: 'aurora',
+                name: 'Aurora',
+                tagline: 'Dreamy landing with cinematic feel',
+                icon: '🌌',
+                price: 59,
+                features: ['Video', 'Parallax', 'Immersive'],
+                category: 'creative',
+                resonanceScore: 84,
+                description: 'Capture dreams. Tell stories. Aurora makes it possible.'
+            },
+            {
+                id: 'equilibrium',
+                name: 'Equilibrium',
+                tagline: 'Balanced design for balanced businesses',
+                icon: '⚖️',
+                price: 49,
+                features: ['Professional', 'Trustworthy', 'Clean'],
+                category: 'business',
+                resonanceScore: 80,
+                description: 'Law firms, consultancies, and professionals choose Equilibrium.'
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            const filtered = currentFilter === 'all'
+                ? weblings
+                : weblings.filter(w => w.category === currentFilter);
+
+            filtered.forEach(webling => {
+                const card = document.createElement('div');
+                card.className = 'webling-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div>
+                            <div class="webling-icon">${webling.icon}</div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="webling-name">${webling.name}</div>
+                        <div class="webling-tagline">${webling.tagline}</div>
+                        <div class="webling-features">
+                            ${webling.features.map(f => `<span class="feature-tag">${f}</span>`).join('')}
+                        </div>
+                        <div class="resonance-row" style="margin-top: auto;">
+                            <div class="resonance-label">Resonance</div>
+                            <div class="resonance-value">${webling.resonanceScore}%</div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price">$${webling.price}</div>
+                        <button class="cta-button" onclick="openWebling('${webling.id}')">Preview</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterWeblings(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderGallery();
+        }
+
+        function openWebling(id) {
+            alert(`Opening webling: ${id}\n\nDetail page + live preview coming soon...`);
+        }
+
+        function goBack() {
+            window.location.href = 'discovery_gateway.html';
+        }
+
+        // Initial render
+        renderGallery();
+    </script>
+</body>
+
+</html>

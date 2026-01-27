@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Webling Detail</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 40px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .breadcrumb-link {
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-link:hover {
+            color: #00F0FF;
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .header-left h1 {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #D946EF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .features-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .feature-badge {
+            padding: 6px 12px;
+            border: 1px solid #00F0FF;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .purchase-section {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .price {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00F0FF;
+        }
+
+        .purchase-button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 6px;
+            color: #0F1115;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .purchase-button:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .editor-button {
+            padding: 14px 32px;
+            background: transparent;
+            border: 2px solid #D946EF;
+            border-radius: 6px;
+            color: #D946EF;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .editor-button:hover {
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.5);
+        }
+
+        .preview-container {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16 / 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+        }
+
+        .details-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .detail-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .detail-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .detail-label {
+            font-size: 11px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .detail-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00F0FF;
+        }
+
+        .detail-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 8px;
+        }
+
+        .description-section {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .description-text {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .features-detailed {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-item {
+            border-left: 2px solid #00F0FF;
+            padding-left: 16px;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .feature-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .coherence-card {
+            border: 2px solid #D946EF;
+            background: rgba(217, 70, 239, 0.05);
+            padding: 24px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        .coherence-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #D946EF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .coherence-attributes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .coherence-attr {
+            text-align: center;
+            padding: 12px;
+            border: 1px solid #D946EF;
+            border-radius: 4px;
+        }
+
+        .attr-name {
+            font-size: 10px;
+            color: #D946EF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .attr-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #D946EF;
+        }
+
+        .testimonials {
+            margin-top: 40px;
+            padding: 32px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+        }
+
+        .testimonial {
+            margin-bottom: 24px;
+            padding: 16px;
+            border-left: 2px solid #00F0FF;
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .testimonial:last-child {
+            margin-bottom: 0;
+        }
+
+        .testimonial-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .testimonial-author {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-section {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 60px;
+            padding: 24px;
+            border: 2px dashed #334155;
+            border-radius: 8px;
+        }
+
+        .cta-button {
+            padding: 14px 32px;
+            border: 2px solid;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border-color: #00F0FF;
+            color: #0F1115;
+        }
+
+        .cta-primary:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .cta-secondary:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                grid-template-columns: 1fr;
+            }
+
+            .details-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                grid-template-columns: 1fr;
+            }
+
+            .header-left h1 {
+                font-size: 32px;
+            }
+
+            .purchase-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .details-section {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-section {
+                flex-direction: column;
+            }
+
+            .cta-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="breadcrumb">
+            <span class="breadcrumb-link" onclick="goBack()">← Weblings</span>
+            <span>/</span>
+            <span id="webling-name">Liquid Gold</span>
+        </div>
+
+        <div class="header">
+            <div class="header-left">
+                <h1 id="title">Liquid Gold</h1>
+                <p class="tagline" id="tagline">Premium portfolio with glass morphism and refined elegance</p>
+
+                <div class="features-list" id="featuresTop">
+                    <span class="feature-badge">Responsive</span>
+                    <span class="feature-badge">Animations</span>
+                    <span class="feature-badge">Contact Form</span>
+                </div>
+
+                <div class="purchase-section">
+                    <div class="price" id="price">$49</div>
+                    <button class="purchase-button" onclick="purchase()">Purchase Now</button>
+                    <button class="editor-button" onclick="openEditor()">Try Editor</button>
+                </div>
+            </div>
+
+            <div class="preview-container">
+                <div style="text-align: center; color: #64748b;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">✨</div>
+                    <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Preview Image</div>
+                    <div style="font-size: 11px; color: #475569; margin-top: 8px;">Live preview coming soon</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="details-section">
+            <div class="detail-card">
+                <div class="detail-label">Resonance Match</div>
+                <div class="detail-value">92%</div>
+                <div class="detail-sub">Excellent alignment with your profile</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Community Approved</div>
+                <div class="detail-value">4.9/5</div>
+                <div class="detail-sub">68 customer reviews</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label">Fully Customizable</div>
+                <div class="detail-value">∞</div>
+                <div class="detail-sub">No limits on modifications</div>
+            </div>
+        </div>
+
+        <div class="description-section">
+            <div class="section-title">About This Webling</div>
+            <p class="description-text">
+                Liquid Gold is designed for creative professionals and portfolio builders who demand sophistication. Every element has been carefully crafted to showcase your work with elegance while maintaining blazing-fast performance.
+            </p>
+            <p class="description-text">
+                This template features glass morphism effects, smooth animations, and a responsive design that looks stunning on every device. The included visual editor allows you to customize colors, fonts, and content without ever touching code.
+            </p>
+
+            <div class="section-title" style="margin-top: 32px;">Key Features</div>
+            <div class="features-detailed">
+                <div class="feature-item">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-name">Visual Design</div>
+                    <div class="feature-desc">Professional, modern aesthetic with attention to detail</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📱</div>
+                    <div class="feature-name">Fully Responsive</div>
+                    <div class="feature-desc">Perfect on mobile, tablet, and desktop</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-name">Lightning Fast</div>
+                    <div class="feature-desc">Optimized performance and loading speeds</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎬</div>
+                    <div class="feature-name">Smooth Animations</div>
+                    <div class="feature-desc">Engaging interactions that delight users</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">✉️</div>
+                    <div class="feature-name">Contact Form</div>
+                    <div class="feature-desc">Integrated form with email notifications</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔧</div>
+                    <div class="feature-name">Easy Editor</div>
+                    <div class="feature-desc">Visual customization without coding</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="coherence-card">
+            <div class="coherence-title">Coherence Alignment</div>
+            <div class="coherence-attributes">
+                <div class="coherence-attr">
+                    <div class="attr-name">Creativity</div>
+                    <div class="attr-value">95%</div>
+                </div>
+                <div class="coherence-attr">
+                    <div class="attr-name">Structure</div>
+                    <div class="attr-value">88%</div>
+                </div>
+                <div class="coherence-attr">
+                    <div class="attr-name">Boldness</div>
+                    <div class="attr-value">92%</div>
+                </div>
+                <div class="coherence-attr">
+                    <div class="attr-name">Depth</div>
+                    <div class="attr-value">96%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <div class="section-title">What Creators Are Saying</div>
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "I launched my portfolio in minutes. The editor is so intuitive that I customized the entire design without a single Google search. Highly recommended."
+                </div>
+                <div class="testimonial-author">— Sarah M., Graphic Designer</div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "This template proves that you don't need a developer to have a professional web presence. I own my final HTML and can host it anywhere."
+                </div>
+                <div class="testimonial-author">— James K., Creative Director</div>
+            </div>
+            <div class="testimonial">
+                <div class="testimonial-text">
+                    "The design quality rivals templates that cost 5x as much. And knowing I own it forever makes this the best investment I've made."
+                </div>
+                <div class="testimonial-author">— Maya P., Photographer</div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <button class="cta-button cta-primary" onclick="purchase()">Purchase Liquid Gold - $49</button>
+            <button class="cta-button cta-secondary" onclick="goBack()">Browse Other Weblings</button>
+        </div>
+    </div>
+
+    <script>
+        // In a real app, this would load based on URL parameter
+        const webling = {
+            id: 'liquid-gold',
+            name: 'Liquid Gold',
+            tagline: 'Premium portfolio with glass morphism and refined elegance',
+            price: 49,
+            rating: 4.9,
+            reviews: 68,
+            resonance: 92,
+            features: ['Responsive', 'Animations', 'Contact Form'],
+            description: 'Premium portfolio template for creative professionals.',
+            icon: '✨'
+        };
+
+        function purchase() {
+            alert(`Redirecting to Gumroad...\n\nPurchase: ${webling.name} - $${webling.price}`);
+            // window.location.href = `https://gumroad.com/l/${webling.id}`;
+        }
+
+        function openEditor() {
+            alert(`Opening visual editor for ${webling.name}...\n\nEditor UI coming soon`);
+            // window.location.href = `editor_${webling.id}.html`;
+        }
+
+        function goBack() {
+            window.location.href = 'webling_gallery.html';
+        }
+
+        // Load webling data
+        document.getElementById('title').textContent = webling.name;
+        document.getElementById('tagline').textContent = webling.tagline;
+        document.getElementById('price').textContent = `$${webling.price}`;
+        document.getElementById('webling-name').textContent = webling.name;
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Pricing & Collections</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #00F0FF;
+        }
+
+        .title {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .price-info {
+            font-size: 13px;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .pricing-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+            transform: translateY(-8px);
+        }
+
+        .pricing-card.featured {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+        }
+
+        .pricing-header {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .pricing-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .pricing-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .pricing-category {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pricing-body {
+            padding: 24px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 4px;
+        }
+
+        .pricing-period {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        .pricing-description {
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .pricing-features {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .feature {
+            font-size: 12px;
+            color: #cbd5e1;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .feature::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .pricing-stats {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            border-top: 1px solid #334155;
+            border-bottom: 1px solid #334155;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        .pricing-button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 6px;
+            color: #0F1115;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .pricing-button:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .pricing-button.secondary {
+            background: transparent;
+            border: 2px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .pricing-button.secondary:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .featured-badge {
+            display: inline-block;
+            background: #D946EF;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .bundles-section {
+            margin-top: 60px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .bundle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        .bundle-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .bundle-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+        }
+
+        .bundle-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        .bundle-description {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .bundle-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding: 20px 0;
+            border-top: 1px solid #334155;
+            border-bottom: 1px solid #334155;
+        }
+
+        .bundle-item {
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .bundle-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 4px;
+        }
+
+        .bundle-value {
+            font-size: 12px;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .faq-section {
+            margin-top: 80px;
+            padding: 40px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+        }
+
+        .faq-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 24px;
+        }
+
+        .faq-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .faq-item {
+            border-left: 2px solid #00F0FF;
+            padding-left: 16px;
+        }
+
+        .faq-question {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .faq-answer {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bundle-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-link" onclick="goBack()">← Back to Marketplace</div>
+            <div class="title">Pricing & Collections</div>
+            <div class="subtitle">Professional designs at fair prices. Own forever.</div>
+            <div class="price-info">✓ 30-Day Money-Back Guarantee • ✓ Lifetime Ownership • ✓ No Subscriptions</div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterByCategory('all')">All</button>
+            <button class="filter-btn" onclick="filterByCategory('portfolio')">Portfolios</button>
+            <button class="filter-btn" onclick="filterByCategory('business')">Business</button>
+            <button class="filter-btn" onclick="filterByCategory('creative')">Creative</button>
+            <button class="filter-btn" onclick="filterByCategory('minimal')">Minimal</button>
+            <button class="filter-btn" onclick="sortBy('price')">Sort by Price ↑</button>
+        </div>
+
+        <!-- Pricing Grid -->
+        <div class="pricing-grid" id="pricingGrid">
+            <!-- Cards will be generated by JavaScript -->
+        </div>
+
+        <!-- Bundles Section -->
+        <div class="bundles-section">
+            <div class="section-title">💎 Special Collections</div>
+
+            <div class="bundle-grid">
+                <div class="bundle-card">
+                    <div class="bundle-title">Starter Pack</div>
+                    <div class="bundle-description">Perfect for first-time site builders. Start simple, expand later.</div>
+                    <div class="bundle-items">
+                        <div class="bundle-item">✓ Ether (Minimal)</div>
+                        <div class="bundle-item">✓ Scholar (Educational)</div>
+                    </div>
+                    <div class="bundle-price">$72</div>
+                    <div class="bundle-value">Save $6 (8% off)</div>
+                    <button class="pricing-button">Get Bundle</button>
+                </div>
+
+                <div class="bundle-card">
+                    <div class="bundle-title">Creator's Collection</div>
+                    <div class="bundle-description">For designers, artists, and creative professionals.</div>
+                    <div class="bundle-items">
+                        <div class="bundle-item">✓ Liquid Gold (Premium)</div>
+                        <div class="bundle-item">✓ Canvas (Portfolio)</div>
+                        <div class="bundle-item">✓ Aurora (Cinematic)</div>
+                    </div>
+                    <div class="bundle-price">$155</div>
+                    <div class="bundle-value">Save $17 (12% off)</div>
+                    <button class="pricing-button">Get Bundle</button>
+                </div>
+
+                <div class="bundle-card">
+                    <div class="bundle-title">Full Suite</div>
+                    <div class="bundle-description">All 12 weblings. For maximum flexibility and options.</div>
+                    <div class="bundle-items">
+                        <div class="bundle-item">✓ All Current Weblings</div>
+                        <div class="bundle-item">✓ Future Releases (1 year)</div>
+                        <div class="bundle-item">✓ Priority Support</div>
+                    </div>
+                    <div class="bundle-price">$399</div>
+                    <div class="bundle-value">Save $181 (31% off)</div>
+                    <button class="pricing-button">Get Full Suite</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <div class="faq-title">Pricing FAQ</div>
+            <div class="faq-items">
+                <div class="faq-item">
+                    <div class="faq-question">What's included with each purchase?</div>
+                    <div class="faq-answer">Full HTML template + Visual Editor + Lifetime updates + Premium support access + Download rights for offline use.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Are there any hidden fees?</div>
+                    <div class="faq-answer">No. The price you see is the final price. No monthly subscriptions, no hidden charges. You pay once, own forever.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Can I upgrade or change weblings?</div>
+                    <div class="faq-answer">Yes. You can purchase additional weblings at any time. Each purchase is independent with its own editor and files.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">What's your refund policy?</div>
+                    <div class="faq-answer">30-day money-back guarantee. If you're not satisfied, we'll refund 100% of your purchase, no questions asked.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Do bundles save money?</div>
+                    <div class="faq-answer">Yes! Our bundles save 8-31% compared to buying individually. Full Suite gives you everything plus priority support.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Can I share my webling with others?</div>
+                    <div class="faq-answer">Your download is for personal use. However, once you own the HTML, you have flexibility in how you use or deploy it.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weblings = [
+            { id: 1, name: 'Liquid Gold', price: 49, category: 'portfolio', icon: '✨', rating: 4.9, sales: 68, description: 'Premium portfolio with glass morphism' },
+            { id: 2, name: 'Summit', price: 39, category: 'business', icon: '🏔️', rating: 4.8, sales: 52, description: 'Bold startup landing page' },
+            { id: 3, name: 'Oracle', price: 59, category: 'business', icon: '🔮', rating: 4.9, sales: 31, description: 'Mystical consulting site' },
+            { id: 4, name: 'Velvet', price: 69, category: 'creative', icon: '💎', rating: 4.8, sales: 28, description: 'Luxe brand experience' },
+            { id: 5, name: 'Scholar', price: 44, category: 'business', icon: '📚', rating: 4.7, sales: 21, description: 'Educational platform' },
+            { id: 6, name: 'Neon Tokyo', price: 54, category: 'creative', icon: '🌃', rating: 4.8, sales: 19, description: 'Cyberpunk aesthetic' },
+            { id: 7, name: 'Ether', price: 39, category: 'minimal', icon: '☁️', rating: 4.7, sales: 15, description: 'Minimal and ethereal' },
+            { id: 8, name: 'Canvas', price: 64, category: 'portfolio', icon: '🎨', rating: 4.9, sales: 22, description: 'Artist portfolio' },
+            { id: 9, name: 'Zenith', price: 44, category: 'business', icon: '🧘', rating: 4.8, sales: 18, description: 'Meditation app landing' },
+            { id: 10, name: 'Forge', price: 54, category: 'business', icon: '⚙️', rating: 4.7, sales: 14, description: 'Industrial design' },
+            { id: 11, name: 'Aurora', price: 59, category: 'creative', icon: '🌌', rating: 4.9, sales: 25, description: 'Cinematic landing' },
+            { id: 12, name: 'Equilibrium', price: 49, category: 'business', icon: '⚖️', rating: 4.8, sales: 19, description: 'Professional & trustworthy' }
+        ];
+
+        let currentFilter = 'all';
+        let currentSort = 'featured';
+
+        function renderPricingCards() {
+            const grid = document.getElementById('pricingGrid');
+            grid.innerHTML = '';
+
+            let filtered = currentFilter === 'all'
+                ? weblings
+                : weblings.filter(w => w.category === currentFilter);
+
+            // Sort
+            if (currentSort === 'price') {
+                filtered.sort((a, b) => a.price - b.price);
+            }
+
+            filtered.forEach((webling, index) => {
+                const card = document.createElement('div');
+                card.className = 'pricing-card' + (webling.id === 1 ? ' featured' : '');
+                card.innerHTML = `
+                    <div class="pricing-header">
+                        ${webling.id === 1 ? '<div class="featured-badge">Most Popular</div>' : ''}
+                        <div class="pricing-icon">${webling.icon}</div>
+                        <div class="pricing-name">${webling.name}</div>
+                        <div class="pricing-category">${webling.category}</div>
+                    </div>
+                    <div class="pricing-body">
+                        <div class="pricing-value">$${webling.price}</div>
+                        <div class="pricing-period">One-time payment • Lifetime access</div>
+                        <div class="pricing-description">${webling.description}</div>
+
+                        <div class="pricing-features">
+                            <div class="feature">Full HTML template</div>
+                            <div class="feature">Visual editor included</div>
+                            <div class="feature">Responsive design</div>
+                            <div class="feature">Premium support</div>
+                            <div class="feature">Lifetime updates</div>
+                        </div>
+
+                        <div class="pricing-stats">
+                            <div class="stat">
+                                <div class="stat-value">${webling.rating}/5</div>
+                                <div>Rating</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${webling.sales}</div>
+                                <div>Sales</div>
+                            </div>
+                        </div>
+
+                        <button class="pricing-button" onclick="purchase('${webling.name}')">Purchase Now</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterByCategory(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderPricingCards();
+        }
+
+        function sortBy(sort) {
+            currentSort = sort;
+            renderPricingCards();
+        }
+
+        function purchase(name) {
+            alert(`Proceeding to checkout for ${name}...\n\nRedirecting to Gumroad payment page`);
+        }
+
+        function goBack() {
+            window.location.href = 'discovery_gateway.html';
+        }
+
+        // Initial render
+        renderPricingCards();
+    </script>
+</body>
+
+</html>

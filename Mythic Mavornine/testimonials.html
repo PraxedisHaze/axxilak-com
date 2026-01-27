@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Creator Stories & Testimonials</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #00F0FF;
+        }
+
+        .title {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+            margin-top: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+
+        .testimonial-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .testimonial-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+            transform: translateY(-6px);
+        }
+
+        .testimonial-header {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00F0FF, #D946EF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .testimonial-info {
+            flex: 1;
+        }
+
+        .testimonial-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 2px;
+        }
+
+        .testimonial-role {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .testimonial-rating {
+            font-size: 12px;
+            color: #fbbf24;
+            margin-bottom: 16px;
+        }
+
+        .testimonial-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .testimonial-highlight {
+            font-style: italic;
+            color: #94a3b8;
+        }
+
+        .testimonial-webling {
+            font-size: 11px;
+            color: #00F0FF;
+            padding: 8px;
+            background: rgba(0, 240, 255, 0.1);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .featured-section {
+            margin-bottom: 80px;
+        }
+
+        .featured-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+        }
+
+        .featured-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .featured-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+        }
+
+        .featured-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+
+        .featured-content {
+            padding: 24px;
+        }
+
+        .featured-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .featured-role {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .featured-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .featured-quote {
+            background: rgba(0, 240, 255, 0.05);
+            border-left: 3px solid #00F0FF;
+            padding: 16px;
+            border-radius: 4px;
+            font-style: italic;
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .case-studies {
+            margin-bottom: 80px;
+        }
+
+        .case-study {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .case-study:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .case-study-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .case-study-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .case-study-badge {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid #00F0FF;
+            color: #00F0FF;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .case-study-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 20px;
+        }
+
+        .case-study-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .case-study-label {
+            font-size: 11px;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .case-study-text {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .case-study-quote {
+            background: rgba(217, 70, 239, 0.1);
+            border-left: 3px solid #D946EF;
+            padding: 16px;
+            border-radius: 4px;
+            margin-top: 16px;
+            font-style: italic;
+            color: #94a3b8;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            border: 2px dashed #334155;
+            border-radius: 8px;
+        }
+
+        .cta-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        .cta-text {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 6px;
+            color: #0F1115;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .case-study-content {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-link" onclick="goBack()">← Back to Marketplace</div>
+            <div class="title">Creator Stories</div>
+            <div class="subtitle">
+                Real people building real businesses with Axxilak. From solopreneurs to agencies, see how creators are owning their online presence.
+            </div>
+
+            <div class="stats-section">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Active Creators</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4.8/5</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">$2.4M+</div>
+                    <div class="stat-label">Creator Revenue</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Lifetime Ownership</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Testimonials -->
+        <div class="featured-section">
+            <div class="featured-title">⭐ Featured Creators</div>
+
+            <div class="featured-grid">
+                <div class="featured-card">
+                    <div class="featured-image">🎨</div>
+                    <div class="featured-content">
+                        <div class="featured-name">Sarah M.</div>
+                        <div class="featured-role">Graphic Designer & Illustrator</div>
+                        <div class="featured-text">
+                            "I launched my portfolio in 15 minutes. The editor is so intuitive that I customized the entire design without a single Google search."
+                        </div>
+                        <div class="featured-quote">
+                            "No more waiting for developers. No more expensive agencies. Just me, my vision, and Axxilak."
+                        </div>
+                    </div>
+                </div>
+
+                <div class="featured-card">
+                    <div class="featured-image">💼</div>
+                    <div class="featured-content">
+                        <div class="featured-name">James K.</div>
+                        <div class="featured-role">Consultant & Business Coach</div>
+                        <div class="featured-text">
+                            "This template proves that you don't need a developer to have a professional web presence. I own my final HTML and can host it anywhere."
+                        </div>
+                        <div class="featured-quote">
+                            "The peace of mind knowing I own it forever? Priceless. Worth every penny."
+                        </div>
+                    </div>
+                </div>
+
+                <div class="featured-card">
+                    <div class="featured-image">📸</div>
+                    <div class="featured-content">
+                        <div class="featured-name">Maya P.</div>
+                        <div class="featured-role">Photographer</div>
+                        <div class="featured-text">
+                            "The design quality rivals templates that cost 5x as much. And knowing I own it forever makes this the best investment I've made."
+                        </div>
+                        <div class="featured-quote">
+                            "My clients are impressed with my website. They don't know I built it myself in an afternoon!"
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testimonials Grid -->
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👩</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Emily R.</div>
+                        <div class="testimonial-role">Freelance Writer</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "Worth every penny. The visual editor means I can keep my site fresh without paying a designer."
+                </div>
+                <div class="testimonial-webling">using: Canvas</div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👨</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Alex T.</div>
+                        <div class="testimonial-role">Agency Owner</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "We offer this to clients who want professional sites without the agency price tag. Everyone wins."
+                </div>
+                <div class="testimonial-webling">using: Liquid Gold</div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👩</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Jordan L.</div>
+                        <div class="testimonial-role">Coach & Educator</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "The support is incredible. Within hours of a question, I had a solution. That level of care is rare."
+                </div>
+                <div class="testimonial-webling">using: Scholar</div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👨</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">David H.</div>
+                        <div class="testimonial-role">Startup Founder</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "We went from idea to live landing page in one day. Helped us raise our first round of funding."
+                </div>
+                <div class="testimonial-webling">using: Summit</div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👩</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Lisa M.</div>
+                        <div class="testimonial-role">Artist & Designer</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "Finally a template platform that respects my creativity. No cookie-cutter nonsense here."
+                </div>
+                <div class="testimonial-webling">using: Aurora</div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-avatar">👨</div>
+                    <div class="testimonial-info">
+                        <div class="testimonial-name">Chris N.</div>
+                        <div class="testimonial-role">Consultant</div>
+                    </div>
+                </div>
+                <div class="testimonial-rating">★★★★★</div>
+                <div class="testimonial-text">
+                    "The 30-day guarantee made the decision easy. After 5 days, I knew I'd made the right choice."
+                </div>
+                <div class="testimonial-webling">using: Oracle</div>
+            </div>
+        </div>
+
+        <!-- Case Studies -->
+        <div class="case-studies">
+            <div class="featured-title">📊 Case Studies</div>
+
+            <div class="case-study">
+                <div class="case-study-header">
+                    <div class="case-study-title">How Sarah Went Full-Time as a Designer</div>
+                    <div class="case-study-badge">Featured Story</div>
+                </div>
+
+                <div class="case-study-content">
+                    <div class="case-study-section">
+                        <div class="case-study-label">The Challenge</div>
+                        <div class="case-study-text">
+                            Sarah was freelancing part-time while working her day job. She needed a professional portfolio to attract higher-paying clients, but couldn't afford a designer.
+                        </div>
+
+                        <div class="case-study-label">The Solution</div>
+                        <div class="case-study-text">
+                            She purchased Liquid Gold and had her portfolio live within 2 hours. The visual editor let her perfect every detail without any code.
+                        </div>
+                    </div>
+
+                    <div class="case-study-section">
+                        <div class="case-study-label">The Results</div>
+                        <div class="case-study-text">
+                            Within 3 months of launching her new site, her inquiries tripled. She charged 40% more per project and went full-time. Within one year, she was earning 3x what she made at her day job.
+                        </div>
+
+                        <div class="case-study-label">The Investment</div>
+                        <div class="case-study-text">
+                            $49 one-time. Paid for itself in her first new client. She now owns her site forever.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="case-study-quote">
+                    "That $49 investment changed my life. Not hyperbole. I'm now running my own creative business and my portfolio closes more deals than any marketing I could've done."
+                </div>
+            </div>
+
+            <div class="case-study">
+                <div class="case-study-header">
+                    <div class="case-study-title">From Idea to $50K in Pre-Orders</div>
+                    <div class="case-study-badge">Growth Story</div>
+                </div>
+
+                <div class="case-study-content">
+                    <div class="case-study-section">
+                        <div class="case-study-label">The Challenge</div>
+                        <div class="case-study-text">
+                            A bootstrapped startup needed to validate their idea and get early customers. Traditional development was out of budget.
+                        </div>
+
+                        <div class="case-study-label">The Solution</div>
+                        <div class="case-study-text">
+                            They used Summit to create a landing page that explained their product and captured emails. Deployed within 48 hours for just $39.
+                        </div>
+                    </div>
+
+                    <div class="case-study-section">
+                        <div class="case-study-label">The Results</div>
+                        <div class="case-study-text">
+                            The landing page got shared on Product Hunt and reached the homepage. They collected $50,000 in pre-orders and validated their idea with real customers.
+                        </div>
+
+                        <div class="case-study-label">The Impact</div>
+                        <div class="case-study-text">
+                            The $39 invested in their website became leverage for $50K in revenue. Three months later, they had closed a Series A funding round.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="case-study-quote">
+                    "We proved our concept with Axxilak before spending a penny on development. By the time investors saw us, we had real traction and revenue."
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <div class="cta-title">Ready to Tell Your Story?</div>
+            <div class="cta-text">
+                Join 500+ creators who've built their online presence with Axxilak. Start today and own your future.
+            </div>
+            <button class="cta-button" onclick="startJourney()">Browse Weblings & Get Started</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'discovery_gateway.html';
+        }
+
+        function startJourney() {
+            window.location.href = 'crystallization_core.html';
+        }
+    </script>
+</body>
+
+</html>

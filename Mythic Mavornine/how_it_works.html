@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // How It Works</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 24px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #00F0FF;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, #00F0FF, #D946EF);
+            z-index: 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 80px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-item:nth-child(odd) {
+            text-align: right;
+            padding-right: 52%;
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: left;
+            padding-left: 52%;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: #00F0FF;
+            border: 3px solid #0F1115;
+            border-radius: 50%;
+            top: 0;
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+
+        .timeline-content {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover .timeline-content {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+        }
+
+        .timeline-number {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+        }
+
+        .timeline-description {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .timeline-features {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .timeline-features li {
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-features li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        .benefits-section {
+            margin-top: 120px;
+            padding: 60px 40px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 12px;
+        }
+
+        .benefits-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #D946EF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+
+        .benefit-card {
+            text-align: center;
+        }
+
+        .benefit-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .benefit-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .benefit-text {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .comparison-section {
+            margin-top: 120px;
+        }
+
+        .comparison-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 40px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .comparison-table {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border-bottom: 1px solid #334155;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-cell {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .comparison-cell:nth-child(n+2) {
+            border-left: 1px solid #334155;
+        }
+
+        .comparison-header {
+            background: rgba(0, 240, 255, 0.05);
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .comparison-feature {
+            text-align: left;
+            background: rgba(0, 240, 255, 0.02);
+            font-weight: 600;
+        }
+
+        .checkmark {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .cross {
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .cta-section {
+            margin-top: 120px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            border: 2px dashed #334155;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .cta-text {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            padding: 14px 32px;
+            border: 2px solid;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .cta-primary {
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border-color: #00F0FF;
+            color: #0F1115;
+        }
+
+        .cta-primary:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .cta-secondary {
+            background: transparent;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .cta-secondary:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+        }
+
+        @media (max-width: 1024px) {
+            .timeline::before {
+                display: none;
+            }
+
+            .timeline-item {
+                text-align: center !important;
+                padding-right: 0 !important;
+                padding-left: 0 !important;
+            }
+
+            .timeline-dot {
+                position: static;
+                transform: none;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+
+            .comparison-row {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-cell:nth-child(n+2) {
+                border-left: none;
+                border-top: 1px solid #334155;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .timeline-item {
+                margin-bottom: 40px;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="back-link" onclick="goBack()">← Back to Marketplace</div>
+            <div class="title">How It Works</div>
+            <div class="subtitle">
+                From discovery to ownership. Five simple steps to get your perfect website.
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <!-- Step 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-number">Step 1</div>
+                    <div class="timeline-title">Discover Your Perfect Match</div>
+                    <div class="timeline-description">
+                        Enter the Crystallization Core and explore weblings designed for your specific vision. Browse by category or let our coherence-matching algorithm find your perfect fit.
+                    </div>
+                    <ul class="timeline-features">
+                        <li>Browse 12+ professionally designed templates</li>
+                        <li>Filter by category and style</li>
+                        <li>See live previews instantly</li>
+                        <li>Check customer reviews (4.8/5 avg rating)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-number">Step 2</div>
+                    <div class="timeline-title">Recognize Resonance</div>
+                    <div class="timeline-description">
+                        You find the webling that resonates with your vision. No generic templates here—just thoughtful designs built with intention for specific audiences.
+                    </div>
+                    <ul class="timeline-features">
+                        <li>See why each webling matches your style</li>
+                        <li>Read creator notes and use cases</li>
+                        <li>30-day money-back guarantee</li>
+                        <li>Included premium support access</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-number">Step 3</div>
+                    <div class="timeline-title">Crystallize Your Purchase</div>
+                    <div class="timeline-description">
+                        Click to purchase. Secure checkout. No surprises. Within minutes, you have full access to your webling and the visual editor.
+                    </div>
+                    <ul class="timeline-features">
+                        <li>Secure payment via Gumroad</li>
+                        <li>Instant access to editor and files</li>
+                        <li>Confirmation email with download links</li>
+                        <li>Access to help center and tutorials</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-number">Step 4</div>
+                    <div class="timeline-title">Customize Without Code</div>
+                    <div class="timeline-description">
+                        Open the visual editor. Change colors. Swap images. Rewrite text. Customize fonts. No coding required. Ever. Preview changes in real-time.
+                    </div>
+                    <ul class="timeline-features">
+                        <li>Color picker for unlimited color schemes</li>
+                        <li>Text editor for all content</li>
+                        <li>Image uploader with instant preview</li>
+                        <li>Font selection from Google Fonts</li>
+                        <li>Save multiple versions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <div class="timeline-number">Step 5</div>
+                    <div class="timeline-title">Own Forever</div>
+                    <div class="timeline-description">
+                        Download your final HTML. It's yours. Forever. No subscriptions. No lock-in. No monthly fees. Deploy to your own domain anywhere.
+                    </div>
+                    <ul class="timeline-features">
+                        <li>100% ownership of your HTML file</li>
+                        <li>Deploy on your own domain</li>
+                        <li>Modify the code freely</li>
+                        <li>Share or sell—it's yours to decide</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+            <div class="benefits-title">Why Choose Axxilak?</div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">💎</div>
+                    <div class="benefit-title">Premium Design</div>
+                    <div class="benefit-text">Not templates. Intentional designs built for specific audiences and use cases.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🎨</div>
+                    <div class="benefit-title">Visual Editor</div>
+                    <div class="benefit-text">Professional customization without ever writing code. See changes in real-time.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🚀</div>
+                    <div class="benefit-title">Instant Deploy</div>
+                    <div class="benefit-text">Live within minutes. We handle technical setup. You focus on your content.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">🔐</div>
+                    <div class="benefit-title">Full Ownership</div>
+                    <div class="benefit-text">Download your HTML. No subscriptions. No lock-in. You own it forever.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">📱</div>
+                    <div class="benefit-title">Responsive Design</div>
+                    <div class="benefit-text">Perfect on desktop, tablet, and mobile. Every device covered automatically.</div>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">💚</div>
+                    <div class="benefit-title">Real Support</div>
+                    <div class="benefit-text">Community. Tutorials. Real humans who care. Response within 24 hours.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <div class="comparison-title">How We Compare</div>
+            <div class="comparison-table">
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-header">Feature</div>
+                    <div class="comparison-cell comparison-header">Axxilak</div>
+                    <div class="comparison-cell comparison-header">Traditional Agencies</div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Custom Design</div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">No Code Customization</div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Full Ownership</div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">One-Time Price</div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Monthly Fees</div>
+                    <div class="comparison-cell"><span class="checkmark">None</span></div>
+                    <div class="comparison-cell"><span class="cross">$500-2000</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Setup Time</div>
+                    <div class="comparison-cell"><span class="checkmark">Minutes</span></div>
+                    <div class="comparison-cell"><span class="cross">Weeks</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Can Modify Code</div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                    <div class="comparison-cell"><span class="checkmark">✓</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta-section">
+            <div class="cta-title">Ready to Get Started?</div>
+            <div class="cta-text">
+                Join hundreds of creators who now own their online presence. No subscriptions. No compromise.
+            </div>
+            <div class="cta-buttons">
+                <button class="cta-button cta-primary" onclick="enterMarketplace()">Browse Weblings</button>
+                <button class="cta-button cta-secondary" onclick="watchDemo()">Watch Demo (3 min)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'discovery_gateway.html';
+        }
+
+        function enterMarketplace() {
+            window.location.href = 'crystallization_core.html';
+        }
+
+        function watchDemo() {
+            alert('Opening demo video...\n\nIn real implementation, this would embed a YouTube video showing the complete workflow.');
+        }
+    </script>
+</body>
+
+</html>
