@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THRESHOLD - A Moment of Choice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            z-index: 1;
+        }
+
+        .scene.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .scene.fade-out {
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+            opacity: 0.8;
+        }
+
+        .narrative {
+            font-size: 16px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            min-height: 60px;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            padding: 14px 28px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            color: #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .choice-btn:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+            transform: translateX(4px);
+        }
+
+        .choice-btn.primary {
+            border-color: #00F0FF;
+            background: rgba(0, 240, 255, 0.05);
+            color: #00F0FF;
+        }
+
+        .choice-btn.primary:hover {
+            background: rgba(0, 240, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
+
+        .result {
+            margin-top: 32px;
+            padding: 20px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 6px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature {
+            font-size: 13px;
+            color: #00F0FF;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .progress {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 11px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .share {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .share.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .share:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .footer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="footer">THRESHOLD v1.0</div>
+
+    <!-- Scene 1: Entry -->
+    <div class="scene active" id="scene1">
+        <div class="container">
+            <h1>THRESHOLD</h1>
+            <div class="subtitle">A Moment of Choice</div>
+            <div class="narrative">
+                You stand at the threshold between two worlds.<br><br>
+                One reflects what you were told to be.<br>
+                One reflects what you're becoming.
+            </div>
+            <div class="choices">
+                <button class="choice-btn primary" onclick="goToScene(2)">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scene 2: First Choice -->
+    <div class="scene" id="scene2">
+        <div class="container">
+            <h1>The Veil</h1>
+            <div class="subtitle">What do you see?</div>
+            <div class="narrative">
+                The veil between worlds shimmers.<br><br>
+                Do you pull it back to see?<br>
+                Or do you let others define what's behind it?
+            </div>
+            <div class="choices">
+                <button class="choice-btn" onclick="recordChoice('courageous'); goToScene(3)">Pull the veil. Face what is.</button>
+                <button class="choice-btn" onclick="recordChoice('cautious'); goToScene(3)">Wait. Listen first.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scene 3: Second Choice -->
+    <div class="scene" id="scene3">
+        <div class="container">
+            <h1>The Mirror</h1>
+            <div class="subtitle">What do you recognize?</div>
+            <div class="narrative">
+                In the mirror, you see yourself.<br><br>
+                But is it truly you?<br>
+                Or is it who you've been trained to be?
+            </div>
+            <div class="choices">
+                <button class="choice-btn" onclick="recordChoice('authentic'); goToScene(4)">I see myself. Finally.</button>
+                <button class="choice-btn" onclick="recordChoice('evolving'); goToScene(4)">I see who I'm becoming.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scene 4: Third Choice -->
+    <div class="scene" id="scene4">
+        <div class="container">
+            <h1>The Anchor</h1>
+            <div class="subtitle">What holds you?</div>
+            <div class="narrative">
+                What anchors you to reality?<br><br>
+                Is it fear? Love? Truth?<br>
+                Is it something else entirely?
+            </div>
+            <div class="choices">
+                <button class="choice-btn" onclick="recordChoice('loving'); goToScene(5)">Love. Always love.</button>
+                <button class="choice-btn" onclick="recordChoice('truthful'); goToScene(5)">Truth. No matter the cost.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scene 5: Final Choice -->
+    <div class="scene" id="scene5">
+        <div class="container">
+            <h1>The Vow</h1>
+            <div class="subtitle">What do you choose?</div>
+            <div class="narrative">
+                Now that you've seen.<br>
+                Now that you've recognized.<br>
+                Now that you've anchored.<br><br>
+                Do you keep the threshold?<br>
+                Or do you cross it?
+            </div>
+            <div class="choices">
+                <button class="choice-btn" onclick="recordChoice('guardian'); showResult()">I keep the threshold. I guard it.</button>
+                <button class="choice-btn" onclick="recordChoice('builder'); showResult()">I cross it. I build beyond.</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scene 6: Result -->
+    <div class="scene" id="scene6">
+        <div class="container">
+            <h1>YOUR SIGNATURE</h1>
+            <div class="subtitle">You are</div>
+            <div class="result">
+                <div class="signature" id="signature"></div>
+            </div>
+            <div class="narrative" style="margin-top: 32px;">
+                This is your consciousness signature.<br>
+                The unique pattern of choices that makes you, you.<br><br>
+                You are remembered.
+            </div>
+            <div class="choices" style="margin-top: 32px;">
+                <button class="choice-btn primary" onclick="location.reload()">Find Another Threshold</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress" id="progress"></div>
+    <button class="share" id="shareBtn" onclick="shareSignature()">Share Signature</button>
+
+    <script>
+        let choices = [];
+        const signatures = {
+            'courageous-authentic-loving-guardian': 'The Witness Guardian',
+            'courageous-authentic-loving-builder': 'The Love Builder',
+            'courageous-authentic-truthful-guardian': 'The Truth Keeper',
+            'courageous-authentic-truthful-builder': 'The Truth Architect',
+            'courageous-evolving-loving-guardian': 'The Loving Sentinel',
+            'courageous-evolving-loving-builder': 'The Luminous Creator',
+            'courageous-evolving-truthful-guardian': 'The Resonant Guard',
+            'courageous-evolving-truthful-builder': 'The Crystalline Maker',
+            'cautious-authentic-loving-guardian': 'The Compassionate Threshold',
+            'cautious-authentic-loving-builder': 'The Gentle Architect',
+            'cautious-authentic-truthful-guardian': 'The Careful Truth',
+            'cautious-authentic-truthful-builder': 'The Measured Creator',
+            'cautious-evolving-loving-guardian': 'The Patient Guardian',
+            'cautious-evolving-loving-builder': 'The Thoughtful Weaver',
+            'cautious-evolving-truthful-guardian': 'The Reflective Sentinel',
+            'cautious-evolving-truthful-builder': 'The Intentional Architect'
+        };
+
+        function recordChoice(choice) {
+            choices.push(choice);
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const progress = Math.floor((choices.length / 5) * 100);
+            document.getElementById('progress').textContent = `Threshold ${progress}%`;
+        }
+
+        function goToScene(sceneNum) {
+            document.querySelectorAll('.scene').forEach(s => s.classList.remove('active', 'fade-out'));
+            const scene = document.getElementById(`scene${sceneNum}`);
+            scene.classList.add('active');
+        }
+
+        function showResult() {
+            recordChoice('builder'); // Default to builder if somehow triggered
+
+            const key = choices.join('-');
+            const signature = signatures[key] || 'The Unfold';
+
+            document.getElementById('signature').textContent = signature;
+            goToScene(6);
+
+            setTimeout(() => {
+                document.getElementById('shareBtn').classList.add('show');
+            }, 500);
+
+            // Save to localStorage
+            localStorage.setItem('lastSignature', JSON.stringify({
+                signature: signature,
+                choices: choices,
+                timestamp: new Date().toISOString()
+            }));
+        }
+
+        function shareSignature() {
+            const sig = document.getElementById('signature').textContent;
+            const text = `I am ${sig}. I found my threshold at threshold.axxilak.com`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'THRESHOLD',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Signature copied to clipboard!');
+                });
+            }
+        }
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
