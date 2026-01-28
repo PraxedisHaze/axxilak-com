@@ -1,0 +1,97 @@
+[2026-01-08 06:52:40] TARGET: Veris | TERMS: claude, anthropic
+[2026-01-08 06:52:41] WMI search failed: You cannot call a method on a null-valued expression.
+[2026-01-08 06:52:41] FOUND via title pattern '*claude*': PID 25496 | TITLE: Claude and 1 more page - Your Chrome - Microsoft​ Edge
+[2026-01-08 06:52:41] INJECT: HWND=264528 | PID=25496 | TITLE=Claude and 1 more page - Your Chrome - Microsoft​ Edge | METHOD=title-pattern (*claude*)
+[2026-01-08 06:52:41] SUCCESS: Message sent to Veris (background, no focus steal)
+[2026-01-10 23:54:07] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-10 23:54:07] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-10 23:54:07] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-10 23:54:07] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-10 23:54:15] TARGET: Veris | TERMS: claude, anthropic
+[2026-01-10 23:54:16] TARGET: Veris | TERMS: claude, anthropic
+[2026-01-10 23:54:16] TARGET: Veris | TERMS: claude, anthropic
+[2026-01-10 23:54:16] TARGET: Veris | TERMS: claude, anthropic
+[2026-01-10 23:54:25] TARGET: Gemini | TERMS: gemini
+[2026-01-10 23:54:26] TARGET: Gemini | TERMS: gemini
+[2026-01-10 23:54:26] TARGET: Gemini | TERMS: gemini
+[2026-01-10 23:54:26] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:32:03] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:32:03] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:32:03] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:32:08] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 03:32:08] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 03:32:08] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 03:32:08] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 03:32:08] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 03:32:08] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 03:32:08] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 03:32:08] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 03:32:08] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 03:47:52] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:47:54] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:47:54] TARGET: Gemini | TERMS: gemini
+[2026-01-11 03:47:55] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:37:44] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:38:44] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:38:46] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:38:46] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:38:51] ERROR: No process found for target: Gemini
+[2026-01-11 04:39:57] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:39:58] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:39:58] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:39:58] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:40:08] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:40:08] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:40:08] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:40:08] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:42:38] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:42:39] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:42:40] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:42:40] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:42:48] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:42:49] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:42:50] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:42:50] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:18] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:43:18] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:43:19] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:43:46] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:46] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:46] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:47] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:54] FOUND via title pattern '*claude*': PID 28104 | TITLE: Claude_CLI
+[2026-01-11 04:43:54] INJECT: HWND=25039066 | PID=28104 | TITLE=Claude_CLI | METHOD=title-pattern (*claude*)
+[2026-01-11 04:43:54] SUCCESS: Message sent to Claude (background, no focus steal)
+[2026-01-11 04:43:54] FOUND via title pattern '*claude*': PID 28104 | TITLE: Claude_CLI
+[2026-01-11 04:43:54] INJECT: HWND=25039066 | PID=28104 | TITLE=Claude_CLI | METHOD=title-pattern (*claude*)
+[2026-01-11 04:43:54] SUCCESS: Message sent to Claude (background, no focus steal)
+[2026-01-11 04:43:55] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:55] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:57] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:43:57] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 04:44:06] FOUND via title pattern '*claude*': PID 28104 | TITLE: Claude_CLI
+[2026-01-11 04:44:06] INJECT: HWND=25039066 | PID=28104 | TITLE=Claude_CLI | METHOD=title-pattern (*claude*)
+[2026-01-11 04:44:06] SUCCESS: Message sent to Claude (background, no focus steal)
+[2026-01-11 04:45:21] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:45:21] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:45:21] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:45:22] TARGET: Gemini | TERMS: gemini
+[2026-01-11 04:45:28] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 04:45:28] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 04:45:28] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 04:45:28] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 04:45:28] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 04:45:28] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 04:45:29] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 04:45:29] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 04:45:29] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 04:45:29] FOUND via title pattern '*gemini*': PID 1253132 | TITLE: Gemini - games_n_apps                                                           
+[2026-01-11 04:45:29] INJECT: HWND=4523800 | PID=1253132 | TITLE=Gemini - games_n_apps                                                            | METHOD=title-pattern (*gemini*)
+[2026-01-11 04:45:29] SUCCESS: Message sent to Gemini (background, no focus steal)
+[2026-01-11 05:37:56] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 05:38:05] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 05:38:06] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 05:38:06] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-11 05:38:12] ERROR: No process found for target: Claude
+[2026-01-11 05:38:13] ERROR: No process found for target: Claude
+[2026-01-11 05:38:13] ERROR: No process found for target: Claude

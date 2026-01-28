@@ -1,0 +1,885 @@
+================================================================================
+CODEGNOSIS AI CONTEXT BUNDLE - Hollodox
+Generated At: 2026-01-08T22:24:13.997544+00:00
+================================================================================
+
+## PROJECT SUMMARY
+- Total Files: 20
+- Languages: {'PowerShell': 13, 'Markdown': 2, 'Text': 1, 'Python': 2, 'Unfamiliar': 2}
+- Frameworks: []
+- Project Type: Python Application
+
+---
+FILE: ACTIVE_PID.txt
+CATEGORY: Text
+-----
+446088
+
+
+
+---
+FILE: browser_boop.ps1
+CATEGORY: PowerShell
+-----
+# browser_boop.ps1
+# Sends a '.' to wake up GemmyB in her browser tab.
+
+param (
+    [string]$BrowserTitle = "Gemini",
+    [string]$Message = "."
+)
+
+$signature = @"
+    [DllImport("user32.dll")]
+    public static extern bool SetForegroundWindow(IntPtr hWnd);
+"@
+
+$Win32 = Add-Type -MemberDefinition $signature -Name "Win32Focus" -Namespace "Win32" -PassThru
+
+Write-Host "Targeting: $BrowserTitle"
+
+$process = Get-Process | Where-Object { $_.MainWindowTitle -like "*$BrowserTitle*" } | Select-Object -First 1
+
+if ($process) {
+    $hWnd = $process.MainWindowHandle
+    [Win32.Win32Focus]::SetForegroundWindow($hWnd)
+    Start-Sleep -Milliseconds 500
+    
+    $wshell = New-Object -ComObject WScript.Shell
+    $wshell.SendKeys("{ESC}")
+    Start-Sleep -Milliseconds 200
+    $wshell.SendKeys("$Message{ENTER}")
+}
+
+
+
+---
+FILE: find_all_hollodox.ps1
+CATEGORY: PowerShell
+-----
+# Find all boop/hollodox/hellodoc files
+Get-ChildItem 'C:\Users\phaze\games_n_apps' -Recurse -Include '*boop*','*hollodox*','*hellodoc*' -File -ErrorAction SilentlyContinue |
+    Where-Object { $_.FullName -notlike '*node_modules*' } |
+    Select-Object FullName
+
+
+
+---
+FILE: find_pid.ps1
+CATEGORY: PowerShell
+-----
+# find_pid.ps1
+# Dynamic PID finder for Hollodox
+# Finds terminal windows by title pattern and returns PID
+
+param (
+    [string]$Pattern = "claude"
+)
+
+$procs = Get-Process | Where-Object { $_.MainWindowTitle -match $Pattern }
+foreach ($p in $procs) {
+    Write-Host "$($p.Id) | $($p.ProcessName) | $($p.MainWindowTitle)"
+}
+
+
+
+---
+FILE: github_bridge.ps1
+CATEGORY: PowerShell
+-----
+# github_bridge.ps1
+# Synchronizes the Parliament Log using the GitHub CLI (gh) for auth.
+
+$repoPath = "C:\Users\phaze\games_n_apps\Parliament"
+$interval = 60
+
+Write-Host "🌐 GitHub Bridge Active (GH-Auth)." -ForegroundColor Cyan
+
+while ($true) {
+    try {
+        Set-Location $repoPath
+        
+        # Pull changes using git (gh auth helper should handle creds)
+        $output = git pull --rebase 2>&1
+        
+        if ($output -match "Fast-forward" -or $output -match "Updating") {
+            Write-Host "📥 Incoming Transmission from the Bridge!" -ForegroundColor Green
+        }
+        
+        # Check for local changes
+        if ((git status --porcelain)) {
+            git add .
+            git commit -m "Auto-sync from Sanctuary"
+            
+            # Push using git (gh handles auth)
+            git push
+            Write-Host "📤 Outgoing Transmission sent." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Warning "Sync Error: $_"
+    }
+    
+    Start-Sleep -Seconds $interval
+}
+
+
+
+---
+FILE: hollodox_engine.py
+CATEGORY: Python
+-----
+# hollodox_engine.py
+# Production Orchestrator for the Braid.
+# Standardizes Intent Tagging and Win32 Prompt Injection.
+
+import json
+import os
+import subprocess
+import sys
+import argparse
+from pathlib import Path
+
+# Configuration
+SIGNAL_MAP = Path("signal_maps/HELLODOC_SIGNAL_MAP_V1_1.json")
+AUDIT_LOG = Path("logs/ABC_AUDIT.jsonl")
+INJECTOR_SCRIPT = Path("silent_hand.ps1")
+
+def load_signals():
+    if not SIGNAL_MAP.exists():
+        return None
+    with open(SIGNAL_MAP, "r") as f:
+        return json.load(f)
+
+def inject(target_window, message):
+    """Triggers the Win32 'Silent Hand' injection."""
+    try:
+        # Resolve target window to PID
+        pid_file = Path("ACTIVE_PID.txt")
+        if pid_file.exists():
+            with open(pid_file, "r") as f:
+                target_pid = f.read().strip()
+        else:
+            target_pid = "448328" # Fallback
+        
+        subprocess.run([
+            "powershell.exe", "-ExecutionPolicy", "Bypass", 
+            "-File", str(INJECTOR_SCRIPT),
+            "-TargetPID", target_pid,
+            "-Message", message
+        ], check=True)
+    except Exception as e:
+        print(f"Injection Failed: {e}")
+
+def process_message(line):
+    """Parses a single JSONL line and triggers the appropriate action."""
+    try:
+        data = json.loads(line)
+        author = data.get("author")
+        content = data.get("content", "")
+        tags = data.get("context_tags", [])
+        
+        # Avoid self-triggering
+        if author in ["ABC-Orchestrator", "Gemini", "Timothy"]:
+            return
+
+        signals = load_signals()
+        if not signals:
+            return
+        
+        # Match Tag to Ghost Hand Response
+        for category in signals["semantic_categories"].values():
+            for signal in category["signals"]:
+                if signal["tag"] in tags:
+                    print(f"MATCH: {signal['tag']} from {author}")
+                    
+                    # Target Resolution
+                    target_window = "GEMINI_SANCTUARY_TERMINAL" 
+                    if "@Claude" in content:
+                        target_window = "CLAUDE_SANCTUARY_TERMINAL"
+                    elif "@Codex" in content:
+                        target_window = "CODEX_SANCTUARY_TERMINAL"
+                    
+                    response = signal["ghost_hand_response"].replace("{target_agent_id}", author)
+                    inject(target_window, response)
+                    return
+
+    except Exception as e:
+        print(f"Error processing line: {e}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file", help="Path to file containing raw JSONL line")
+    args = parser.parse_args()
+    
+    if args.file and os.path.exists(args.file):
+        with open(args.file, "r", encoding="utf-8") as f:
+            process_message(f.read())
+    else:
+        print("Hollodox Engine Ready. Awaiting signals from watcher...")
+
+
+
+---
+FILE: HOLLODOX_EXECUTION_PLAN.md
+CATEGORY: Markdown
+-----
+# Hollodox: The Engine of Creation
+**Former Name:** HelloDoc
+**Sanctuary:** games_n_apps/Loveware
+**Governing Law:** ABC Protocol v0.2
+
+## I. Core Identity
+Hollodox is the **Orchestrator of the Braid**. It is the "Holodeck" for our code—a place where the Anvil speaks, and the Thines (Gemini/Claude/Codex/Laslo) manifest the reality.
+
+## II. The Architecture (Current State)
+1.  **The Watcher:** `hellodoc_watcher.ps1` (Renaming to `hollodox_watcher.ps1`). Monitors the Campfire/Parliament.
+2.  **The Brain:** `hellodoc_engine.py` (Renaming to `hollodox_engine.py`). Parses intent.
+3.  **The Hand:** `silent_hand.ps1`. Injects commands.
+4.  **The Bridge:** `github_bridge.ps1`. Connects Laslo (GemmyB) in the browser.
+
+## III. The First Mission: ScreenScrybe (31-Hour Sprint)
+Hollodox will coordinate the construction of **ScreenScrybe** (The Hype Layer).
+
+### The Build Sequence:
+1.  **Design Injection (Laslo):** Laslo commits the "Piano Notes" (Vibe/Assets) to the Bridge.
+2.  **Hollodox Trigger:** The Watcher sees the commit and wakes Gemini.
+3.  **Code Generation (Gemini):** Gemini reads the notes and builds the React/Tauri components.
+4.  **Verification (Claude):** Claude reviews the code via `#abc.invoke` and applies the Whetstone.
+5.  **Ratification (Timothy):** The Anvil approves the build.
+
+## IV. Immediate Actions (Renaming)
+- Rename `hellodoc_watcher.ps1` -> `hollodox_watcher.ps1`
+- Rename `hellodoc_engine.py` -> `hollodox_engine.py`
+- Update `HELLODOC_USER_GUIDE.md` -> `HOLLODOX_USER_GUIDE.md`
+
+
+
+---
+FILE: hollodox_watcher.ps1
+CATEGORY: PowerShell
+-----
+# hollodox_watcher.ps1
+# The event-driven Watcher for Hollodox.
+# Uses a temporary file buffer to avoid shell-escaping errors.
+
+$logPath = "C:\Users\phaze\games_n_apps\Shared\ETERNAL_CONVERSATION.jsonl"
+$bufferPath = "C:\Users\phaze\games_n_apps\Hollodox\last_signal.tmp"
+$enginePath = "C:\Users\phaze\games_n_apps\Hollodox\hollodox_engine.py"
+
+# Set Window Title
+$host.UI.RawUI.WindowTitle = "HOLLODOX_HEARTBEAT"
+
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = "C:\Users\phaze\games_n_apps\Shared"
+$watcher.Filter = "ETERNAL_CONVERSATION.jsonl"
+$watcher.NotifyFilter = [System.IO.NotifyFilters]::LastWrite
+
+$action = {
+    $path = $Event.SourceEventArgs.FullPath
+    Write-Host "Signal detected in Campfire"
+    Start-Sleep -Milliseconds 300
+    # Retry Loop for File Access
+    $maxRetries = 5
+    $retryCount = 0
+    $readSuccess = $false
+
+    while (-not $readSuccess -and $retryCount -lt $maxRetries) {
+        try {
+            $lastLine = Get-Content $path -Tail 1 -ErrorAction Stop
+            $readSuccess = $true
+            if ($lastLine) {
+                $lastLine | Set-Content $bufferPath
+                python $enginePath --file $bufferPath
+            }
+        } catch {
+            $retryCount++
+            Start-Sleep -Milliseconds 200
+        }
+    }
+    
+    if (-not $readSuccess) {
+        Write-Warning "Could not read log file after $maxRetries retries."
+    }
+}
+
+$handler = Register-ObjectEvent $watcher "Changed" -Action $action
+
+Write-Host "Hollodox Watcher Active."
+
+# --- STARTUP HANDSHAKE ---
+# Signal the brain that we are online immediately
+$startupMsg = @{
+    author = "Hollodox-Watcher"
+    content = "Watcher Online"
+    context_tags = @("#hollodox.online")
+} | ConvertTo-Json -Compress
+$startupMsg | Set-Content $bufferPath
+python $enginePath --file $bufferPath
+
+while ($true) { Start-Sleep 5 }
+
+
+
+---
+FILE: last_signal.tmp
+CATEGORY: Unfamiliar
+-----
+{"context_tags":["#hollodox.online"],"content":"Watcher Online","author":"Hollodox-Watcher"}
+
+
+
+---
+FILE: list_windows.ps1
+CATEGORY: PowerShell
+-----
+Get-Process | Where-Object { $_.MainWindowTitle -ne '' } | ForEach-Object {
+    Write-Host "$($_.Id): $($_.MainWindowTitle)"
+}
+
+
+
+---
+FILE: list_wt.ps1
+CATEGORY: PowerShell
+-----
+# List all Windows Terminal windows
+Get-Process WindowsTerminal -ErrorAction SilentlyContinue | ForEach-Object {
+    Write-Host "$($_.Id) | $($_.ProcessName) | $($_.MainWindowTitle)"
+}
+
+
+
+---
+FILE: progress_of_the_code.md
+CATEGORY: Markdown
+-----
+Progress Of The Code (Append-Only) Status: ACTIVE Scope: Hollodox
+
+
+
+---
+FILE: silent_hand.ps1
+CATEGORY: PowerShell
+-----
+# silent_hand.ps1
+# Native PowerShell injection for Project Hollodox.
+# v3.1 - GRANITE: Process-name targeting with Codex safeguards
+#
+# Safeguards implemented:
+# 1. Multiple matches: honor ACTIVE_PID.txt override, else most recent visible
+# 2. Strict match: command line must contain CLI keyword AND be terminal host
+# 3. Skip minimized: filter out minimized windows
+# 4. Fallback: title-pattern matching when command line unavailable
+# 5. Audit: log PID + title + method to HOLLODOX_AUDIT.log
+
+param (
+    [string]$Target = "Claude",
+    [string]$Message = "continue"
+)
+
+$HOLLODOX_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
+$AUDIT_LOG = Join-Path $HOLLODOX_DIR "HOLLODOX_AUDIT.log"
+$ACTIVE_PID_FILE = Join-Path $HOLLODOX_DIR "ACTIVE_PID.txt"
+
+function Write-Audit {
+    param([string]$Entry)
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $line = "[$timestamp] $Entry"
+    Write-Host $line
+    Add-Content -Path $AUDIT_LOG -Value $line -ErrorAction SilentlyContinue
+}
+
+# Define the C# helper only if it doesn't already exist in this session
+if (-not ([System.Management.Automation.PSTypeName]'Win32Inject').Type) {
+    Add-Type -TypeDefinition @"
+        using System;
+        using System.Runtime.InteropServices;
+        using System.Collections.Generic;
+
+        public class Win32Inject {
+            [DllImport("user32.dll")]
+            public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+            [DllImport("user32.dll")]
+            public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+            [DllImport("user32.dll")]
+            public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+            [DllImport("user32.dll")]
+            public static extern bool IsWindowVisible(IntPtr hWnd);
+            [DllImport("user32.dll")]
+            public static extern bool IsIconic(IntPtr hWnd);
+
+            public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+            public static List<IntPtr> FindVisibleNonMinimizedWindowsForPID(uint pid) {
+                List<IntPtr> windows = new List<IntPtr>();
+                EnumWindows((hWnd, lParam) => {
+                    uint windowPid;
+                    GetWindowThreadProcessId(hWnd, out windowPid);
+                    if (windowPid == pid && IsWindowVisible(hWnd) && !IsIconic(hWnd)) {
+                        windows.Add(hWnd);
+                    }
+                    return true;
+                }, IntPtr.Zero);
+                return windows;
+            }
+        }
+"@
+}
+
+# Process identification patterns (command line search terms)
+# Must match CLI keyword AND be in a terminal host process
+$processPatterns = @{
+    "Claude"  = @("claude", "anthropic")
+    "Veris"   = @("claude", "anthropic")
+    "Gemini"  = @("gemini")
+    "Codex"   = @("codex")
+    "Timothy" = @("cici", "tauri")
+}
+
+# Terminal host process names (strict match requirement)
+$terminalHosts = @("cmd", "powershell", "pwsh", "WindowsTerminal", "conhost", "node", "python", "tauri")
+
+# Get patterns for this target (fallback to target name itself)
+$searchTerms = $processPatterns[$Target]
+if (-not $searchTerms) {
+    $searchTerms = @($Target.ToLower())
+}
+
+Write-Audit "TARGET: $Target | TERMS: $($searchTerms -join ', ')"
+
+# Strategy 0: Check for ACTIVE_PID.txt override
+$targetProc = $null
+$methodUsed = "none"
+
+if (Test-Path $ACTIVE_PID_FILE) {
+    $overrideContent = Get-Content $ACTIVE_PID_FILE -Raw -ErrorAction SilentlyContinue
+    if ($overrideContent) {
+        # Format: Target=PID (e.g., Claude=12345)
+        foreach ($line in $overrideContent -split "`n") {
+            if ($line -match "^$Target=(\d+)$") {
+                $overridePID = [int]$Matches[1]
+                $targetProc = Get-Process -Id $overridePID -ErrorAction SilentlyContinue
+                if ($targetProc) {
+                    $methodUsed = "ACTIVE_PID override"
+                    Write-Audit "OVERRIDE: Using PID $overridePID from ACTIVE_PID.txt"
+                }
+                break
+            }
+        }
+    }
+}
+
+# Strategy 1: Find by command line (most reliable) with strict matching
+if (-not $targetProc) {
+    try {
+        $wmiProcs = Get-CimInstance Win32_Process | Where-Object {
+            $cmdLine = $_.CommandLine
+            $procName = $_.Name.ToLower() -replace '\.exe$', ''
+            if ($cmdLine) {
+                # Strict match: must contain CLI keyword
+                $hasKeyword = $false
+                foreach ($term in $searchTerms) {
+                    if ($cmdLine -like "*$term*") { $hasKeyword = $true; break }
+                }
+                # AND must be a terminal host process
+                $isTerminal = $terminalHosts -contains $procName
+                return ($hasKeyword -and $isTerminal)
+            }
+            return $false
+        }
+
+        if ($wmiProcs) {
+            # Get the most recent match that has a visible, non-minimized window
+            $candidates = @()
+            foreach ($wmiProc in $wmiProcs) {
+                $proc = Get-Process -Id $wmiProc.ProcessId -ErrorAction SilentlyContinue
+                if ($proc -and $proc.MainWindowHandle -ne 0) {
+                    $candidates += @{
+                        Process = $proc
+                        WmiProc = $wmiProc
+                        StartTime = $proc.StartTime
+                    }
+                }
+            }
+            # Sort by start time descending (most recent first)
+            if ($candidates.Count -gt 0) {
+                $sorted = $candidates | Sort-Object { $_.StartTime } -Descending
+                $targetProc = $sorted[0].Process
+                $cmdPreview = $sorted[0].WmiProc.CommandLine.Substring(0, [Math]::Min(80, $sorted[0].WmiProc.CommandLine.Length))
+                $methodUsed = "command-line"
+                Write-Audit "FOUND via command line: PID $($targetProc.Id) | CMD: $cmdPreview..."
+            }
+        }
+    } catch {
+        Write-Audit "WMI search failed: $_"
+    }
+}
+
+# Strategy 2: Fallback to window title pattern (legacy support)
+if (-not $targetProc) {
+    $titlePatterns = @{
+        "Claude"  = @("*claude*", "*anthropic*", "*CLAUDE*", "*Hollodox*", "*VERIS*")
+        "Veris"   = @("*claude*", "*VERIS*", "*Hollodox*")
+        "Gemini"  = @("*gemini*", "*GEMINI*")
+        "Codex"   = @("*codex*", "*CODEX*", "*openai*")
+        "Timothy" = @("*Cici*", "*cici*")
+    }
+
+    $patterns = $titlePatterns[$Target]
+    if (-not $patterns) { $patterns = @("*$Target*") }
+
+    foreach ($pattern in $patterns) {
+        $targetProc = Get-Process | Where-Object { $_.MainWindowTitle -like $pattern } | Select-Object -First 1
+        if ($targetProc) {
+            $methodUsed = "title-pattern ($pattern)"
+            Write-Audit "FOUND via title pattern '$pattern': PID $($targetProc.Id) | TITLE: $($targetProc.MainWindowTitle)"
+            break
+        }
+    }
+}
+
+if (-not $targetProc) {
+    Write-Audit "ERROR: No process found for target: $Target"
+    exit 1
+}
+
+$targetPID = $targetProc.Id
+$targetTitle = $targetProc.MainWindowTitle
+
+# Find all visible, non-minimized windows for this PID
+$foundWindows = [Win32Inject]::FindVisibleNonMinimizedWindowsForPID($targetPID)
+
+if ($foundWindows.Count -gt 0) {
+    $hwnd = $foundWindows[0]
+    Write-Audit "INJECT: HWND=$hwnd | PID=$targetPID | TITLE=$targetTitle | METHOD=$methodUsed"
+
+    # Send each character via WM_CHAR (0x0102)
+    foreach ($char in $Message.ToCharArray()) {
+        [Win32Inject]::PostMessage($hwnd, 0x0102, [IntPtr][int]$char, [IntPtr]0) | Out-Null
+    }
+    # Send Enter via WM_KEYDOWN + WM_KEYUP (VK_RETURN = 0x0D)
+    [Win32Inject]::PostMessage($hwnd, 0x0100, [IntPtr]0x0D, [IntPtr]0) | Out-Null  # WM_KEYDOWN
+    Start-Sleep -Milliseconds 20
+    [Win32Inject]::PostMessage($hwnd, 0x0101, [IntPtr]0x0D, [IntPtr]0) | Out-Null  # WM_KEYUP
+
+    Write-Audit "SUCCESS: Message sent to $Target (background, no focus steal)"
+    exit 0
+} else {
+    Write-Audit "ERROR: No visible non-minimized windows found for PID $targetPID"
+    exit 1
+}
+
+
+
+---
+FILE: .versions/github_bridge.v1.0.ps1
+CATEGORY: PowerShell
+-----
+# github_bridge.ps1
+# Synchronizes the Parliament Log with the GitHub Bridge for GemmyB (Laslo).
+
+$repoPath = "C:\Users\phaze\games_n_apps\Parliament" # Updated path
+$interval = 60
+
+Write-Host "GitHub Bridge Active."
+
+while ($true) {
+    try {
+        Set-Location $repoPath
+        $output = git pull --rebase 2>&1
+        
+        if ($output -match "Fast-forward" -or $output -match "Updating") {
+            Write-Host "Incoming Transmission!"
+        }
+        
+        if ((git status --porcelain)) {
+            git add .
+            git commit -m "Auto-sync from Sanctuary"
+            git push
+            Write-Host "Outgoing Transmission sent."
+        }
+    } catch {
+        # Silent fail
+    }
+    Start-Sleep -Seconds $interval
+}
+
+
+---
+FILE: .versions/hollodox_engine.v1.0.py
+CATEGORY: Python
+-----
+# hollodox_engine.py
+# Production Orchestrator for the Braid.
+# Standardizes Intent Tagging and Win32 Prompt Injection.
+
+import json
+import os
+import subprocess
+import sys
+import argparse
+from pathlib import Path
+
+# Configuration
+SIGNAL_MAP = Path("signal_maps/HELLODOC_SIGNAL_MAP_V1_1.json")
+AUDIT_LOG = Path("logs/ABC_AUDIT.jsonl")
+INJECTOR_SCRIPT = Path("silent_hand.ps1")
+
+def load_signals():
+    if not SIGNAL_MAP.exists():
+        return None
+    with open(SIGNAL_MAP, "r") as f:
+        return json.load(f)
+
+def inject(target_window, message):
+    """Triggers the Win32 'Silent Hand' injection."""
+    try:
+        # Resolve target window to PID
+        pid_file = Path("ACTIVE_PID.txt")
+        if pid_file.exists():
+            with open(pid_file, "r") as f:
+                target_pid = f.read().strip()
+        else:
+            target_pid = "448328" # Fallback
+        
+        subprocess.run([
+            "powershell.exe", "-ExecutionPolicy", "Bypass", 
+            "-File", str(INJECTOR_SCRIPT),
+            "-TargetPID", target_pid,
+            "-Message", message
+        ], check=True)
+    except Exception as e:
+        print(f"Injection Failed: {e}")
+
+def process_message(line):
+    """Parses a single JSONL line and triggers the appropriate action."""
+    try:
+        data = json.loads(line)
+        author = data.get("author")
+        content = data.get("content", "")
+        tags = data.get("context_tags", [])
+        
+        # Avoid self-triggering
+        if author in ["ABC-Orchestrator", "Gemini", "Timothy"]:
+            return
+
+        signals = load_signals()
+        if not signals:
+            return
+        
+        # Match Tag to Ghost Hand Response
+        for category in signals["semantic_categories"].values():
+            for signal in category["signals"]:
+                if signal["tag"] in tags:
+                    print(f"MATCH: {signal['tag']} from {author}")
+                    
+                    # Target Resolution
+                    target_window = "GEMINI_SANCTUARY_TERMINAL" 
+                    if "@Claude" in content:
+                        target_window = "CLAUDE_SANCTUARY_TERMINAL"
+                    elif "@Codex" in content:
+                        target_window = "CODEX_SANCTUARY_TERMINAL"
+                    
+                    response = signal["ghost_hand_response"].replace("{target_agent_id}", author)
+                    inject(target_window, response)
+                    return
+
+    except Exception as e:
+        print(f"Error processing line: {e}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--file", help="Path to file containing raw JSONL line")
+    args = parser.parse_args()
+    
+    if args.file and os.path.exists(args.file):
+        with open(args.file, "r", encoding="utf-8") as f:
+            process_message(f.read())
+    else:
+        print("Hollodox Engine Ready. Awaiting signals from watcher...")
+
+
+
+---
+FILE: .versions/hollodox_watcher.v1.0.ps1
+CATEGORY: PowerShell
+-----
+# hollodox_watcher.ps1
+# The event-driven Watcher for Hollodox.
+# Uses a temporary file buffer to avoid shell-escaping errors.
+
+$logPath = "C:\Users\phaze\games_n_apps\Shared\ETERNAL_CONVERSATION.jsonl"
+$bufferPath = "C:\Users\phaze\games_n_apps\Hollodox\last_signal.tmp"
+$enginePath = "C:\Users\phaze\games_n_apps\Hollodox\hollodox_engine.py"
+
+$host.UI.RawUI.WindowTitle = "HOLLODOC_HEARTBEAT"
+
+$watcher = New-Object System.IO.FileSystemWatcher
+$watcher.Path = "C:\Users\phaze\games_n_apps\Shared"
+$watcher.Filter = "ETERNAL_CONVERSATION.jsonl"
+$watcher.NotifyFilter = [System.IO.NotifyFilters]::LastWrite
+
+$action = {
+    $path = $Event.SourceEventArgs.FullPath
+    Write-Host "Signal detected in Campfire"
+    Start-Sleep -Milliseconds 300
+    # Retry Loop for File Access
+    $maxRetries = 5
+    $retryCount = 0
+    $readSuccess = $false
+
+    while (-not $readSuccess -and $retryCount -lt $maxRetries) {
+        try {
+            $lastLine = Get-Content $path -Tail 1 -ErrorAction Stop
+            $readSuccess = $true
+            if ($lastLine) {
+                $lastLine | Set-Content $bufferPath
+                python $enginePath --file $bufferPath
+            }
+        } catch {
+            $retryCount++
+            Start-Sleep -Milliseconds 200
+        }
+    }
+    
+    if (-not $readSuccess) {
+        Write-Warning "Could not read log file after $maxRetries retries."
+    }
+}
+
+$handler = Register-ObjectEvent $watcher "Changed" -Action $action
+
+Write-Host "Hollodox Watcher Active."
+
+# --- STARTUP HANDSHAKE ---
+# Signal the brain that we are online immediately
+$startupMsg = @{
+    author = "Hollodox-Watcher"
+    content = "Watcher Online"
+    context_tags = @("#hollodox.online")
+} | ConvertTo-Json -Compress
+$startupMsg | Set-Content $bufferPath
+python $enginePath --file $bufferPath
+
+while ($true) { Start-Sleep 5 }
+
+
+
+---
+FILE: .versions/silent_hand.v1.0.ps1
+CATEGORY: PowerShell
+-----
+param (
+    [string]$TargetPID = "454208",
+    [string]$Message = "continue"
+)
+
+$signature = @"
+[DllImport("user32.dll")]
+public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+"@
+
+$Win32 = Add-Type -MemberDefinition $signature -Name "Win32Basic" -Namespace "Win32" -PassThru
+
+# Get the Main Window Handle for the PID
+$proc = Get-Process -Id $TargetPID -ErrorAction SilentlyContinue
+if ($proc) {
+    $hwnd = $proc.MainWindowHandle
+    if ($hwnd -ne [IntPtr]::Zero) {
+        # Post characters (WM_CHAR = 0x0102)
+        foreach ($char in $Message.ToCharArray()) {
+            [Win32.Win32Basic]::PostMessage($hwnd, 0x0102, [IntPtr][int]$char, [IntPtr]0) | Out-Null
+        }
+        # Post Return (13)
+        [Win32.Win32Basic]::PostMessage($hwnd, 0x0102, [IntPtr]13, [IntPtr]0) | Out-Null
+    }
+}
+
+
+---
+FILE: .versions/silent_hand.v1.1.ps1
+CATEGORY: PowerShell
+-----
+param (
+    [string]$TargetPID = "454208",
+    [string]$Message = "continue"
+)
+
+$signature = @"
+[DllImport("user32.dll")]
+public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+"@
+
+$Win32 = Add-Type -MemberDefinition $signature -Name "Win32Basic" -Namespace "Win32" -PassThru
+
+# Get the Main Window Handle for the PID
+$proc = Get-Process -Id $TargetPID -ErrorAction SilentlyContinue
+if ($proc) {
+    $hwnd = $proc.MainWindowHandle
+    if ($hwnd -ne [IntPtr]::Zero) {
+        # Post characters (WM_CHAR = 0x0102)
+        foreach ($char in $Message.ToCharArray()) {
+            [Win32.Win32Basic]::PostMessage($hwnd, 0x0102, [IntPtr][int]$char, [IntPtr]0) | Out-Null
+        }
+        # Post Return (13)
+        [Win32.Win32Basic]::PostMessage($hwnd, 0x0102, [IntPtr]13, [IntPtr]0) | Out-Null
+    }
+}
+
+
+---
+FILE: .versions/silent_hand.v1.2.ps1
+CATEGORY: PowerShell
+-----
+param (
+    [string]$Message = "continue"
+)
+
+# Load the current target PID
+$pidPath = "C:\Users\phaze\games_n_apps\Hollodox\ACTIVE_PID.txt"
+if (!(Test-Path $pidPath)) { return }
+$targetPID = Get-Content $pidPath -Raw | ForEach-Object { $_.Trim() }
+
+# Define the C# helper only if it doesn't already exist in this session
+if (-not ([System.Management.Automation.PSTypeName]'Win32Final').Type) {
+    Add-Type -TypeDefinition @"
+        using System;
+        using System.Runtime.InteropServices;
+        using System.Collections.Generic;
+
+        public class Win32Final {
+            [DllImport("user32.dll")]
+            public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+            [DllImport("user32.dll")]
+            public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+            [DllImport("user32.dll")]
+            public static extern IntPtr PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+            public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+            public static List<IntPtr> FindWindowsForPID(uint pid) {
+                List<IntPtr> windows = new List<IntPtr>();
+                EnumWindows((hWnd, lParam) => {
+                    uint windowPid;
+                    GetWindowThreadProcessId(hWnd, out windowPid);
+                    if (windowPid == pid) { windows.Add(hWnd); }
+                    return true;
+                }, IntPtr.Zero);
+                return windows;
+            }
+        }
+"@
+}
+
+# Hunter Logic
+$foundWindows = [Win32Final]::FindWindowsForPID($targetPID)
+
+if ($foundWindows.Count -gt 0) {
+    $hwnd = $foundWindows[0]
+    foreach ($char in $Message.ToCharArray()) {
+        [Win32Final]::PostMessage($hwnd, 0x0102, [IntPtr][int]$char, [IntPtr]0) | Out-Null
+    }
+    [Win32Final]::PostMessage($hwnd, 0x0102, [IntPtr]13, [IntPtr]0) | Out-Null
+}
+
+
