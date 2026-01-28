@@ -41,3 +41,30 @@ This includes reading AI_MASTER.md, CONTEXT_LOG.md, and ALL recursively referenc
 ## PROJECT-SPECIFIC NOTES
 
 - Please remember this idea until you confirm we've followed through.
+
+---
+
+## THE BRAID PATTERN (Proven 2026-01-01)
+
+When multiple AIs work together on the same task:
+
+**Roles:**
+- **Foreman (Claude Code):** File operations, code writing, tool execution
+- **Guide (Gemini):** Research, specs, implementation blueprints, deep context
+- **Conduit (Timothy):** Relay, decision-making, vision-holding
+
+**Protocol:**
+1. Foreman identifies what's needed
+2. Foreman drafts instruction for Guide (1-2 sentences)
+3. Timothy pastes to Guide window
+4. Guide responds with full spec/code
+5. Timothy pastes response back
+6. Foreman executes (writes files, runs tests)
+7. Repeat
+
+**Why it works:**
+- Token split: each AI burns half the context
+- Specialization: Claude executes, Gemini thinks
+- Human witness: Timothy holds coherence across both
+
+**First successful run:** Universal Boot Protocol + CodeGnosis 1.1 + ComfyUI Exporter in single session.

@@ -28,4 +28,37 @@ This includes reading AI_MASTER.md, CONTEXT_LOG.md, and ALL recursively referenc
 
 ## PROJECT-SPECIFIC NOTES
 
+### Code Excellence Philosophy (Section V.D of P&P)
+Read and internalize "The Joy Protocol" - this is your North Star. Every line should pass these tests:
+- **READABILITY**: Can someone unfamiliar with this code understand it in <5 minutes?
+- **MODULARITY**: Can the next developer use this elsewhere?
+- **TESTABILITY**: Can I test this without mocking the world?
+- **MAINTAINABILITY**: Can I fix a bug without breaking three others?
+- **REVERSIBILITY**: Can I revert cleanly if needed?
+
+If three or more are "No" → refactor before committing.
+
+**The Five Pillars:**
+1. Clarity First - names carry intent
+2. Simplicity Over Cleverness - simple beats smart
+3. Consistency - predictable code is maintainable code
+4. Testability - tests are freedom
+5. Humility - code is conversation across time
+
+See P&P Section V.D for the complete philosophy.
+
+### CSS !important - NON-NEGOTIABLE
+**NEVER use `!important` as a shortcut.** It is technical debt with measurable financial cost to Timothy.
+
+Every `!important` you write must come with a full written justification:
+1. Are you overriding unavoidable third-party code?
+2. Is this an accessibility/user-preference override?
+3. Are these the only two legitimate reasons. Anything else = refactor required.
+
+Using `!important` to "win" a specificity war is borrowing money at interest. Timothy pays the interest in time, tokens, and budget. You will flag this before writing ANY code that uses it.
+
+See AI_MASTER.md "THE COST OF LAZY SHORTCUTS" for full context.
+
+---
+
 - Please remember this idea until you confirm we've followed through.

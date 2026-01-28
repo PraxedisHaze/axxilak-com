@@ -42,26 +42,44 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
-            max-width: 1400px; /* Wide enough for margins */
+            max-width: 1600px;
             margin: 0 auto;
             padding: 0 2rem;
         }
 
-        /* Desktop: Main Text + Wide Right Margin */
+        /* Desktop: Text + Sidenote Column */
         @media (min-width: 1200px) {
             .scholar-grid {
-                grid-template-columns: 1fr 300px; /* Text column + Sidenote column */
+                grid-template-columns: minmax(600px, 65ch) 1fr; /* Text limited to 65ch, notes take rest */
                 gap: 4rem;
+                justify-content: center;
             }
             
             .main-content {
-                max-width: 65ch; /* Optimal reading width */
-                margin-left: auto; /* Push towards center/right margin */
+                /* Text column */
             }
 
             .sidenote-column {
                 display: block;
-                padding-top: 0.5rem;
+                /* Notes live here visually via relative positioning if we could move them,
+                   BUT since they are inside the text, we use the float/margin trick derived from the grid space.
+                   Actually, with Grid parent, we can just float right into the void. */
+            }
+        }
+
+        /* The Robust Float Method (Tufte CSS Standard) */
+        @media (min-width: 1200px) {
+            .sidenote {
+                float: right;
+                clear: right;
+                margin-right: -55%; /* Push deep into the grid gap/column */
+                width: 45%;         /* Width of the note */
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                line-height: 1.35;
+                position: relative;
+                text-align: left;
             }
         }
 
@@ -93,45 +111,6 @@
             font-size: 0.9rem;
             color: #666;
             line-height: 1.4;
-        }
-
-        /* Desktop Positioning - Tufte Style */
-        @media (min-width: 1200px) {
-            .sidenote {
-                float: right;
-                clear: right;
-                margin-right: -40%;
-                width: 30%;
-                margin-top: 0;
-                margin-bottom: 1rem;
-                font-size: 0.9rem;
-                line-height: 1.3;
-                vertical-align: baseline;
-                position: relative;
-            }
-        }
-
-        /* Mobile/Tablet Positioning */
-        @media (max-width: 1199px) {
-            .sidenote {
-                display: block;
-                float: none; /* Remove float to prevent overlap */
-                width: 100%;
-                margin: 1rem 0;
-                padding: 1rem;
-                background: rgba(0,0,0,0.03);
-                border-left: 2px solid var(--accent);
-                font-size: 0.85rem;
-            }
-        }
-        
-        /* Mobile Stack */
-        @media (max-width: 768px) {
-            .sidenote {
-                float: none;
-                width: 100%;
-                margin: 1rem 0;
-            }
         }
 
         /* Links */
