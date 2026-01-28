@@ -197,17 +197,29 @@
         let catalog = [];
         let activeFilter = 'all';
 
+        // Embedded catalog data
+        const catalogData = {
+            "weblings": [
+                {"id": "liquid-gold", "name": "Liquid Gold", "vibe": "Luxury / Pro", "price": 19.95, "description": "The standard of excellence. Glassmorphism, premium gradients, and professional poise."},
+                {"id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "price": 19.95, "description": "Presence without effort. A breathing architecture for the high-frequency creator."},
+                {"id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "price": 19.95, "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic."},
+                {"id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "price": 19.95, "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal."},
+                {"id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "price": 19.95, "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes."},
+                {"id": "velvet", "name": "Velvet", "vibe": "Void / Luxury", "price": 19.95, "description": "Elegance is refusal. Silk and shadow for the discerning atelier."},
+                {"id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "price": 19.95, "description": "Rooted in the real. Organic curves and digital roots for sustainable growth."},
+                {"id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "price": 19.95, "description": "Find your frequency. Shifting iridescent gradients for the modern mystic."},
+                {"id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "price": 19.95, "description": "Beyond the peak. Tactical, high-contrast presence for the explorer."},
+                {"id": "oracle", "name": "Oracle", "vibe": "Stars / Mystic", "price": 19.95, "description": "As above, so below. A celestial signature written in stardust."},
+                {"id": "apex", "name": "Apex", "vibe": "Structure / Corporate", "price": 19.95, "description": "Precision is power. Ultra-clean, sharp architecture for tech authority."},
+                {"id": "canvas", "name": "Canvas", "vibe": "Void / Gallery", "price": 19.95, "description": "The content is the architecture. Minimalist whitespace for the fine artist."},
+                {"id": "cipher", "name": "Cipher", "vibe": "Logic / Terminal", "price": 19.95, "description": "Code is law. A terminal-first presence for the technical sovereign."}
+            ]
+        };
+
         // Load catalog
-        async function loadCatalog() {
-            try {
-                const response = await fetch('./Weblings/catalog.json');
-                const data = await response.json();
-                catalog = data.weblings;
-                renderGallery();
-            } catch (error) {
-                console.error('Failed to load catalog:', error);
-                document.getElementById('gallery').innerHTML = '<p style="color: red;">Error loading catalog.</p>';
-            }
+        function loadCatalog() {
+            catalog = catalogData.weblings;
+            renderGallery();
         }
 
         // Render gallery
