@@ -273,11 +273,14 @@
 
         // View webling (placeholder - will link to webling detail or editor)
         function viewWebling(id) {
-            const webling = catalog.find(w => w.id === id);
-            if (webling) {
-                // For now, open the webling's index.html in a modal or new page
-                window.location.href = `./${webling.path}`;
-            }
+            const weblingMap = {
+                'liquid-gold': 'liquid_gold',
+                'iron-ink': 'iron_ink',
+                'neon-tokyo': 'neon_tokyo'
+            };
+            const folderName = weblingMap[id] || id.replace(/-/g, '_');
+            const path = `../../../Mavornine/Weblings/${folderName}/index.html`;
+            window.location.href = path;
         }
 
         // Initialize
