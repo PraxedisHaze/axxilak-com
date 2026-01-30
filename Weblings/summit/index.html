@@ -64,6 +64,32 @@
             -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
             mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
         }
+
+        /* Procedural Mist */
+        .mist-container {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .mist-layer {
+            position: absolute;
+            top: 0; left: 0;
+            width: 400%; height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.03) 0%, transparent 30%),
+                radial-gradient(circle at 80% 30%, rgba(255,255,255,0.04) 0%, transparent 25%);
+            filter: blur(40px);
+            animation: mist-drift 120s linear infinite;
+        }
+
+        @keyframes mist-drift {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
     </style>
 </head>
 <body>
@@ -83,6 +109,12 @@
         <div class="absolute inset-0 bg-fixed opacity-40 grayscale" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop');"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-transparent"></div>
         
+        <!-- Mist -->
+        <div class="mist-container">
+            <div class="mist-layer"></div>
+            <div class="mist-layer" style="animation-delay: -60s; opacity: 0.5;"></div>
+        </div>
+
         <div class="relative z-10 text-center px-6">
             <h1 class="display-font text-7xl md:text-[10rem] leading-[0.9] mb-8 tracking-tighter italic">
                 BEYOND<br>THE<br><span class="text-[var(--accent)]">PEAK</span>
