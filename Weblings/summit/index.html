@@ -56,14 +56,22 @@
             background-size: cover;
             background-position: center;
         }
+
+        /* Gradient Blur Hack */
+        .nav-blur-gradient {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
     </style>
 </head>
 <body>
 
     <!-- Nav -->
-    <nav class="p-6 md:p-10 flex justify-between items-center border-b border-white/10">
-        <div class="display-font text-3xl tracking-widest uppercase italic">Summit.</div>
-        <div class="flex gap-8 text-xs font-bold uppercase tracking-widest">
+    <nav class="fixed top-0 left-0 right-0 p-6 md:p-10 flex justify-between items-center z-50 pointer-events-none bg-gradient-to-b from-[var(--bg)]/80 to-transparent h-40 nav-blur-gradient">
+        <div class="display-font text-3xl tracking-widest uppercase italic pointer-events-auto">Summit.</div>
+        <div class="flex gap-8 text-xs font-bold uppercase tracking-widest pointer-events-auto">
             <a href="#expeditions" class="hover:text-[var(--accent)] transition">Expeditions</a>
             <a href="#gear" class="hover:text-[var(--accent)] transition">Gear</a>
             <a href="#contact" class="hover:text-[var(--accent)] transition">Basecamp</a>
@@ -71,12 +79,12 @@
     </nav>
 
     <!-- Hero -->
-    <header class="relative h-screen flex items-center justify-center overflow-hidden">
+    <header class="relative h-screen flex items-center justify-center overflow-hidden pt-20">
         <div class="absolute inset-0 bg-fixed opacity-40 grayscale" style="background-image: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop');"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg)] via-transparent to-transparent"></div>
         
-        <div class="relative z-10 text-center px-6 pt-40 md:pt-56">
-            <h1 class="display-font text-7xl md:text-[12rem] leading-[0.85] mb-8 tracking-tighter italic">
+        <div class="relative z-10 text-center px-6">
+            <h1 class="display-font text-7xl md:text-[10rem] leading-[0.9] mb-8 tracking-tighter italic">
                 BEYOND<br>THE<br><span class="text-[var(--accent)]">PEAK</span>
             </h1>
             <p class="text-lg md:text-xl uppercase tracking-[0.4em] font-light mb-12">The climb is the goal.</p>
