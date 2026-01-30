@@ -343,14 +343,21 @@
     <!-- Hero Section -->
     <section class="min-h-screen flex flex-col items-center justify-center gap-8 text-center">
         <div class="max-w-3xl">
-            <h1 class="text-5xl md:text-7xl font-light serif italic leading-tight mb-6">
+            <h1 class="text-5xl md:text-7xl font-light serif italic leading-tight mb-4">
                 The <span class="gold-text">Webling</span> Collection
             </h1>
+            <div class="flex items-center justify-center gap-4 mb-8 opacity-60">
+                <div class="h-[1px] w-8 bg-amber-500/50"></div>
+                <p class="serif italic text-sm tracking-widest text-slate-400 uppercase">
+                    Webling (n): An appling native to the web.
+                </p>
+                <div class="h-[1px] w-8 bg-amber-500/50"></div>
+            </div>
             <p class="text-lg md:text-xl text-slate-300 mb-12 font-light">
                 Beautiful, standalone websites for creators, thinkers, and builders.<br>
                 We don't believe "functional" excludes "beautiful."
             </p>
-            <a href="store.html" class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
+            <a href="#weblings" class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
                 Enter The Collection
             </a>
         </div>
@@ -416,30 +423,55 @@
         </div>
     </section>
 
-    <!-- Featured Liquid Gold Section -->
-    <section class="flagship-section">
-        <canvas id="flagshipCanvas"></canvas>
-        <div class="flagship-container">
-            <div class="flagship-title">LIQUID GOLD</div>
-            <div class="flagship-tagline">The Standard of Excellence</div>
-            <div class="flagship-features">
-                <div class="flagship-feature-item">
-                    <div class="flagship-feature-icon">✨</div>
-                    <div class="flagship-feature-title">Glassmorphism</div>
-                    <p class="flagship-feature-desc">Premium glass effects</p>
+
+
+    <!-- Featured Webling (Split View) -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-panel rounded-sm overflow-hidden flex flex-col md:flex-row hover-trigger reveal">
+                
+                <!-- Left: Content -->
+                <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 bg-gradient-to-br from-black/40 to-transparent">
+                    <div class="text-[10px] uppercase tracking-[0.3em] text-amber-400 mb-4">Flagship Architecture</div>
+                    <h2 class="serif text-4xl md:text-5xl text-white mb-6">Liquid Gold</h2>
+                    <p class="text-slate-300 font-light leading-relaxed mb-8">
+                        The standard of excellence. Glassmorphism, premium gradients, and professional poise. 
+                        Designed for the sovereign creator who demands presence without noise.
+                    </p>
+                    
+                    <ul class="space-y-3 mb-10 text-sm text-slate-400 font-light">
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Fully Responsive & Mobile-First</li>
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Offline Visual Editor Included</li>
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Zero-Dependency Deployment</li>
+                    </ul>
+
+                    <div class="mt-auto pt-6 border-t border-white/10 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Launch Price</div>
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-lg text-slate-600 line-through decoration-red-500/50 decoration-1">$50.00</span>
+                                <span class="serif text-3xl text-amber-400">$20.00</span>
+                            </div>
+                        </div>
+                        <a href="Weblings/liquid_gold/index.html" target="_blank" rel="noopener noreferrer" class="px-8 py-3 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-amber-400 transition transform hover:-translate-y-1">
+                            View Details
+                        </a>
+                    </div>
                 </div>
-                <div class="flagship-feature-item">
-                    <div class="flagship-feature-icon">🎨</div>
-                    <div class="flagship-feature-title">Gradients</div>
-                    <p class="flagship-feature-desc">Carefully crafted colors</p>
+
+                <!-- Right: Visual -->
+                <div class="md:w-1/2 bg-slate-900/50 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center opacity-40 mix-blend-luminosity group-hover:scale-105 transition duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center p-8 backdrop-blur-sm border border-white/10 rounded-sm bg-black/20">
+                            <div class="serif text-4xl md:text-5xl gold-text tracking-widest mb-2">LIQUID</div>
+                            <div class="text-[10px] uppercase tracking-[0.5em] text-white/60">GOLD</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flagship-feature-item">
-                    <div class="flagship-feature-icon">💎</div>
-                    <div class="flagship-feature-title">Professional</div>
-                    <p class="flagship-feature-desc">Polished, refined design</p>
-                </div>
+
             </div>
-            <button class="flagship-button" onclick="window.location.href='Weblings/liquid_gold/index.html'">View & Customize</button>
         </div>
     </section>
 
@@ -705,7 +737,7 @@
                     <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <div class="serif text-xl text-white">$${w.price.toFixed(2)}</div>
-                        <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">View</a>
+                        <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">View</a>
                     </div>
                 </div>
             `).join('');
