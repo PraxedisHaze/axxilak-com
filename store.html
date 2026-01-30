@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK Studios | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Inter', 'Arial', sans-serif;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin-bottom: 32px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            color: #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.3);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .webling-card {
+            background: rgba(36, 41, 59, 0.4);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+        }
+
+        .webling-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .card-vibe {
+            font-size: 11px;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .card-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 16px;
+        }
+
+        .card-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            color: #0F1115;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            letter-spacing: 1px;
+        }
+
+        .card-button:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+            transform: scale(1.02);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AXXILAK</h1>
+            <p class="subtitle">Professional Weblings. Designed Once. Customized by You. Owned Forever.</p>
+        </header>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">All Weblings</button>
+            <button class="filter-btn" data-filter="luxury">Luxury</button>
+            <button class="filter-btn" data-filter="minimal">Minimal</button>
+            <button class="filter-btn" data-filter="tech">Tech</button>
+            <button class="filter-btn" data-filter="creative">Creative</button>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <p>No weblings match your filter. Try a different category.</p>
+        </div>
+    </div>
+
+    <script>
+        let catalog = [];
+        let activeFilter = 'all';
+
+        // Embedded catalog data
+        const catalogData = {
+            "weblings": [
+                {"id": "liquid-gold", "name": "Liquid Gold", "vibe": "Luxury / Pro", "price": 19.95, "description": "The standard of excellence. Glassmorphism, premium gradients, and professional poise."},
+                {"id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "price": 19.95, "description": "Presence without effort. A breathing architecture for the high-frequency creator."},
+                {"id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "price": 19.95, "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic."},
+                {"id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "price": 19.95, "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal."},
+                {"id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "price": 19.95, "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes."},
+                {"id": "velvet", "name": "Velvet", "vibe": "Void / Luxury", "price": 19.95, "description": "Elegance is refusal. Silk and shadow for the discerning atelier."},
+                {"id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "price": 19.95, "description": "Rooted in the real. Organic curves and digital roots for sustainable growth."},
+                {"id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "price": 19.95, "description": "Find your frequency. Shifting iridescent gradients for the modern mystic."},
+                {"id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "price": 19.95, "description": "Beyond the peak. Tactical, high-contrast presence for the explorer."},
+                {"id": "oracle", "name": "Oracle", "vibe": "Stars / Mystic", "price": 19.95, "description": "As above, so below. A celestial signature written in stardust."},
+                {"id": "apex", "name": "Apex", "vibe": "Structure / Corporate", "price": 19.95, "description": "Precision is power. Ultra-clean, sharp architecture for tech authority."},
+                {"id": "canvas", "name": "Canvas", "vibe": "Void / Gallery", "price": 19.95, "description": "The content is the architecture. Minimalist whitespace for the fine artist."},
+                {"id": "cipher", "name": "Cipher", "vibe": "Logic / Terminal", "price": 19.95, "description": "Code is law. A terminal-first presence for the technical sovereign."}
+            ]
+        };
+
+        // Load catalog
+        function loadCatalog() {
+            catalog = catalogData.weblings;
+            renderGallery();
+        }
+
+        // Render gallery
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const filtered = filterWeblings();
+
+            if (filtered.length === 0) {
+                gallery.style.display = 'none';
+                document.getElementById('empty-state').style.display = 'block';
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            document.getElementById('empty-state').style.display = 'none';
+
+            gallery.innerHTML = filtered.map(webling => `
+                <div class="webling-card">
+                    <div class="card-vibe">${webling.vibe}</div>
+                    <div class="card-name">${webling.name}</div>
+                    <div class="card-description">${webling.description}</div>
+                    <div class="card-price">$${webling.price.toFixed(2)}</div>
+                    <button class="card-button" onclick="viewWebling('${webling.id}')">View & Customize</button>
+                </div>
+            `).join('');
+        }
+
+        // Filter logic
+        function filterWeblings() {
+            if (activeFilter === 'all') return catalog;
+
+            const categoryMap = {
+                luxury: ['liquid-gold', 'velvet', 'aura'],
+                minimal: ['ether', 'canvas', 'cipher'],
+                tech: ['neon-tokyo', 'apex', 'cipher'],
+                creative: ['canvas', 'aura', 'oracle', 'gaia']
+            };
+
+            return catalog.filter(w => categoryMap[activeFilter]?.includes(w.id));
+        }
+
+        // Filter button listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeFilter = btn.dataset.filter;
+                renderGallery();
+            });
+        });
+
+        // View webling (placeholder - will link to webling detail or editor)
+        function viewWebling(id) {
+            const weblingMap = {
+                'liquid-gold': 'liquid_gold',
+                'iron-ink': 'iron_ink',
+                'neon-tokyo': 'neon_tokyo'
+            };
+            const folderName = weblingMap[id] || id.replace(/-/g, '_');
+            const path = `../../../Mavornine/Weblings/${folderName}/index.html`;
+            window.location.href = path;
+        }
+
+        // Initialize
+        loadCatalog();
+    </script>
+</body>
+</html>

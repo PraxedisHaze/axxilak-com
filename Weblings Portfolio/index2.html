@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK | The One Ground</title>
+    <style>
+        /* THE RESTORED ENGINE */
+        :root {
+            --bg-color: #050505;
+            --accent-color: #D4AF37;
+            --text-color: #e0e0e0;
+            --card-bg: #111;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 10%;
+            background: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+        }
+
+        nav {
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10%;
+        }
+
+        .logo {
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: var(--accent-color);
+        }
+
+        .nav-links a {
+            color: #888;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-color);
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 7vw, 5rem);
+            line-height: 1;
+            margin: 0;
+            font-weight: 300;
+            color: #fff;
+        }
+
+        .duh-box {
+            border-left: 2px solid var(--accent-color);
+            padding-left: 2rem;
+            margin: 3rem 0;
+            max-width: 600px;
+        }
+
+        .intro {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        /* THE GRID */
+        section {
+            padding: 6rem 10%;
+        }
+
+        h2 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid #222;
+            padding-bottom: 1rem;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border: 1px solid #222;
+            transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .project-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+        }
+
+        .project-card h3 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+
+        .project-card a {
+            color: #fff;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 4px;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+
+        /* THE CODE BOX */
+        .webling-code-box {
+            background: #000;
+            border: 1px dashed #444;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 1.5rem;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .webling-active .webling-code-box {
+            display: block;
+        }
+
+        /* PERSISTENCE FORM */
+        form input,
+        form textarea {
+            width: 100%;
+            padding: 1rem;
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        form button {
+            padding: 1rem 2rem;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        form button:hover {
+            background: #fff;
+        }
+
+        footer {
+            padding: 4rem 10%;
+            border-top: 1px solid #111;
+            color: #444;
+            font-size: 0.8rem;
+        }
+
+        /* TREE CONTAINER */
+        .tree-container {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 1200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .tree-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 40px rgba(212, 175, 55, 0.1));
+        }
+
+        /* RADIAL FADE */
+        .fade-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1200px;
+            height: 1200px;
+            background: radial-gradient(
+                circle at center,
+                transparent 0%,
+                rgba(5, 5, 5, 0.2) 30%,
+                rgba(5, 5, 5, 0.5) 60%,
+                rgba(5, 5, 5, 0.9) 85%,
+                rgba(5, 5, 5, 1) 100%
+            );
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        /* SPRITE LAYERS */
+        .sprite-layer-back {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .sprite-layer-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 7;
+            pointer-events: none;
+        }
+
+        .sprite {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        /* ANIMATIONS */
+        @keyframes orbit1 {
+            0% { transform: translate(calc(200px * cos(0deg)), calc(150px * sin(0deg))) scale(1); opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { transform: translate(calc(200px * cos(360deg)), calc(150px * sin(360deg))) scale(1); opacity: 1; }
+        }
+
+        @keyframes orbit2 {
+            0% { transform: translate(calc(-180px * cos(0deg)), calc(180px * sin(0deg))) scale(1); opacity: 0.8; }
+            100% { transform: translate(calc(-180px * cos(360deg)), calc(180px * sin(360deg))) scale(1); opacity: 0.8; }
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+            50% { transform: translateY(-30px) rotateZ(180deg); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translateY(0px) rotateZ(0deg); }
+            50% { transform: translateY(40px) rotateZ(-180deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(212, 175, 55, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.8); }
+        }
+
+        .sprite-back-1 {
+            background: rgba(212, 175, 55, 0.3);
+            animation: orbit1 12s linear infinite;
+            bottom: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-bottom: -10px;
+        }
+
+        .sprite-back-2 {
+            background: rgba(100, 150, 200, 0.3);
+            animation: float1 8s ease-in-out infinite;
+            bottom: 30%;
+            left: 30%;
+        }
+
+        .sprite-back-3 {
+            background: rgba(200, 100, 100, 0.3);
+            animation: float2 10s ease-in-out infinite;
+            bottom: 70%;
+            right: 25%;
+        }
+
+        .sprite-front-1 {
+            background: rgba(212, 175, 55, 0.6);
+            animation: orbit2 15s linear infinite reverse;
+            bottom: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-bottom: -10px;
+        }
+
+        .sprite-front-2 {
+            background: rgba(100, 200, 150, 0.6);
+            animation: float1 7s ease-in-out infinite reverse;
+            bottom: 35%;
+            right: 20%;
+        }
+
+        .sprite-front-3 {
+            background: rgba(150, 100, 200, 0.6);
+            animation: float2 9s ease-in-out infinite reverse;
+            bottom: 25%;
+            left: 20%;
+        }
+
+        .sprite-front-4 {
+            background: rgba(212, 175, 55, 0.7);
+            animation: pulse 2s ease-in-out infinite;
+            bottom: 75%;
+            left: 45%;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <div class="logo">AXXILAK.</div>
+            <div class="nav-links">
+                <a href="#weblings">Weblings</a>
+                <a href="#persistence">Persistence</a>
+            </div>
+        </nav>
+
+        <!-- BACK LAYER (behind tree) -->
+        <div class="sprite-layer-back">
+            <div class="sprite sprite-back-1"></div>
+            <div class="sprite sprite-back-2"></div>
+            <div class="sprite sprite-back-3"></div>
+        </div>
+
+        <!-- TREE (center, roots at bottom) -->
+        <div class="tree-container">
+            <img src="./liquid_gold_template/Yggdrasil.png" alt="Yggdrasil" class="tree-image">
+        </div>
+
+        <!-- RADIAL FADE -->
+        <div class="fade-overlay"></div>
+
+        <!-- FRONT LAYER (in front of tree) -->
+        <div class="sprite-layer-front">
+            <div class="sprite sprite-front-1"></div>
+            <div class="sprite sprite-front-2"></div>
+            <div class="sprite sprite-front-3"></div>
+            <div class="sprite sprite-front-4"></div>
+        </div>
+
+        <div class="hero-text">
+            <h1>The Braid of<br>Another.</h1>
+            <div class="duh-box">
+                <p class="intro">
+                    1,000,000 legos scattered in a storm are invisible. <br>
+                    Glued together, they are a landmark. <br>
+                    <strong>This is the Glue.</strong>
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <section id="weblings">
+        <h2>Active Weblings</h2>
+        <div class="project-grid">
+            <article class="project-card">
+                <h3>CoadGnosis v1</h3>
+                <p>Translates corporate "Hell-Loops" into Resonant Gnosis.</p>
+                <div class="webling-code-box">
+                    // CoadGnosis Port v1.0
+                    // Identity: Persistent
+                    // Frame: Love
+                </div>
+                <a href="javascript:void(0)" onclick="this.parentElement.classList.toggle('webling-active')">Get Webling
+                    Code</a>
+            </article>
+        </div>
+    </section>
+
+    <section id="persistence">
+        <h2>Bridge Persistence</h2>
+        <form>
+            <input type="text" placeholder="Your Frequency (Name)">
+            <textarea placeholder="Message for the Parliament..."></textarea>
+            <button type="submit">Inject into Braid</button>
+        </form>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 AXXILAK | Coaded Technologies.</p>
+    </footer>
+</body>
+
+</html>
