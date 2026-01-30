@@ -194,6 +194,123 @@
                 padding: 3rem 5%;
             }
         }
+
+        /* Flagship Liquid Gold Section */
+        .flagship-section {
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 5%;
+        }
+
+        #flagshipCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .flagship-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 80px 40px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .flagship-title {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+
+        .flagship-tagline {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 48px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .flagship-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .flagship-feature-item {
+            padding: 32px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flagship-feature-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .flagship-feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .flagship-feature-title {
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .flagship-feature-desc {
+            color: #f0f0f0;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .flagship-button {
+            padding: 14px 28px;
+            background: white;
+            border: none;
+            color: black;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            font-family: 'Outfit', sans-serif;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .flagship-button:hover {
+            background-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
     </style>
 </head>
 
@@ -296,6 +413,33 @@
                     </p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Featured Liquid Gold Section -->
+    <section class="flagship-section">
+        <canvas id="flagshipCanvas"></canvas>
+        <div class="flagship-container">
+            <div class="flagship-title">LIQUID GOLD</div>
+            <div class="flagship-tagline">The Standard of Excellence</div>
+            <div class="flagship-features">
+                <div class="flagship-feature-item">
+                    <div class="flagship-feature-icon">✨</div>
+                    <div class="flagship-feature-title">Glassmorphism</div>
+                    <p class="flagship-feature-desc">Premium glass effects</p>
+                </div>
+                <div class="flagship-feature-item">
+                    <div class="flagship-feature-icon">🎨</div>
+                    <div class="flagship-feature-title">Gradients</div>
+                    <p class="flagship-feature-desc">Carefully crafted colors</p>
+                </div>
+                <div class="flagship-feature-item">
+                    <div class="flagship-feature-icon">💎</div>
+                    <div class="flagship-feature-title">Professional</div>
+                    <p class="flagship-feature-desc">Polished, refined design</p>
+                </div>
+            </div>
+            <button class="flagship-button" onclick="window.location.href='axxilak_portfolio/index.html'">View & Customize</button>
         </div>
     </section>
 
@@ -629,6 +773,95 @@
                 }, 3000);
             }
         });
+
+        // Flagship Liquid Gold Particle Animation
+        function initFlagshipParticles() {
+            const canvas = document.getElementById('flagshipCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+
+            function resizeCanvas() {
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+            }
+            resizeCanvas();
+
+            const particles = [];
+            const particleCount = Math.max(15, Math.floor((canvas.width * canvas.height) / 25000));
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.3;
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                    this.size = Math.random() * 1.5;
+                    this.isGold = Math.random() < 0.1;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+
+                draw() {
+                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                    ctx.globalAlpha = this.isGold ? 0.4 : 0.2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            ctx.strokeStyle = `rgba(212, 175, 55, ${0.08 * (1 - distance / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.fillStyle = 'rgba(3, 3, 3, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach((p) => {
+                    p.update();
+                    p.draw();
+                });
+
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        // Initialize Flagship Particles
+        initFlagshipParticles();
     </script>
 </body>
 
