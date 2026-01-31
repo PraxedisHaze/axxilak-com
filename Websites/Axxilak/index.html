@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK | Digital Architectures for the Sovereign</title>
+    <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. High-performance, low-friction, Anothen-aligned.">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Cinzel + Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #d4af37;
+            --bg: #030303;
+            --glass: rgba(20, 20, 20, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #f0f0f0;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            cursor: auto;
+        }
+
+        h1, h2, h3, .serif {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot, #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            opacity: 1;
+        }
+
+        #cursor-outline {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--primary);
+            opacity: 0.7;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Gold Gradient Text */
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 5s linear infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: -1000px; }
+            100% { background-position: 1000px; }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hover Effects */
+        .hover-trigger {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .hover-trigger:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Marquee */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(212, 175, 55, 0.02);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+            padding-right: 2rem;
+        }
+
+        .marquee-content span {
+            margin-right: 3rem;
+            opacity: 0.3;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Form */
+        input, textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: border-color 0.3s;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: var(--primary);
+        }
+
+        .form-button {
+            background: white;
+            color: black;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: var(--primary);
+        }
+
+        /* Particle Canvas */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Section Spacing */
+        section {
+            padding: 6rem 5%;
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 3rem 5%;
+            }
+        }
+
+        /* Flagship Liquid Gold Section */
+        .flagship-section {
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 5%;
+        }
+
+        #flagshipCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .flagship-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 80px 40px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .flagship-title {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+
+        .flagship-tagline {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 48px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .flagship-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .flagship-feature-item {
+            padding: 32px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flagship-feature-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .flagship-feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .flagship-feature-title {
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .flagship-feature-desc {
+            color: #f0f0f0;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .flagship-button {
+            padding: 14px 28px;
+            background: white;
+            border: none;
+            color: black;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            font-family: 'Outfit', sans-serif;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .flagship-button:hover {
+            background-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cursor: Restored to user ownership -->
+
+    <!-- Particle Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
+        <nav class="flex items-center justify-between px-6 md:px-12 py-6">
+            <a href="#" class="flex flex-col hover:opacity-80 transition">
+                <div class="serif font-bold text-2xl tracking-widest text-white">
+                    AXXILAK <span class="font-light opacity-80">Studios</span>
+                </div>
+                <div class="text-[10px] uppercase tracking-[0.3em] text-amber-400/60 font-light mt-1">
+                    We make beautiful apps.
+                </div>
+            </a>
+            <div class="flex gap-8 items-center">
+                <a href="#contact" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
+                <a href="axxilak_portfolio/index.html" class="px-4 py-2 border border-white/20 hover:border-amber-400 rounded-sm text-sm transition">About Me</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col items-center justify-center gap-8 text-center">
+        <div class="max-w-3xl">
+            <h1 class="text-6xl md:text-8xl font-light serif italic leading-tight mb-8">
+                Hello and <span class="gold-text">WELCOME</span>!
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 mb-6 font-light max-w-3xl mx-auto">
+                Look around. Try some stuff.<br>Don't miss our collection of <span class="text-amber-400 font-semibold">FREE STUFF</span> we've found over the years.
+            </p>
+            <p class="text-sm text-slate-400 mb-12 font-light italic">
+                Together, working to make the world a better place.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#featured-liquid-gold" class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
+                    Meet The Collection
+                </a>
+                <button id="demoEditBtn" class="inline-block px-8 py-4 border-2 border-white text-white font-semibold hover:bg-white hover:text-black transition">
+                    Try Editing Now
+                </button>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 animate-bounce">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Marquee Separator -->
+    <div class="marquee py-8">
+        <div class="marquee-content">
+            <span>RESPONSIVE DESIGN</span>
+            <span>FULLY CUSTOMIZABLE</span>
+            <span>PROFESSIONAL WEBLINGS</span>
+            <span>RESPONSIVE DESIGN</span>
+            <span>FULLY CUSTOMIZABLE</span>
+            <span>PROFESSIONAL WEBLINGS</span>
+        </div>
+    </div>
+
+    <!-- Value Proposition -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">How Weblings Work</h2>
+            <p class="text-center text-slate-400 mb-16 font-light italic">Designed for actual ownership. Your vision, your terms, forever.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-lock-open"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Actual Ownership</h3>
+                    <p class="text-slate-300 font-light">
+                        Download once. Own forever. One-time purchase, zero ongoing costs. Your site, your data, your rules.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 100ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Edit Without Code</h3>
+                    <p class="text-slate-300 font-light">
+                        Visual editor built-in. Click to edit text, swap images, change colors. No technical knowledge required.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 200ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Thoughtful Details</h3>
+                    <p class="text-slate-300 font-light">
+                        Every webling includes features you'll discover as you use it. Design choices made to help you.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Featured Webling (Split View) -->
+    <section id="featured-liquid-gold" class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-panel rounded-sm overflow-hidden flex flex-col md:flex-row hover-trigger reveal">
+                
+                <!-- Left: Content -->
+                <div class="p-8 md:p-12 md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10 bg-gradient-to-br from-black/40 to-transparent">
+                    <div class="text-[10px] uppercase tracking-[0.3em] text-amber-400 mb-4">Flagship: The Webling Standard</div>
+                    <h2 class="serif text-4xl md:text-5xl text-white mb-6">Liquid Gold</h2>
+                    <p class="text-slate-300 font-light leading-relaxed mb-8">
+                        Premium design meets practical simplicity. Built for creators who want their work to shine without the complexity.
+                    </p>
+                    <p class="text-slate-300 font-light italic text-sm mb-8">
+                        Glassmorphism meets function. Beautiful, responsive, and ready for your voice.
+                    </p>
+                    
+                    <ul class="space-y-3 mb-10 text-sm text-slate-400 font-light">
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Fully Responsive & Mobile-First</li>
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Offline Visual Editor Included</li>
+                        <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Zero-Dependency Deployment</li>
+                    </ul>
+
+                    <div class="mt-auto pt-6 border-t border-white/10 flex items-center justify-between">
+                        <div>
+                            <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Launch Price</div>
+                            <div class="flex items-baseline gap-3">
+                                <span class="text-lg text-slate-600 line-through decoration-red-500/50 decoration-1">$50.00</span>
+                                <span class="serif text-3xl text-amber-400">$20.00</span>
+                            </div>
+                        </div>
+                        <a href="Weblings/liquid_gold/index.html" target="_blank" rel="noopener noreferrer" class="px-8 py-3 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-amber-400 transition transform hover:-translate-y-1">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right: Visual -->
+                <div class="md:w-1/2 bg-slate-900/50 relative group overflow-hidden">
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')] bg-cover bg-center opacity-40 mix-blend-luminosity group-hover:scale-105 transition duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center p-8 backdrop-blur-sm border border-white/10 rounded-sm bg-black/20">
+                            <div class="serif text-4xl md:text-5xl gold-text tracking-widest mb-2">LIQUID</div>
+                            <div class="text-[10px] uppercase tracking-[0.5em] text-white/60">GOLD</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Collection -->
+    <section id="weblings" class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">The Collection</h2>
+            <p class="text-center text-slate-400 text-sm mb-12 font-light italic">
+                Thirteen distinct designs for different voices. Each one complete, each one yours to keep and customize forever.
+            </p>
+
+            <!-- Editor Discovery Section -->
+            <div class="glass-panel p-8 mb-12 rounded-sm border border-amber-400/30 bg-amber-400/5 text-center reveal">
+                <p class="text-amber-400 font-light mb-2 text-sm uppercase tracking-widest">✓ Included with Every Webling</p>
+                <h3 class="serif text-2xl mb-4">Visual Editor</h3>
+                <p class="text-slate-300 font-light mb-6 max-w-2xl mx-auto">
+                    Edit your webling directly in the browser. <span class="text-amber-400 font-semibold">Click text to modify. Swap images. Rearrange sections.</span>
+                    Make changes, download the updated version, keep it forever.
+                </p>
+                <p class="text-slate-400 text-sm italic">
+                    Click the <span class="text-amber-400 font-semibold">✏️ Edit This Site</span> button on any webling to get started.
+                </p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button class="filter-btn active px-6 py-2 border border-amber-400/50 bg-amber-400/10 text-amber-400 rounded-sm text-xs uppercase tracking-widest hover:bg-amber-400 hover:text-black transition" data-filter="all">All</button>
+                <button class="filter-btn px-6 py-2 border border-white/10 text-slate-400 rounded-sm text-xs uppercase tracking-widest hover:border-amber-400 hover:text-amber-400 transition" data-filter="luxury">Luxury</button>
+                <button class="filter-btn px-6 py-2 border border-white/10 text-slate-400 rounded-sm text-xs uppercase tracking-widest hover:border-amber-400 hover:text-amber-400 transition" data-filter="minimal">Minimal</button>
+                <button class="filter-btn px-6 py-2 border border-white/10 text-slate-400 rounded-sm text-xs uppercase tracking-widest hover:border-amber-400 hover:text-amber-400 transition" data-filter="tech">Tech</button>
+                <button class="filter-btn px-6 py-2 border border-white/10 text-slate-400 rounded-sm text-xs uppercase tracking-widest hover:border-amber-400 hover:text-amber-400 transition" data-filter="creative">Creative</button>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Javascript will inject cards here -->
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-20 text-slate-500">
+                <p>No architectures found in this category.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="max-w-2xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">Questions? Ideas?</h2>
+            <p class="text-center text-slate-400 mb-12 font-light">
+                Need something custom? Have feedback about the weblings?
+                <br><br>
+                <span class="text-amber-400">Let's talk. We're here to listen.</span>
+            </p>
+
+            <form id="contact-form" action="https://formspree.io/f/mkojaejr" method="POST" class="glass-panel p-8 md:p-12 space-y-6 rounded-sm reveal">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                    <input type="text" name="name" required placeholder="Your name" class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" required placeholder="your@email.com" class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
+                    <textarea name="message" rows="5" required placeholder="Tell us about your project..." class="w-full bg-transparent py-3 text-white resize-none"></textarea>
+                </div>
+
+                <button type="submit" class="w-full form-button py-4 rounded-sm text-center uppercase tracking-widest font-semibold">
+                    Send Message
+                </button>
+
+                <p class="text-xs text-slate-500 text-center">Or email: <a href="mailto:contact@axxilak.com" class="text-amber-400 hover:underline">contact@axxilak.com</a></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <h4 class="serif text-xl mb-4">AXXILAK <span class="font-light opacity-60">Studios</span></h4>
+                    <p class="text-slate-400 text-sm font-light">
+                        Weblings are designed for creators who believe ownership matters.<br><br>
+                        <span class="text-amber-400">Your voice. Your site. Your terms.</span>
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Explore</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#weblings" class="hover:text-amber-400 transition">Browse Weblings</a></li>
+                        <li><a href="#contact" class="hover:text-amber-400 transition">Get in Touch</a></li>
+                        <li><a href="axxilak_portfolio/index.html" class="hover:text-amber-400 transition">Our Story</a></li>
+                    </ul>
+                </div>
+                <!-- <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Social</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition">Twitter</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">Instagram</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">LinkedIn</a></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+                <p class="mb-4">&copy; 2026 AXXILAK. All rights reserved.</p>
+                <p class="text-xs text-slate-600 italic">
+                    Explore each webling. You might notice some thoughtful details along the way.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Cursor: Ownership restored to user
+
+        // Particle Network
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = Math.max(20, Math.floor((canvas.width * canvas.height) / 15000));
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 1.5;
+                this.isGold = Math.random() < 0.05;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                ctx.globalAlpha = this.isGold ? 0.5 : 0.3;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${0.1 * (1 - distance / 150)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p) => {
+                p.update();
+                p.draw();
+            });
+
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const revealOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealOnScroll.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        reveals.forEach((reveal) => revealOnScroll.observe(reveal));
+
+        // --- CATALOG LOGIC ---
+        const catalogData = {
+            "weblings": [
+                {"id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "price": 50.00, "description": "Presence without effort. A breathing architecture for the high-frequency creator."},
+                {"id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "price": 50.00, "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic."},       
+                {"id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "price": 50.00, "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal."},        
+                {"id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "price": 50.00, "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes."},
+                {"id": "velvet", "name": "Velvet", "vibe": "Void / Luxury", "price": 50.00, "description": "Elegance is refusal. Silk and shadow for the discerning atelier."},
+                {"id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "price": 50.00, "description": "Rooted in the real. Organic curves and digital roots for sustainable growth."},
+                {"id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "price": 50.00, "description": "Find your frequency. Shifting iridescent gradients for the modern mystic."},
+                {"id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "price": 50.00, "description": "Beyond the peak. Tactical, high-contrast presence for the explorer."},
+                {"id": "oracle", "name": "Oracle", "vibe": "Stars / Mystic", "price": 50.00, "description": "As above, so below. A celestial signature written in stardust."},
+                {"id": "apex", "name": "Apex", "vibe": "Structure / Corporate", "price": 50.00, "description": "Precision is power. Ultra-clean, sharp architecture for tech authority."},
+                {"id": "canvas", "name": "Canvas", "vibe": "Void / Gallery", "price": 50.00, "description": "The content is the architecture. Minimalist whitespace for the fine artist."},
+                {"id": "cipher", "name": "Cipher", "vibe": "Logic / Terminal", "price": 50.00, "description": "Code is law. A terminal-first presence for the technical sovereign."}
+            ]
+        };
+
+        let activeFilter = 'all';
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('empty-state');
+            
+            let filtered = catalogData.weblings;
+            if (activeFilter !== 'all') {
+                const categoryMap = {
+                    luxury: ['velvet', 'aura'],
+                    minimal: ['ether', 'canvas', 'cipher'],
+                    tech: ['neon-tokyo', 'apex', 'cipher'],
+                    creative: ['canvas', 'aura', 'oracle', 'gaia']
+                };
+                filtered = filtered.filter(w => categoryMap[activeFilter]?.includes(w.id));
+            }
+
+            if (filtered.length === 0) {
+                gallery.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            gallery.innerHTML = filtered.map((w, index) => `
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal" style="animation-delay: ${index * 50}ms">
+                    <div class="text-[10px] uppercase tracking-widest text-amber-400 mb-2">${w.vibe}</div>
+                    <h3 class="serif text-2xl mb-2 text-white">${w.name}</h3>
+                    <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <div class="serif text-xl text-white">$${w.price.toFixed(2)}</div>
+                        <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">View</a>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Re-trigger reveal animation for new elements
+            const newReveals = gallery.querySelectorAll('.reveal');
+            newReveals.forEach(r => revealOnScroll.observe(r));
+        }
+
+        // Filter Listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active state styles
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-amber-400/10', 'text-amber-400', 'border-amber-400/50');
+                    b.classList.add('text-slate-400', 'border-white/10');
+                });
+                btn.classList.remove('text-slate-400', 'border-white/10');
+                btn.classList.add('active', 'bg-amber-400/10', 'text-amber-400', 'border-amber-400/50');
+                
+                activeFilter = btn.dataset.filter;
+                renderGallery();
+            });
+        });
+
+        // Initial Render
+        renderGallery();
+
+        // Form Submission
+        const contactForm = document.getElementById('contact-form');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const button = contactForm.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            try {
+                const formData = new FormData(contactForm);
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    button.textContent = 'Message Received ✓';
+                    contactForm.reset();
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                button.textContent = 'Error - Please Try Again';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 3000);
+            }
+        });
+
+        // Flagship Liquid Gold Particle Animation
+        function initFlagshipParticles() {
+            const canvas = document.getElementById('flagshipCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+
+            function resizeCanvas() {
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+            }
+            resizeCanvas();
+
+            const particles = [];
+            const particleCount = Math.max(15, Math.floor((canvas.width * canvas.height) / 25000));
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.3;
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                    this.size = Math.random() * 1.5;
+                    this.isGold = Math.random() < 0.1;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+
+                draw() {
+                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                    ctx.globalAlpha = this.isGold ? 0.4 : 0.2;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function drawLines() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            ctx.strokeStyle = `rgba(212, 175, 55, ${0.08 * (1 - distance / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.fillStyle = 'rgba(3, 3, 3, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach((p) => {
+                    p.update();
+                    p.draw();
+                });
+
+                drawLines();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        // Initialize Flagship Particles
+        initFlagshipParticles();
+
+        // Demo Edit Button: Enable inline editing on hero section
+        const demoEditBtn = document.getElementById('demoEditBtn');
+        let isEditMode = false;
+
+        demoEditBtn.addEventListener('click', () => {
+            isEditMode = !isEditMode;
+
+            if (isEditMode) {
+                demoEditBtn.textContent = 'Done Editing';
+                demoEditBtn.classList.add('bg-amber-400', 'text-black');
+                demoEditBtn.classList.remove('border-white', 'text-white');
+
+                // Make hero section elements editable
+                const heroSection = document.querySelector('.min-h-screen');
+                const editableElements = heroSection.querySelectorAll('h1, p');
+
+                editableElements.forEach(el => {
+                    el.contentEditable = true;
+                    el.style.outline = '2px dashed #d4af37';
+                    el.style.outlineOffset = '4px';
+                    el.style.cursor = 'text';
+                });
+            } else {
+                demoEditBtn.textContent = 'Try Editing Now';
+                demoEditBtn.classList.remove('bg-amber-400', 'text-black');
+                demoEditBtn.classList.add('border-white', 'text-white');
+
+                // Disable editing
+                const heroSection = document.querySelector('.min-h-screen');
+                const editableElements = heroSection.querySelectorAll('h1, p');
+
+                editableElements.forEach(el => {
+                    el.contentEditable = false;
+                    el.style.outline = 'none';
+                    el.style.cursor = 'auto';
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
+< ! - -   B u i l d   T r i g g e r :   0 1 / 3 0 / 2 0 2 6   0 7 : 3 5 : 1 4   - - >  
+ 
