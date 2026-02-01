@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Stuff - Axxilak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fde047, #d4af37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .intro p {
+            margin-bottom: 0.5rem;
+        }
+
+        .intro strong {
+            color: #fde047;
+        }
+
+        .resources {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .resource-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resource-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(212, 175, 55, 0.6);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(212, 175, 55, 0.15);
+        }
+
+        .resource-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #fde047;
+        }
+
+        .resource-desc {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #d4af37;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .resource-link:after {
+            content: "→";
+            transition: transform 0.2s ease;
+        }
+
+        .resource-card:hover .resource-link:after {
+            transform: translateX(4px);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 2rem;
+            color: #d4af37;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #fde047;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .resources {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Axxilak</a>
+
+        <header>
+            <h1>Free Stuff</h1>
+            <p class="tagline">Friendly links to amazing free tools</p>
+        </header>
+
+        <div class="intro">
+            <p><strong>Building something beautiful?</strong></p>
+            <p>These are the tools we love. All free, all excellent. Use them to create images, videos, audio, 3D models, and more for your weblings.</p>
+        </div>
+
+        <div class="resources">
+            <!-- Image Generation -->
+            <a href="https://perchance.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">Perchance</div>
+                <div class="resource-desc">AI image generation. Fast, fun, no signup needed. Perfect for webling hero images.</div>
+                <div class="resource-link">Visit Perchance</div>
+            </a>
+
+            <!-- Stock Photos -->
+            <a href="https://pixabay.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">Pixabay</div>
+                <div class="resource-desc">Millions of free stock photos and videos. Highest quality, truly free to use commercially.</div>
+                <div class="resource-link">Browse Pixabay</div>
+            </a>
+
+            <!-- 3D & Design -->
+            <a href="https://www.blender.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">Blender</div>
+                <div class="resource-desc">Professional 3D modeling, rendering, and animation. Industry-standard, completely free.</div>
+                <div class="resource-link">Get Blender</div>
+            </a>
+
+            <a href="https://www.gimp.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">GIMP</div>
+                <div class="resource-desc">Photoshop alternative. Full-featured image editor. Everything you need, nothing you don't.</div>
+                <div class="resource-link">Get GIMP</div>
+            </a>
+
+            <!-- Audio -->
+            <a href="https://www.audacityteam.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">Audacity</div>
+                <div class="resource-desc">Record and edit audio. Podcasts, voiceovers, music production. Simple and powerful.</div>
+                <div class="resource-link">Get Audacity</div>
+            </a>
+
+            <!-- Video -->
+            <a href="https://www.davinciresolve.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">DaVinci Resolve</div>
+                <div class="resource-desc">Professional video editing and color grading. Hollywood-grade tools, completely free.</div>
+                <div class="resource-link">Get DaVinci Resolve</div>
+            </a>
+
+            <a href="https://obsproject.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">OBS Studio</div>
+                <div class="resource-desc">Screen recording and live streaming. Record your webling in action. Perfect for demos.</div>
+                <div class="resource-link">Get OBS Studio</div>
+            </a>
+
+            <!-- AI Models -->
+            <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">A1111 / Stable Diffusion</div>
+                <div class="resource-desc">Run AI image generation locally. Full control, unlimited generations. For power users.</div>
+                <div class="resource-link">Get A1111</div>
+            </a>
+
+            <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">ComfyUI</div>
+                <div class="resource-desc">Node-based AI image generation. Visual workflow. Advanced but intuitive.</div>
+                <div class="resource-link">Get ComfyUI</div>
+            </a>
+
+            <!-- Reference & Research -->
+            <a href="https://www.cnet.com/reviews/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">CNET</div>
+                <div class="resource-desc">Tech news, reviews, and guides. Stay informed about new tools and hardware.</div>
+                <div class="resource-link">Visit CNET</div>
+            </a>
+
+            <!-- Fun & Inspiration -->
+            <a href="https://scaleofuniverse.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                <div class="resource-title">Scale of the Universe</div>
+                <div class="resource-desc">Explore the cosmos from the smallest particles to the largest galaxies. Mind-expanding.</div>
+                <div class="resource-link">Explore Scale</div>
+            </a>
+        </div>
+
+        <footer>
+            <p>These are genuine recommendations from the Axxilak team. We get nothing for linking to them — we just think they're great.</p>
+            <p style="margin-top: 1rem;">Made with love at <strong>Axxilak Studios</strong></p>
+        </footer>
+    </div>
+</body>
+</html>
