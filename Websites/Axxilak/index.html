@@ -234,29 +234,31 @@
         }
 
         .flagship-container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             text-align: center;
             position: relative;
             z-index: 1;
-            padding: 80px 40px;
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 120px 60px;
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.6) 0%, rgba(30, 30, 40, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--primary);
+            border-top: 3px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 60px rgba(212, 175, 55, 0.2), inset 0 0 40px rgba(212, 175, 55, 0.05);
         }
 
         .flagship-title {
-            font-size: 56px;
+            font-size: 84px;
             font-weight: 700;
             font-family: 'Cinzel', serif;
             background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            margin-bottom: 16px;
-            letter-spacing: 2px;
+            margin-bottom: 24px;
+            letter-spacing: 3px;
             font-style: italic;
+            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
 
         .flagship-tagline {
@@ -330,6 +332,22 @@
         .flagship-button:hover {
             background-color: var(--primary);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        /* Price strikethrough styling */
+        .price-old {
+            text-decoration: line-through;
+            color: #ef4444;
+            font-weight: 700;
+            text-decoration-thickness: 4px;
+            text-decoration-color: #ef4444;
+        }
+
+        .price-new {
+            color: #fde047;
+            font-weight: 700;
+            font-size: 3.5rem;
+            letter-spacing: 2px;
         }
     </style>
 </head>
@@ -476,16 +494,18 @@
                         <li class="flex items-center gap-3"><span class="text-amber-400">❖</span> Custom Gold Cursor</li>
                     </ul>
 
-                    <div class="mt-auto pt-6 border-t border-white/10 flex items-center justify-between">
-                        <div>
-                            <div class="text-xs text-slate-500 uppercase tracking-widest mb-1">Price</div>
-                            <div class="flex items-baseline gap-3">
-                                <span class="serif text-3xl text-amber-400">$50.00</span>
+                    <div class="mt-auto pt-8 border-t border-white/10 border-t-2 flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="text-xs text-slate-400 uppercase tracking-widest mb-3">Limited Launch Offer</div>
+                            <div class="flex items-center justify-start gap-4 mb-4">
+                                <span class="price-old text-2xl">$50.00</span>
+                                <div class="price-new">$20</div>
                             </div>
+                            <p class="text-xs text-amber-300 uppercase tracking-widest font-semibold">Early Bird Price - Launch Week Only</p>
                         </div>
                         <a href="https://axxilak.gumroad.com/l/frypby" target="_blank" rel="noopener noreferrer"
-                            class="px-8 py-3 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-amber-400 transition transform hover:-translate-y-1">
-                            Get Velvet
+                            class="px-10 py-4 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-amber-300 transition transform hover:-translate-y-1 rounded-sm shadow-lg">
+                            Get Velvet Now
                         </a>
                     </div>
                 </div>
@@ -769,10 +789,11 @@
             const gallery = document.getElementById('gallery');
             const emptyState = document.getElementById('empty-state');
 
-            let filtered = catalogData.weblings;
+            // Exclude Velvet from gallery (featured separately)
+            let filtered = catalogData.weblings.filter(w => w.id !== 'velvet');
             if (activeFilter !== 'all') {
                 const categoryMap = {
-                    luxury: ['velvet', 'aura'],
+                    luxury: ['aura'],
                     minimal: ['ether', 'canvas', 'cipher'],
                     tech: ['neon-tokyo', 'apex', 'cipher'],
                     creative: ['canvas', 'aura', 'oracle', 'gaia']
