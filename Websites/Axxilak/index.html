@@ -796,10 +796,7 @@
                     <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <div class="serif text-xl text-white">$${w.price.toFixed(2)}</div>
-                        <div class="flex gap-2">
-                            <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-slate-700 text-white text-xs uppercase tracking-widest font-semibold hover:bg-slate-600 transition">Preview</a>
-                            <a href="https://axxilak.gumroad.com/l/frypby" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">Buy</a>
-                        </div>
+                        <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">Preview</a>
                     </div>
                 </div>
             `).join('');
