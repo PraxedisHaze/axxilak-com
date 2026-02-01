@@ -21,7 +21,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
@@ -61,11 +61,25 @@
             color: #fde047;
         }
 
+        .category {
+            margin-bottom: 3rem;
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #fde047;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
         .resources {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
-            margin-bottom: 2rem;
         }
 
         .resource-card {
@@ -88,14 +102,14 @@
         }
 
         .resource-title {
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
             color: #fde047;
         }
 
         .resource-desc {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #cbd5e1;
             margin-bottom: 1rem;
             flex-grow: 1;
@@ -107,7 +121,7 @@
             gap: 0.5rem;
             color: #d4af37;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .resource-link:after {
@@ -158,92 +172,286 @@
 
         <header>
             <h1>Free Stuff</h1>
-            <p class="tagline">Friendly links to amazing free tools</p>
+            <p class="tagline">Comprehensive collection of quality free tools</p>
         </header>
 
         <div class="intro">
             <p><strong>Building something beautiful?</strong></p>
-            <p>These are the tools we love. All free, all excellent. Use them to create images, videos, audio, 3D models, and more for your weblings.</p>
+            <p>These are the tools we love and actually use. All free, all excellent. Use them to create images, videos, code, designs, and more for your weblings.</p>
         </div>
 
-        <div class="resources">
-            <!-- Image Generation -->
-            <a href="https://perchance.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">Perchance</div>
-                <div class="resource-desc">AI image generation. Fast, fun, no signup needed. Perfect for webling hero images.</div>
-                <div class="resource-link">Visit Perchance</div>
-            </a>
+        <!-- IMAGE & DESIGN -->
+        <div class="category">
+            <div class="category-title">🎨 Image & Design</div>
+            <div class="resources">
+                <a href="https://perchance.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Perchance</div>
+                    <div class="resource-desc">AI image generation. Fast, fun, no signup needed. Perfect for hero images and backgrounds.</div>
+                    <div class="resource-link">Visit Perchance</div>
+                </a>
 
-            <!-- Stock Photos -->
-            <a href="https://pixabay.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">Pixabay</div>
-                <div class="resource-desc">Millions of free stock photos and videos. Highest quality, truly free to use commercially.</div>
-                <div class="resource-link">Browse Pixabay</div>
-            </a>
+                <a href="https://pixabay.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Pixabay</div>
+                    <div class="resource-desc">Millions of free stock photos and videos. Highest quality, truly free to use commercially.</div>
+                    <div class="resource-link">Browse Pixabay</div>
+                </a>
 
-            <!-- 3D & Design -->
-            <a href="https://www.blender.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">Blender</div>
-                <div class="resource-desc">Professional 3D modeling, rendering, and animation. Industry-standard, completely free.</div>
-                <div class="resource-link">Get Blender</div>
-            </a>
+                <a href="https://www.gimp.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">GIMP</div>
+                    <div class="resource-desc">Photoshop alternative. Full-featured image editor. Everything you need, nothing you don't.</div>
+                    <div class="resource-link">Get GIMP</div>
+                </a>
 
-            <a href="https://www.gimp.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">GIMP</div>
-                <div class="resource-desc">Photoshop alternative. Full-featured image editor. Everything you need, nothing you don't.</div>
-                <div class="resource-link">Get GIMP</div>
-            </a>
+                <a href="https://inkscape.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Inkscape</div>
+                    <div class="resource-desc">Professional vector graphics editor. Create logos, icons, and scalable designs.</div>
+                    <div class="resource-link">Get Inkscape</div>
+                </a>
 
-            <!-- Audio -->
-            <a href="https://www.audacityteam.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">Audacity</div>
-                <div class="resource-desc">Record and edit audio. Podcasts, voiceovers, music production. Simple and powerful.</div>
-                <div class="resource-link">Get Audacity</div>
-            </a>
+                <a href="https://krita.org/en/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Krita</div>
+                    <div class="resource-desc">Digital painting and illustration. Professional-grade tools for digital artists.</div>
+                    <div class="resource-link">Get Krita</div>
+                </a>
 
-            <!-- Video -->
-            <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">DaVinci Resolve</div>
-                <div class="resource-desc">Professional video editing and color grading. Hollywood-grade tools, completely free.</div>
-                <div class="resource-link">Get DaVinci Resolve</div>
-            </a>
+                <a href="https://www.fontforge.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">FontForge</div>
+                    <div class="resource-desc">Font editor. Create and modify fonts with full control.</div>
+                    <div class="resource-link">Get FontForge</div>
+                </a>
+            </div>
+        </div>
 
-            <a href="https://obsproject.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">OBS Studio</div>
-                <div class="resource-desc">Screen recording and live streaming. Record your webling in action. Perfect for demos.</div>
-                <div class="resource-link">Get OBS Studio</div>
-            </a>
+        <!-- VIDEO & MEDIA -->
+        <div class="category">
+            <div class="category-title">🎬 Video & Media</div>
+            <div class="resources">
+                <a href="https://www.blackmagicdesign.com/products/davinciresolve" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">DaVinci Resolve</div>
+                    <div class="resource-desc">Professional video editing and color grading. Hollywood-grade tools, completely free.</div>
+                    <div class="resource-link">Get DaVinci Resolve</div>
+                </a>
 
-            <!-- AI Models -->
-            <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">A1111 / Stable Diffusion</div>
-                <div class="resource-desc">Run AI image generation locally. Full control, unlimited generations. For power users.</div>
-                <div class="resource-link">Get A1111</div>
-            </a>
+                <a href="https://obsproject.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">OBS Studio</div>
+                    <div class="resource-desc">Screen recording and live streaming. Record your webling in action. Perfect for demos.</div>
+                    <div class="resource-link">Get OBS Studio</div>
+                </a>
 
-            <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">ComfyUI</div>
-                <div class="resource-desc">Node-based AI image generation. Visual workflow. Advanced but intuitive.</div>
-                <div class="resource-link">Get ComfyUI</div>
-            </a>
+                <a href="https://www.shotcutapp.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Shotcut</div>
+                    <div class="resource-desc">Open-source video editor. Supports many formats, powerful timeline editing.</div>
+                    <div class="resource-link">Get Shotcut</div>
+                </a>
 
-            <!-- Reference & Research -->
-            <a href="https://download.cnet.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">CNET</div>
-                <div class="resource-desc">Software downloads and tech resources. Find and download tools you need.</div>
-                <div class="resource-link">Visit CNET Downloads</div>
-            </a>
+                <a href="https://www.videolan.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">VLC Media Player</div>
+                    <div class="resource-desc">Play any video or audio format. Works everywhere, no hassle.</div>
+                    <div class="resource-link">Get VLC</div>
+                </a>
 
-            <!-- Fun & Inspiration -->
-            <a href="https://scaleofuniverse.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
-                <div class="resource-title">Scale of the Universe</div>
-                <div class="resource-desc">Explore the cosmos from the smallest particles to the largest galaxies. Mind-expanding.</div>
-                <div class="resource-link">Explore Scale</div>
-            </a>
+                <a href="https://www.losslesscut.mifi.no/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">LosslessCut</div>
+                    <div class="resource-desc">Cut and trim videos without re-encoding. Lightning fast, zero quality loss.</div>
+                    <div class="resource-link">Get LosslessCut</div>
+                </a>
+
+                <a href="https://handbrake.fr/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Handbrake</div>
+                    <div class="resource-desc">Video converter. Convert between formats with professional quality.</div>
+                    <div class="resource-link">Get Handbrake</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- AUDIO & MUSIC -->
+        <div class="category">
+            <div class="category-title">🎵 Audio & Music</div>
+            <div class="resources">
+                <a href="https://www.audacityteam.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Audacity</div>
+                    <div class="resource-desc">Record and edit audio. Podcasts, voiceovers, music production. Simple and powerful.</div>
+                    <div class="resource-link">Get Audacity</div>
+                </a>
+
+                <a href="https://lmms.io/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">LMMS</div>
+                    <div class="resource-desc">Digital Audio Workstation for music production. Create, compose, and arrange music freely.</div>
+                    <div class="resource-link">Get LMMS</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- CODE & DEVELOPMENT -->
+        <div class="category">
+            <div class="category-title">💻 Code & Development</div>
+            <div class="resources">
+                <a href="https://code.visualstudio.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">VS Code</div>
+                    <div class="resource-desc">Powerful code editor. Lightweight, extensible, loved by developers everywhere.</div>
+                    <div class="resource-link">Get VS Code</div>
+                </a>
+
+                <a href="https://git-scm.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Git</div>
+                    <div class="resource-desc">Version control system. Track changes, collaborate, never lose your work.</div>
+                    <div class="resource-link">Get Git</div>
+                </a>
+
+                <a href="https://github.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">GitHub</div>
+                    <div class="resource-desc">Host, share, and collaborate on code. Free public and private repositories.</div>
+                    <div class="resource-link">Visit GitHub</div>
+                </a>
+
+                <a href="https://www.autohotkey.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">AutoHotkey</div>
+                    <div class="resource-desc">Script automation for Windows. Automate repetitive tasks, create custom hotkeys.</div>
+                    <div class="resource-link">Get AutoHotkey</div>
+                </a>
+
+                <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">A1111 / Stable Diffusion</div>
+                    <div class="resource-desc">Run AI image generation locally. Full control, unlimited generations. For power users.</div>
+                    <div class="resource-link">Get A1111</div>
+                </a>
+
+                <a href="https://github.com/comfyanonymous/ComfyUI" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">ComfyUI</div>
+                    <div class="resource-desc">Node-based AI image generation. Visual workflow. Advanced but intuitive.</div>
+                    <div class="resource-link">Get ComfyUI</div>
+                </a>
+
+                <a href="https://www.docker.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Docker</div>
+                    <div class="resource-desc">Containerization platform. Package apps reliably across any environment.</div>
+                    <div class="resource-link">Get Docker</div>
+                </a>
+
+                <a href="https://cmake.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">CMake</div>
+                    <div class="resource-desc">Build system generator. Manage complex builds across platforms.</div>
+                    <div class="resource-link">Get CMake</div>
+                </a>
+
+                <a href="https://graphviz.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Graphviz</div>
+                    <div class="resource-desc">Graph visualization software. Create diagrams, flowcharts, network graphs.</div>
+                    <div class="resource-link">Get Graphviz</div>
+                </a>
+
+                <a href="https://www.sqlite.org/index.html" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">DB Browser for SQLite</div>
+                    <div class="resource-desc">SQLite database manager. View, edit, and create databases visually.</div>
+                    <div class="resource-link">Get DB Browser</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3D & GRAPHICS -->
+        <div class="category">
+            <div class="category-title">🎭 3D & Graphics</div>
+            <div class="resources">
+                <a href="https://www.blender.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Blender</div>
+                    <div class="resource-desc">Professional 3D modeling, rendering, and animation. Industry-standard, completely free.</div>
+                    <div class="resource-link">Get Blender</div>
+                </a>
+
+                <a href="https://godotengine.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Godot Engine</div>
+                    <div class="resource-desc">2D and 3D game engine. Lightweight, powerful, open-source game development.</div>
+                    <div class="resource-link">Get Godot</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- UTILITIES & SYSTEM -->
+        <div class="category">
+            <div class="category-title">🛠️ Utilities & System</div>
+            <div class="resources">
+                <a href="https://www.7-zip.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">7-Zip</div>
+                    <div class="resource-desc">File compression and archiving. High compression ratio, open-source.</div>
+                    <div class="resource-link">Get 7-Zip</div>
+                </a>
+
+                <a href="https://www.voidtools.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Everything</div>
+                    <div class="resource-desc">Instant file search for Windows. Find anything in milliseconds.</div>
+                    <div class="resource-link">Get Everything</div>
+                </a>
+
+                <a href="https://windirstat.net/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">WinDirStat</div>
+                    <div class="resource-desc">Disk space analyzer. Visualize what's using your hard drive space.</div>
+                    <div class="resource-link">Get WinDirStat</div>
+                </a>
+
+                <a href="https://crystaldiskinfo.jp/en/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">CrystalDiskInfo</div>
+                    <div class="resource-desc">Disk health monitoring. Check your SSD/HDD status and health.</div>
+                    <div class="resource-link">Get CrystalDiskInfo</div>
+                </a>
+
+                <a href="https://getsharex.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">ShareX</div>
+                    <div class="resource-desc">Screenshot and screen recording tool. Capture, annotate, share instantly.</div>
+                    <div class="resource-link">Get ShareX</div>
+                </a>
+
+                <a href="https://www.microsoft.com/en-us/windows/powertoys" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">PowerToys</div>
+                    <div class="resource-desc">Microsoft's free power-user utilities. FancyZones, PowerRename, and much more.</div>
+                    <div class="resource-link">Get PowerToys</div>
+                </a>
+
+                <a href="https://www.veracrypt.fr/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">VeraCrypt</div>
+                    <div class="resource-desc">Encryption software. Create encrypted containers or encrypt entire drives.</div>
+                    <div class="resource-link">Get VeraCrypt</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- SECURITY & PRIVACY -->
+        <div class="category">
+            <div class="category-title">🔐 Security & Privacy</div>
+            <div class="resources">
+                <a href="https://gnupg.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">GnuPG</div>
+                    <div class="resource-desc">Encryption and signing tool. PGP standard encryption for privacy.</div>
+                    <div class="resource-link">Get GnuPG</div>
+                </a>
+
+                <a href="https://www.gpg4win.org/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Gpg4win</div>
+                    <div class="resource-desc">Windows encryption suite. GnuPG, Kleopatra, and email integration.</div>
+                    <div class="resource-link">Get Gpg4win</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- RESEARCH & REFERENCE -->
+        <div class="category">
+            <div class="category-title">🔬 Research & Reference</div>
+            <div class="resources">
+                <a href="https://download.cnet.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">CNET Downloads</div>
+                    <div class="resource-desc">Software downloads and tech resources. Find and download tools you need.</div>
+                    <div class="resource-link">Visit CNET</div>
+                </a>
+
+                <a href="https://scaleofuniverse.com/" target="_blank" rel="noopener noreferrer" class="resource-card">
+                    <div class="resource-title">Scale of the Universe</div>
+                    <div class="resource-desc">Explore the cosmos from the smallest particles to the largest galaxies. Mind-expanding.</div>
+                    <div class="resource-link">Explore Scale</div>
+                </a>
+            </div>
         </div>
 
         <footer>
-            <p>These are genuine recommendations from the Axxilak team. We get nothing for linking to them — we just think they're great.</p>
+            <p>These are genuine recommendations. We use them, we love them. We get nothing for linking to them.</p>
             <p style="margin-top: 1rem;">Made with love at <strong>Axxilak Studios</strong></p>
         </footer>
     </div>
