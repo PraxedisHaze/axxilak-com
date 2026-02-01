@@ -341,34 +341,42 @@
     }
 
     function commitToReality() {
-        const clone = document.documentElement.cloneNode(true);
-        const engineUI = clone.querySelector('.coherence-ui-glass');
-        if (engineUI) engineUI.remove();
-
-        const dirtyEls = clone.querySelectorAll('.coherence-editable, .coherence-image, .coherence-section');
-        const toolbars = clone.querySelectorAll('.coherence-section-toolbar');
+        // DEMO MODE: Prevent download, prompt for purchase.
         
-        dirtyEls.forEach(el => {
-            el.classList.remove('coherence-editable', 'coherence-image', 'coherence-section');
-            el.removeAttribute('contenteditable');
-        });
+        // 1. Create Modal Overlay
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            z-index: 100000; display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
         
-        toolbars.forEach(t => t.remove()); // Remove toolbars
-
-        const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
+        // 2. Modal Content
+        modal.innerHTML = `
+            <div style="background: #111; border: 1px solid #d4af37; padding: 40px; text-align: center; max-width: 500px; position: relative;">
+                <button id="demo-close" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #666; cursor: pointer;">✕</button>
+                <div style="color: #d4af37; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 20px;">Architecture Crystallized</div>
+                <h2 style="color: white; font-family: 'Cinzel', serif; font-size: 32px; margin-bottom: 20px;">Unlock Your Reality</h2>
+                <p style="color: #888; font-family: 'Outfit', sans-serif; line-height: 1.6; margin-bottom: 30px;">
+                    You have shaped this webling to your vision. To export the source code and take full ownership, acquire the Sovereign License.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="window.open('https://gumroad.com', '_blank')" style="background: #d4af37; color: black; border: none; padding: 12px 30px; font-weight: bold; text-transform: uppercase; cursor: pointer; letter-spacing: 0.1em;">
+                        Acquire License ($20)
+                    </button>
+                </div>
+            </div>
+        `;
         
-        const blob = new Blob([htmlContent], { type: "text/html" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "my_webling.html";
-        a.click();
-
-        const btn = document.getElementById('coherence-save');
-        const originalText = btn.innerText;
-        btn.innerText = "Reality Anchored";
-        setTimeout(() => {
-            btn.innerText = originalText;
-        }, 2000);
+        document.body.appendChild(modal);
+        
+        document.getElementById('demo-close').onclick = () => modal.remove();
+        
+        // 3. Close on outside click
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
     }
 
     function shutdownEngine() {
