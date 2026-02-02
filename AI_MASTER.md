@@ -131,11 +131,10 @@ This lock exists because Gemini has destroyed apps by assuming consent. The cost
 1. **AI_MASTER.md** (this file)
 2. **CONTEXT_LOG.md** (our shared memory)
 3. **MASTER_DOCS/Keystone_Constellation_PnP.md** (governance & architecture)
-4. **MASTER_DOCS/CANONICAL_REPOS.md** (which project lives where)
 
 **Then ask Timothy:** "I've read the boot sequence. Which project/context should I focus on?"
 
-This prevents hallucination and species disconnect. CANONICAL_REPOS.md ensures you work on the RIGHT repo, not a stale copy.
+This prevents hallucination and species disconnect.
 
 **Special:** Gemini reads `Shared/gemini_boot_manifest.json` after step 2.
 
