@@ -624,6 +624,34 @@ Function first, aesthetics second
 Polish comes after proof of concept
 Professional appearance required for marketability
 
+VI. MULTI-AI COORDINATION & CANONICAL REPOSITORIES
+
+**Purpose:** Prevent duplicate work, species disconnect, and conflicting changes across multiple AI instances working simultaneously.
+
+**The Problem:** Without clear canonical locations, multiple AIs can unknowingly work on different copies of the same project (e.g., Websites/Axxilak in games_n_apps vs. the actual axxilak-com repo), causing lost work, merge conflicts, and wasted tokens.
+
+**The Solution: Canonical Repository Registry**
+
+Each app/project has **ONE** authoritative GitHub repository. All work happens ONLY in that canonical repo.
+
+| App/Project | Canonical Repository | Status | Notes |
+|---|---|---|---|
+| **Axxilak** | `PraxedisHaze/axxilak-com` | 🟢 Active | Webling marketplace; served by GitHub Pages |
+| **CodeGnosis** | `PraxedisHaze/CodeGnosis` | 🟢 Active | Code analyzer/visualizer |
+| **Hub/Lenny** | `PraxedisHaze/games_n_apps` (Lenny folder) | 🟡 WIP | Central coordinator |
+| **Secretary/Penni** | `PraxedisHaze/games_n_apps` (Penni folder) | 🟡 WIP | ADHD task management |
+| **BabyKey** | `PraxedisHaze/games_n_apps` | 🟢 Stable | Accessibility overlay |
+
+**Mandatory Rule:**
+- Before starting work on ANY app, verify you're using the canonical repo.
+- If you see files for an app in multiple locations, the one NOT in the canonical repo is STALE. Delete it.
+- This prevents the hallucination failure mode where multiple AIs make conflicting changes.
+
+**AI Boot Requirement:**
+Every AI reads this P&P (and specifically this section) as part of the mandatory boot sequence. No exceptions.
+
+---
+
 VII. CURRENT PRIORITIES (Saturday Deadline)
 Primary Objective
 Get Explorer Frame to MARKETABLE state:

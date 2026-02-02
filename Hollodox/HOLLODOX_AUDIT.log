@@ -95,3 +95,17 @@
 [2026-01-11 05:38:12] ERROR: No process found for target: Claude
 [2026-01-11 05:38:13] ERROR: No process found for target: Claude
 [2026-01-11 05:38:13] ERROR: No process found for target: Claude
+[2026-01-27 23:11:53] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-27 23:11:59] ERROR: No process found for target: Claude
+[2026-01-27 23:26:38] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-27 23:26:43] ERROR: No process found for target: Claude
+[2026-01-28 19:46:11] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-28 19:46:17] ERROR: No process found for target: Claude
+[2026-01-28 19:46:18] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-28 19:46:27] ERROR: No process found for target: Claude
+[2026-01-28 19:51:05] TARGET: Gemini | TERMS: gemini
+[2026-01-28 19:51:11] ERROR: No process found for target: Gemini
+[2026-01-28 19:59:41] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-28 19:59:49] ERROR: No process found for target: Claude
+[2026-01-28 19:59:52] TARGET: Claude | TERMS: claude, anthropic
+[2026-01-28 19:59:57] ERROR: No process found for target: Claude
