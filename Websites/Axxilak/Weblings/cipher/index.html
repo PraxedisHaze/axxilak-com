@@ -71,6 +71,28 @@
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #00cc00;
+            --dim: #ccffcc;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="p-4 md:p-10">
@@ -82,10 +104,13 @@
             <div class="text-[10px] opacity-50 mb-1">SYSTEM_VERSION: 1.0.4</div>
             <h1 class="text-3xl font-extrabold glitch-text tracking-tighter">CIPHER_NET<span class="cursor ml-2"></span></h1>
         </div>
-        <div class="flex gap-6 text-xs font-bold uppercase">
+        <div class="flex gap-6 text-xs font-bold uppercase items-center">
             <a href="#logs" class="hover:bg-[var(--text)] hover:text-black px-2 transition">/LOGS</a>
             <a href="#src" class="hover:bg-[var(--text)] hover:text-black px-2 transition">/SRC</a>
             <a href="#root" class="hover:bg-[var(--text)] hover:text-black px-2 transition">/ROOT</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </header>
 
@@ -155,15 +180,20 @@
     </section>
 
     <!-- Footer -->
-    <footer id="root" class="border-t border-[var(--text)] pt-12 pb-20 flex flex-col md:flex-row justify-between items-end gap-12">
+    <footer id="root" class="border-t border-[var(--text)] pt-12 pb-20 flex flex-col md:flex-row justify-between items-start gap-12">
         <div class="max-w-xs">
             <div class="text-xs font-bold opacity-50 mb-4">// ACCESS_POINT</div>
-            <form action="https://formspree.io/f/mkojaejr" method="POST" class="flex border border-cipher">
-                <input type="email" name="email" placeholder="USER@CIPHER.NET" class="flex-1 bg-transparent p-3 outline-none text-xs placeholder-[var(--dim)]">
-                <button type="submit" class="bg-[var(--text)] text-black px-4 font-bold text-xs uppercase">Jack In</button>
+            <form action="mailto:cipher@axxilak.com" method="POST" enctype="text/plain" class="flex flex-col gap-3">
+                <input type="text" name="name" placeholder="USERNAME" required class="flex-1 bg-transparent border border-cipher p-3 outline-none text-xs">
+                <input type="email" name="email" placeholder="USER@CIPHER.NET" required class="flex-1 bg-transparent border border-cipher p-3 outline-none text-xs">
+                <textarea name="message" rows="3" placeholder="TRANSMISSION..." class="flex-1 bg-transparent border border-cipher p-3 outline-none text-xs resize-none"></textarea>
+                <button type="submit" onclick="showThanks(event)" class="bg-[var(--text)] text-black px-4 py-2 font-bold text-xs uppercase hover:opacity-80 transition">Jack In</button>
+                <div id="form-success" class="hidden text-[10px] text-center p-2 border border-[var(--text)] opacity-70">
+                    <p>ACCESS GRANTED</p>
+                </div>
             </form>
         </div>
-        
+
         <div class="text-[10px] text-right opacity-30">
             [CIPHER_NET_CORE]<br>
             ENCRYPTED_WITH_LOVE<br>
@@ -171,6 +201,39 @@
         </div>
     </footer>
 
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+    </script>
     <script src="../webling_editor.js"></script>
 </body>
 </html>

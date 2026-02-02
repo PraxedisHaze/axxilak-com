@@ -168,6 +168,30 @@
             .glitch::before, .glitch::after { display: none; }
             .crt::before { background: none; }
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --grid: rgba(0, 255, 255, 0.1);
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="crt">
@@ -176,10 +200,13 @@
     <!-- Navigation -->
     <nav class="fixed top-0 w-full p-6 flex justify-between items-center z-50 bg-black/50 backdrop-blur-sm border-b border-white/10">
         <div class="text-xl font-bold tracking-widest text-[var(--neon-pink)] glitch" data-text="NEON_TOKYO">NEON_TOKYO</div>
-        <div class="flex gap-8 text-sm">
+        <div class="flex gap-8 text-sm items-center">
             <a href="#stream" class="hover:text-[var(--neon-blue)] transition-colors">[STREAM]</a>
             <a href="#tech" class="hover:text-[var(--neon-blue)] transition-colors">[TECH]</a>
             <a href="#link" class="hover:text-[var(--neon-blue)] transition-colors">[LINK]</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </nav>
 
@@ -228,6 +255,29 @@
         <div>MEM: 4096TB</div>
     </div>
 
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+    </script>
     <script src="../webling_editor.js"></script>
 </body>
 </html>

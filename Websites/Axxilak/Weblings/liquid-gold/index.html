@@ -54,6 +54,29 @@
             box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
         }
 
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --primary: #d4af37;
+            --bg: #ffffff;
+            --glass: rgba(200, 200, 200, 0.4);
+            --border: rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
+
         h1,
         h2,
         h3,
@@ -180,11 +203,16 @@
     <!-- Navigation -->
     <nav class="fixed w-full z-50 top-0 left-0 p-6 flex justify-between items-center mix-blend-difference">
         <div class="text-2xl font-bold tracking-widest serif text-white">AXXILAK</div>
-        <a href="#contact"
-            class="hover-trigger group flex items-center gap-2 text-sm uppercase tracking-widest text-white hover:text-amber-400 transition-colors">
-            Start a Project
-            <span class="block w-8 h-[1px] bg-white group-hover:bg-amber-400 transition-all"></span>
-        </a>
+        <div class="flex gap-6 items-center">
+            <a href="#contact"
+                class="hover-trigger group flex items-center gap-2 text-sm uppercase tracking-widest text-white hover:text-amber-400 transition-colors">
+                Start a Project
+                <span class="block w-8 h-[1px] bg-white group-hover:bg-amber-400 transition-all"></span>
+            </a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -381,7 +409,7 @@
                 </div>
             </div>
 
-            <form id="contact-form" action="https://formspree.io/f/[REPLACE_WITH_YOUR_FORMSPREE_ID]" method="POST" class="glass-panel p-8 md:p-12 space-y-6 reveal" style="transition-delay: 200ms;">
+            <form id="contact-form" action="mailto:liquid@axxilak.com" method="POST" enctype="text/plain" class="glass-panel p-8 md:p-12 space-y-6 reveal" style="transition-delay: 200ms;">
                 <div>
                     <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
                     <input type="text" name="name" required
@@ -393,14 +421,18 @@
                         class="w-full bg-transparent border-b border-white/20 py-2 text-white focus:outline-none focus:border-amber-500 transition-colors hover-trigger">
                 </div>
                 <div>
-                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
-                    <textarea rows="4" name="message" required
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision (Optional)</label>
+                    <textarea rows="4" name="message"
                         class="w-full bg-transparent border-b border-white/20 py-2 text-white focus:outline-none focus:border-amber-500 transition-colors hover-trigger"></textarea>
                 </div>
-                <button type="submit"
+                <button type="submit" onclick="showThanks(event)"
                     class="w-full bg-white text-black py-4 font-bold uppercase tracking-widest text-xs hover:bg-amber-500 transition-colors hover-trigger mt-4">
                     Send Request
                 </button>
+                <div id="form-success" class="hidden text-center p-4 border border-green-500/30 text-green-400 bg-green-500/10 rounded">
+                    <p class="text-sm font-bold">Message Sent!</p>
+                    <p class="text-xs opacity-80">We'll be in touch within 24 hours.</p>
+                </div>
             </form>
         </div>
     </section>
@@ -411,6 +443,38 @@
     </footer>
 
     <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+
         // --- 1. Edit Button: Activate Webling Editor ---
         document.getElementById('edit-webling-btn').addEventListener('click', () => {
             const btn = document.getElementById('edit-webling-btn');

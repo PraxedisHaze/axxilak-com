@@ -84,6 +84,67 @@
             background: var(--accent);
             color: white;
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #050505;
+            --accent: #ff3300;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
+
+        /* Draggable Message Box */
+        .message-box {
+            border: 3px solid var(--text);
+            background: white;
+            position: relative;
+            touch-action: none;
+        }
+
+        .drag-handle {
+            width: 100%;
+            height: 24px;
+            background: var(--text);
+            color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .message-box textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: white;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            padding: 12px;
+            resize: vertical;
+            min-height: 120px;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -97,10 +158,15 @@
                 IRON<span class="text-[var(--accent)]">&</span>INK
             </div>
         </div>
-        <div class="hidden md:block text-right">
-            <p class="text-xs uppercase">Lat: 40.7128° N</p>
-            <p class="text-xs uppercase">Lon: 74.0060° W</p>
-            <p class="text-xs uppercase mt-2 font-bold">STATUS: DEPLOYED</p>
+        <div class="flex flex-col items-end gap-4">
+            <div class="hidden md:block text-right">
+                <p class="text-xs uppercase">Lat: 40.7128° N</p>
+                <p class="text-xs uppercase">Lon: 74.0060° W</p>
+                <p class="text-xs uppercase mt-2 font-bold">STATUS: DEPLOYED</p>
+            </div>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </header>
 
@@ -162,23 +228,133 @@
         </div>
     </section>
 
+    <!-- Message Box -->
+    <section class="border-t-4 border-black pt-12 mb-12">
+        <div class="message-box mb-8">
+            <div class="drag-handle" id="dragHandle">≡ COMPOSE MESSAGE</div>
+            <textarea id="messageText" placeholder="TYPE YOUR TRANSMISSION..."></textarea>
+        </div>
+    </section>
+
     <!-- Footer -->
-    <footer class="border-t-4 border-black pt-12 pb-20 flex flex-col md:flex-row justify-between gap-8">
+    <footer class="pt-12 pb-20 flex flex-col md:flex-row justify-between gap-8">
         <div class="text-xs font-bold max-w-xs">
             AXXILAK // IRON_INK<br>
             VERSION 1.0.0<br>
             NO COPYRIGHT INTENDED.<br>
             INFORMATION WANTS TO BE FREE.
         </div>
-        
-        <form action="https://formspree.io/f/mkojaejr" method="POST" class="w-full md:w-1/2">
-            <div class="flex border-2 border-black p-1">
-                <input type="email" name="email" placeholder="ENTER FREQUENCY..." class="w-full bg-transparent p-2 outline-none font-bold placeholder-gray-500">
-                <button type="submit" class="btn-brutal px-6 py-2 font-bold uppercase text-sm">Transmit</button>
+
+        <form action="mailto:iron@axxilak.com" method="POST" enctype="text/plain" class="w-full md:w-1/2">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2">Name</label>
+                    <input type="text" name="name" required class="w-full bg-transparent border-b-2 border-black p-2 outline-none font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2">Email</label>
+                    <input type="email" name="email" required class="w-full bg-transparent border-b-2 border-black p-2 outline-none font-bold placeholder-gray-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase mb-2">Message (Optional)</label>
+                    <textarea name="message" rows="3" placeholder="TRANSMISSION..." class="w-full bg-transparent border-b-2 border-black p-2 outline-none font-bold resize-none"></textarea>
+                </div>
+                <button type="submit" onclick="showThanks(event)" class="btn-brutal px-6 py-2 font-bold uppercase text-sm w-full">Transmit</button>
+                <div id="form-success" class="hidden text-center p-3 border-2 border-black bg-white text-black font-bold text-xs uppercase">
+                    <p>TRANSMISSION SUCCESSFUL</p>
+                </div>
             </div>
         </form>
     </footer>
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+    </script>
     <script src="../webling_editor.js"></script>
+    <script>
+        // Draggable Message Box
+        const dragHandle = document.getElementById('dragHandle');
+        const messageBox = document.querySelector('.message-box');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX = 0;
+        let initialY = 0;
+
+        dragHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            initialX = e.clientX - messageBox.offsetLeft;
+            initialY = e.clientY - messageBox.offsetTop;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                messageBox.style.position = 'fixed';
+                messageBox.style.left = currentX + 'px';
+                messageBox.style.top = currentY + 'px';
+                messageBox.style.width = '400px';
+                messageBox.style.zIndex = '1000';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Touch support for mobile
+        dragHandle.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            initialX = e.touches[0].clientX - messageBox.offsetLeft;
+            initialY = e.touches[0].clientY - messageBox.offsetTop;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+                messageBox.style.position = 'fixed';
+                messageBox.style.left = currentX + 'px';
+                messageBox.style.top = currentY + 'px';
+                messageBox.style.width = '400px';
+                messageBox.style.zIndex = '1000';
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+    </script>
 </body>
 </html>
 

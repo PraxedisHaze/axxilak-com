@@ -91,6 +91,29 @@
             transform: scaleX(1);
             transform-origin: left;
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --accent: #4a7c59;
+            --highlight: #d6e0cc;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -102,10 +125,13 @@
     <!-- Nav -->
     <nav class="flex justify-between items-center mb-20 px-4">
         <div class="serif text-2xl font-semibold tracking-tight text-[var(--text)]">gaia.</div>
-        <div class="hidden md:flex gap-8 font-semibold">
+        <div class="hidden md:flex gap-8 font-semibold items-center">
             <a href="#roots" class="nav-link">Roots</a>
             <a href="#growth" class="nav-link">Growth</a>
             <a href="#canopy" class="nav-link">Canopy</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
         <a href="#connect" class="px-6 py-2 border-2 border-[var(--text)] rounded-full hover:bg-[var(--text)] hover:text-[var(--bg)] transition-colors font-semibold">
             Connect
@@ -174,14 +200,63 @@
     <!-- Footer -->
     <footer id="connect" class="bg-[#2f3e28] text-[#f7f5eb] rounded-[3rem] p-12 md:p-24 text-center">
         <h2 class="serif text-4xl md:text-6xl mb-12">Plant your seed.</h2>
-        <a href="mailto:grow@axxilak.com" class="inline-block border-2 border-[#f7f5eb] px-10 py-4 rounded-full hover:bg-[#f7f5eb] hover:text-[#2f3e28] transition-colors font-semibold">
-            Start Growing
-        </a>
+        <form action="mailto:gaia@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-12">
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Name</label>
+                <input type="text" name="name" required class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm">
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Email</label>
+                <input type="email" name="email" required class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm">
+            </div>
+            <div class="mb-6">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Message (Optional)</label>
+                <textarea name="message" rows="3" placeholder="Share your vision..." class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm resize-none"></textarea>
+            </div>
+            <button type="submit" onclick="showThanks(event)" class="btn-organic inline-block font-bold">Start Growing</button>
+            <div id="form-success" class="hidden mt-4 text-center p-4 border border-white/40 text-white bg-white/10 rounded">
+                <p class="text-sm font-bold">Seeds Received!</p>
+                <p class="text-xs opacity-80">Your growth will be nourished.</p>
+            </div>
+        </form>
         <div class="mt-20 text-sm opacity-60">
             © 2026 GAIA WEBLING / AXXILAK
         </div>
     </footer>
 
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+    </script>
     <script src="../webling_editor.js"></script>
 </body>
 </html>

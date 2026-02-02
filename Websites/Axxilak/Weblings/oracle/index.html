@@ -102,6 +102,29 @@
             color: var(--bg);
             box-shadow: 0 0 20px var(--gold);
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1e293b;
+            --gold: #f59e0b;
+            --violet: #ede9fe;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="p-6 md:p-12">
@@ -111,10 +134,13 @@
     <!-- Nav -->
     <nav class="flex justify-between items-center mb-24 max-w-6xl mx-auto border-b border-gold/10 pb-8">
         <div class="serif text-2xl font-black tracking-[0.3em] text-[var(--gold)]">ORACLE</div>
-        <div class="flex gap-12 text-[0.6rem] font-bold uppercase tracking-[0.4em]">
+        <div class="flex gap-8 text-[0.6rem] font-bold uppercase tracking-[0.4em] items-center">
             <a href="#vision" class="hover:text-[var(--gold)] transition">Vision</a>
             <a href="#celestial" class="hover:text-[var(--gold)] transition">Celestial</a>
             <a href="#vow" class="hover:text-[var(--gold)] transition">The Vow</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </nav>
 
@@ -153,16 +179,63 @@
     <!-- Footer -->
     <footer id="vow" class="py-32 text-center border-t border-gold/10">
         <div class="serif text-[var(--gold)] text-2xl mb-12 italic">"The stars are just data we haven't read yet."</div>
-        
-        <form action="https://formspree.io/f/mkojaejr" method="POST" class="max-w-md mx-auto mb-12 border border-[var(--gold)] p-1 flex">
-            <input type="email" name="email" placeholder="ENTER THE VOID" class="bg-transparent text-[var(--gold)] p-4 w-full outline-none text-xs tracking-widest placeholder-slate-600">
-            <button type="submit" class="bg-[var(--gold)] text-[var(--bg)] px-8 font-bold text-xs tracking-widest uppercase hover:bg-white transition">Send</button>
+
+        <form action="mailto:oracle@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-12">
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2 text-[var(--gold)]">Name</label>
+                <input type="text" name="name" required class="w-full bg-transparent border-b border-[var(--gold)] p-2 outline-none focus:border-current transition-colors text-[var(--gold)]">
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2 text-[var(--gold)]">Email</label>
+                <input type="email" name="email" required class="w-full bg-transparent border-b border-[var(--gold)] p-2 outline-none focus:border-current transition-colors text-[var(--gold)]">
+            </div>
+            <div class="mb-6">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2 text-[var(--gold)]">Message (Optional)</label>
+                <textarea name="message" rows="3" placeholder="Share your inquiry..." class="w-full bg-transparent border-b border-[var(--gold)] p-2 outline-none focus:border-current transition-colors text-[var(--gold)] text-xs resize-none min-h-[60px]"></textarea>
+            </div>
+            <button type="submit" onclick="showThanks(event)" class="btn-celestial">Send Inquiry</button>
+            <div id="form-success" class="hidden mt-4 text-center p-4 border border-[var(--gold)] text-[var(--gold)]">
+                <p class="text-sm font-bold">Message Sent!</p>
+                <p class="text-xs opacity-80">The stars acknowledge your transmission.</p>
+            </div>
         </form>
 
         <div class="mt-24 text-[0.5rem] opacity-20 tracking-[1em] uppercase">Oracle Webling // MMXXVI // Axxilak</div>
     </footer>
 
     <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+
         // Generate Stars
         const starField = document.getElementById('starField');
         const count = 100;

@@ -73,6 +73,30 @@
             transform: translateY(-2px);
             box-shadow: 0 15px 30px rgba(139, 92, 246, 0.4);
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --p1: #fdf2f8;
+            --p2: #eff6ff;
+            --p3: #f5f3ff;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center">
@@ -80,10 +104,13 @@
 
     <nav class="w-full p-8 flex justify-between items-center max-w-6xl">
         <div class="text-2xl font-extrabold tracking-tighter gradient-text">AURA.</div>
-        <div class="flex gap-8 text-sm font-semibold opacity-60">
+        <div class="flex gap-8 text-sm font-semibold opacity-60 items-center">
             <a href="#vibe" class="hover:opacity-100 transition">Vibe</a>
             <a href="#energy" class="hover:opacity-100 transition">Energy</a>
             <a href="#flow" class="hover:opacity-100 transition">Flow</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
     </nav>
 
@@ -122,12 +149,62 @@
     </section>
 
     <footer id="flow" class="w-full py-20 text-center">
-        <div class="mb-8 font-bold tracking-widest text-xs uppercase opacity-30">Aura Webling / Axxilak</div>
-        <a href="mailto:vibe@axxilak.com" class="gradient-text font-extrabold text-2xl md:text-4xl hover:opacity-80 transition">
-            hello@youraura.com
-        </a>
+        <div class="mb-12 font-bold tracking-widest text-xs uppercase opacity-30">Send us your Frequency</div>
+        <form action="mailto:aura@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-8">
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Name</label>
+                <input type="text" name="name" required class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm">
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Email</label>
+                <input type="email" name="email" required class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm">
+            </div>
+            <div class="mb-6">
+                <label class="block text-xs uppercase tracking-widest opacity-70 mb-2">Message (Optional)</label>
+                <textarea name="message" rows="3" placeholder="Share your vibe..." class="w-full bg-white/10 border border-white/20 p-3 outline-none focus:border-current transition-colors rounded text-sm resize-none"></textarea>
+            </div>
+            <button type="submit" onclick="showThanks(event)" class="btn-aura font-bold uppercase tracking-widest text-sm">Send Flow</button>
+            <div id="form-success" class="hidden mt-4 text-center p-4 border border-white/40 text-white bg-white/10 rounded">
+                <p class="text-sm font-bold">Frequency Received!</p>
+                <p class="text-xs opacity-80">Your energy is acknowledged.</p>
+            </div>
+        </form>
+        <div class="mt-8 font-bold tracking-widest text-xs uppercase opacity-30">Aura Webling / Axxilak</div>
     </footer>
 
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+    </script>
     <script src="../webling_editor.js"></script>
 </body>
 </html>

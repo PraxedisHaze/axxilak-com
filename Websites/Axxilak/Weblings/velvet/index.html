@@ -81,6 +81,29 @@
             transition: transform 0.1s;
             mix-blend-mode: difference;
         }
+
+        /* === THEME TOGGLE === */
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --text: #1a1a1a;
+            --gold: #d4af37;
+            --gold-dim: #b8960e;
+        }
+
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -89,10 +112,13 @@
     <!-- Nav -->
     <nav class="fixed top-0 w-full p-8 md:p-12 flex justify-between items-center z-50 mix-blend-difference">
         <div class="serif text-2xl tracking-widest uppercase">Velvet</div>
-        <div class="hidden md:flex gap-12 text-xs uppercase tracking-[0.2em] font-light">
+        <div class="hidden md:flex gap-12 text-xs uppercase tracking-[0.2em] font-light items-center">
             <a href="#gallery" class="hover:text-[var(--gold)] transition-colors">Gallery</a>
             <a href="#about" class="hover:text-[var(--gold)] transition-colors">Atelier</a>
             <a href="#contact" class="hover:text-[var(--gold)] transition-colors">Inquire</a>
+            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <span id="theme-icon">☀️</span>
+            </button>
         </div>
         <div class="md:hidden text-[var(--gold)]">MENU</div>
     </nav>
@@ -166,9 +192,25 @@
     <section id="contact" class="py-32 px-6 text-center">
         <div class="reveal">
             <h2 class="text-xs uppercase tracking-[0.4em] mb-8 text-[var(--gold)]">Inquiries</h2>
-            <a href="mailto:concierge@axxilak.com" class="serif text-5xl md:text-7xl hover:text-[var(--gold)] transition-colors italic">
-                Start the Conversation
-            </a>
+            <form action="mailto:velvet@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-12">
+                <div class="mb-4">
+                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Name</label>
+                    <input type="text" name="name" required class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Email</label>
+                    <input type="email" name="email" required class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Message (Optional)</label>
+                    <textarea name="message" rows="3" placeholder="Share your vision..." class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm resize-none"></textarea>
+                </div>
+                <button type="submit" onclick="showThanks(event)" class="px-8 py-3 border border-[var(--gold-dim)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors uppercase tracking-widest text-xs font-light">Start Conversation</button>
+                <div id="form-success" class="hidden mt-4 text-center p-4 border border-[var(--gold)]/40 text-[var(--gold)] bg-[var(--gold)]/5">
+                    <p class="text-sm font-bold">Inquiry Received</p>
+                    <p class="text-xs opacity-80">The conversation has begun.</p>
+                </div>
+            </form>
         </div>
     </section>
 
@@ -183,6 +225,38 @@
     </footer>
 
     <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                icon.innerText = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                icon.innerText = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check saved preference on load
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            document.getElementById('theme-icon').innerText = '🌙';
+        }
+
+        // Form Success Feedback
+        function showThanks(e) {
+            setTimeout(() => {
+                const form = e.target.closest('form');
+                const success = form.querySelector('#form-success');
+                if (success) success.classList.remove('hidden');
+                form.reset();
+            }, 500);
+        }
+
         // Cursor
         const cursor = document.getElementById('cursor');
         document.addEventListener('mousemove', (e) => {
