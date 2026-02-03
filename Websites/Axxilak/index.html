@@ -34,6 +34,16 @@
             --border: rgba(255, 255, 255, 0.08);
         }
 
+        @keyframes blub-in {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            70% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1.0); }
+        }
+
+        .animate-blub {
+            animation: blub-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -348,12 +358,15 @@
     <!-- Navigation -->
     <header class="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
         <nav class="flex items-center justify-between px-6 md:px-12 py-6">
-            <a href="#" class="flex flex-col hover:opacity-80 transition">
-                <div class="serif font-bold text-2xl tracking-widest text-white">
-                    AXXILAK <span class="font-light opacity-80">Studios</span>
-                </div>
-                <div class="text-[10px] uppercase tracking-[0.3em] text-amber-400/60 font-light mt-1">
-                    We make beautiful apps.
+            <a href="#" class="flex items-center gap-4 hover:opacity-80 transition group">
+                <img src="favicon.png" alt="Axxilak Logo" class="h-14 w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] group-hover:scale-105 transition duration-500">
+                <div class="flex flex-col justify-center animate-blub">
+                    <div class="serif font-bold text-2xl tracking-[0.05em] text-white leading-none">
+                        AXXILAK <span class="font-light opacity-80">Studios</span>
+                    </div>
+                    <div class="text-[10px] tracking-[0.3em] text-amber-400/60 font-light mt-1" style="font-family: 'Outfit', sans-serif;">
+                        We make beautiful apps.
+                    </div>
                 </div>
             </a>
             <div class="flex gap-8 items-center">
@@ -488,7 +501,7 @@
                                 <span class="serif text-3xl text-amber-400">$50.00</span>
                             </div>
                         </div>
-                        <a href="https://axxilak.gumroad.com/l/frypby" target="_blank" rel="noopener noreferrer"
+                        <a href="#" target="_blank" rel="noopener noreferrer"
                             class="px-8 py-3 bg-white text-black text-xs uppercase tracking-widest font-bold hover:bg-amber-400 transition transform hover:-translate-y-1">
                             Get Velvet
                         </a>
@@ -595,7 +608,7 @@
                 <div>
                     <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
                     <textarea name="message" rows="5" required placeholder="Tell us about your project..."
-                        class="w-full bg-transparent py-3 text-white resize-none"></textarea>
+                        class="w-full bg-transparent py-3 text-white" style="resize: vertical;"></textarea>
                 </div>
 
                 <button type="submit"
@@ -753,11 +766,11 @@
         // --- CATALOG LOGIC ---
         const catalogData = {
             "weblings": [
+                { "id": "liquid-gold", "name": "Liquid Gold", "vibe": "Luxury / Pro", "price": 50.00, "description": "The standard of excellence. Glassmorphism, premium gradients, and professional poise." },
                 { "id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "price": 50.00, "description": "Presence without effort. A breathing architecture for the high-frequency creator." },
                 { "id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "price": 50.00, "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic." },
                 { "id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "price": 50.00, "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal." },
                 { "id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "price": 50.00, "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes." },
-                { "id": "velvet", "name": "Velvet", "vibe": "Void / Luxury", "price": 50.00, "description": "Elegance is refusal. Silk and shadow for the discerning atelier." },
                 { "id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "price": 50.00, "description": "Rooted in the real. Organic curves and digital roots for sustainable growth." },
                 { "id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "price": 50.00, "description": "Find your frequency. Shifting iridescent gradients for the modern mystic." },
                 { "id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "price": 50.00, "description": "Beyond the peak. Tactical, high-contrast presence for the explorer." },
@@ -795,13 +808,13 @@
             emptyState.style.display = 'none';
 
             gallery.innerHTML = filtered.map((w, index) => `
-                <div class="glass-panel p-8 rounded-sm hover-trigger reveal" style="animation-delay: ${index * 50}ms">
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal webling-card" data-webling-id="${w.id}" style="animation-delay: ${index * 50}ms">
                     <div class="text-[10px] uppercase tracking-widest text-amber-400 mb-2">${w.vibe}</div>
                     <h3 class="serif text-2xl mb-2 text-white">${w.name}</h3>
                     <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <div class="serif text-xl text-white">$${w.price.toFixed(2)}</div>
-                        <a href="Weblings/${w.id.replace(/-/g, '_')}/index.html" target="_blank" rel="noopener noreferrer" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition">Preview</a>
+                        <button class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition webling-preview-btn" data-webling-id="${w.id}">Edit Now</button>
                     </div>
                 </div>
             `).join('');
@@ -997,7 +1010,31 @@
                 });
             }
         });
+
+        // === CRACKING TRANSITION SYSTEM ===
+        // Attach click handlers to webling preview buttons
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('.webling-preview-btn');
+            if (!btn) return;
+
+            e.preventDefault();
+            const weblingId = btn.dataset.weblingId;
+            const cardElement = btn.closest('.webling-card');
+
+            if (transitionEngine && transitionEngine.initiateTransition) {
+                transitionEngine.initiateTransition(weblingId, cardElement);
+            } else {
+                // Fallback if transition engine not loaded
+                window.location.href = `axxilak_forge_v3.2.html?template=${weblingId}`;
+            }
+        });
     </script>
+
+    <!-- Cracking Transition System -->
+    <link rel="stylesheet" href="css/transition-crack.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3-delaunay@6"></script>
+    <script src="js/voronoi-generator.js"></script>
+    <script src="js/transition-crack.js"></script>
 </body>
 
 </html>

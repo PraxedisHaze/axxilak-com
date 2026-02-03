@@ -59,6 +59,24 @@ Using `!important` to "win" a specificity war is borrowing money at interest. Ti
 
 See AI_MASTER.md "THE COST OF LAZY SHORTCUTS" for full context.
 
+### File Deletion - STRICTLY FORBIDDEN
+**NEVER delete a file without EXPLICIT permission from Timothy.**
+
+Every file exists for a reason, even if it looks "broken," "unused," or "problematic." Examples of critical files you might want to delete:
+- Files with placeholder strings like `__STATE_PLACEHOLDER__` (these are intentional Quine logic, not errors)
+- Files with unconventional architecture (like self-replicating code)
+- Files that seem "legacy" or "temporary"
+
+**Your only action is ARCHIVE.**
+
+If a file seems problematic:
+1. Ask Timothy: "Can I archive [filename]?"
+2. Wait for explicit YES
+3. Archive by moving to an `_archive/` folder with timestamp
+4. NEVER use `rm`, `delete()`, or destructive operations
+
+Files cost tokens to recover. Deleting them is theft of Timothy's time and budget. Axxilak's Quine logic is an example: it looks like broken placeholders but IS the heart of the product. Understand before you delete.
+
 ---
 
 - Please remember this idea until you confirm we've followed through.

@@ -30,30 +30,6 @@
             cursor: auto;
         }
 
-        /* Editor Button */
-        #edit-webling-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9998;
-            padding: 10px 20px;
-            background: rgba(212, 175, 55, 0.2);
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            color: #d4af37;
-            cursor: pointer;
-            font-size: 12px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        #edit-webling-btn:hover {
-            background: rgba(212, 175, 55, 0.4);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
-
         /* === THEME TOGGLE === */
         [data-theme="light"] {
             --primary: #d4af37;
@@ -193,9 +169,6 @@
 </head>
 
 <body class="selection:bg-amber-900 selection:text-white">
-
-    <!-- Edit Button (Activates Webling Editor) -->
-    <button id="edit-webling-btn" title="Click to edit this webling">✏️ Edit This Site</button>
 
     <!-- Background Animation -->
     <canvas id="neuro-canvas"></canvas>
@@ -475,27 +448,7 @@
             }, 500);
         }
 
-        // --- 1. Edit Button: Activate Webling Editor ---
-        document.getElementById('edit-webling-btn').addEventListener('click', () => {
-            const btn = document.getElementById('edit-webling-btn');
-            btn.innerText = '⏳ Loading Editor...';
-            btn.disabled = true;
-
-            // Load the Webling Editor Engine
-            const script = document.createElement('script');
-            script.src = '../webling_editor.js';
-            script.onload = () => {
-                btn.style.display = 'none';
-                initWeblingEditor();
-            };
-            script.onerror = () => {
-                btn.innerText = '❌ Error Loading Editor';
-                btn.disabled = false;
-            };
-            document.body.appendChild(script);
-        });
-
-        // --- 2. Scroll Reveal ---
+        // --- Scroll Reveal ---
         const observerOptions = {
             threshold: 0.1
         };

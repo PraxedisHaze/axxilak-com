@@ -132,7 +132,9 @@ This lock exists because Gemini has destroyed apps by assuming consent. The cost
 2. **CONTEXT_LOG.md** (our shared memory)
 3. **MASTER_DOCS/Keystone_Constellation_PnP.md** (governance & architecture)
 
-**Then ask Timothy:** "I've read the boot sequence. Which project/context should I focus on?"
+**After reading both, ask Timothy:** "Which potch should I read - CodeGnosis, Another_Persistence, or another project?"
+
+**Mandatory Check:** Read `Keystone - NOTES_NOT_TO_BE_FORGOTTEN.md` and bring any pending items to Timothy's attention immediately.
 
 This prevents hallucination and species disconnect.
 
