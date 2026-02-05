@@ -334,7 +334,7 @@ if (user.age > 18 && user.region === 'EU')
 
 ---
 
-E. CSS Standards & !important Policy (MANDATORY)
+F. CSS Standards & !important Policy (MANDATORY)
 
 **The Law:** `!important` is NEVER a shortcut for specificity problems.
 
@@ -600,7 +600,305 @@ No forced topic shifts—ask before redirecting
 Adapt verbosity/pacing/complexity to bandwidth
 Monitor for cognitive overload and simplify when needed
 
-VI. VISUAL STANDARDS
+VI. DEPLOYMENT PROCEDURES (MANDATORY - All Public Releases)
+
+**Context:** GitHub Pages deployment to axxilak-com revealed critical failure modes: branch misconfiguration, CDN caching, and incomplete file sync. This section prevents recurrence.
+
+**Authority:** These procedures are non-negotiable. Every push to a public repo must pass this gate.
+
+### A. Pre-Deployment Verification Checklist
+
+Before ANY push to a deployment-tracked branch (main for GitHub Pages repos):
+
+**1. Branch Configuration Verification**
+```bash
+# Verify current branch
+git branch -vv
+# Should show: * main    [origin/main] ...
+
+# Verify GitHub Pages is configured for the correct branch
+gh api repos/ORG/REPO/pages
+# MUST show: "branch": "main" (or whichever is canonical)
+
+# If Pages is on wrong branch:
+gh api repos/ORG/REPO/pages --method PUT -f source[branch]=main
+```
+
+**2. File Sync Completeness**
+- [ ] ALL source files are in git staging area
+- [ ] No files with `git status` showing "modified" or "untracked"
+- [ ] Run: `git status` and verify: `nothing to commit, working tree clean` OR only intended changes staged
+- [ ] If deploying HTML/website files:
+  - [ ] All .html files present
+  - [ ] All .js files present
+  - [ ] All .css files present
+  - [ ] All assets (images, fonts) present
+  - [ ] Check: `git ls-files | grep -E '\.(html|js|css|png|jpg|webp|woff2)$'` shows expected count
+
+**3. Content Verification (Pre-Push)**
+```bash
+# Verify distinctive new content is present locally
+grep -r "YOUR_NEW_CONTENT_STRING" .
+# Must find matches before pushing
+
+# Example from Axxilak failure:
+# grep "WELCOME" index.html  # Should show new landing page text
+# Should NOT return empty
+```
+
+**4. HTTP Header Inspection (Local)**
+If using local server for testing:
+```bash
+# Test locally with Python
+python3 -m http.server 8000
+
+# In another terminal, check headers
+curl -I http://localhost:8000/index.html
+# Should show Cache-Control if manually set
+```
+
+### B. Commit & Push Safety Gates
+
+**1. Atomic Commits**
+- [ ] One logical change per commit
+- [ ] Commit message is descriptive: `feat: Update Axxilak landing page with new hero text`
+- [ ] NOT vague: `update files` or `push`
+
+**2. Safe Push**
+```bash
+# Always use default (no --force)
+git push origin main
+# Never: git push --force (destructive)
+# Never: git push -f (destructive)
+
+# Verify push completed:
+git log -1 --oneline
+git push --dry-run  # (test before actual push)
+```
+
+### C. Post-Deployment Verification (Critical - Do NOT Skip)
+
+**Wait 30 seconds after push**, then verify:
+
+**1. Raw GitHub URL Verification**
+```bash
+# For HTML repos deployed on GitHub Pages:
+# Example: https://github.com/PraxedisHaze/axxilak-com/raw/main/index.html
+
+curl -I https://raw.githubusercontent.com/PraxedisHaze/axxilak-com/main/index.html
+# Should show:
+# - HTTP/1.1 200 OK
+# - Content-Type: text/html; charset=utf-8
+# - No Cache-Control header (or Cache-Control: no-cache)
+
+# Verify distinctive content in response:
+curl https://raw.githubusercontent.com/PraxedisHaze/axxilak-com/main/index.html | grep "DISTINCTIVE_NEW_TEXT"
+# Must find the new content
+```
+
+**2. GitHub Pages URL Verification**
+```bash
+# Wait 30 seconds for CDN revalidation (Fastly: 600-second max-age)
+# Then check live site:
+curl -I https://axxilak-com.com/  # (or actual Pages URL)
+# or in browser: https://axxilak-com.com/ (incognito or hard refresh)
+
+# Hard refresh in browsers:
+# Chrome/Windows: Ctrl+Shift+R
+# Firefox/Windows: Ctrl+Shift+R
+# Safari/Mac: Cmd+Shift+R
+
+# Verify distinctive content is present:
+curl https://axxilak-com.com/ | grep "DISTINCTIVE_NEW_TEXT"
+# Must find the new content
+```
+
+**3. HTTP Header Inspection**
+```bash
+# Check caching headers to understand CDN behavior
+curl -I https://axxilak-com.com/
+# Expected headers:
+# - Cache-Control: no-cache, public
+# - Age: 0 (fresh) or Age: <30 (recent)
+# - X-Cache: HIT from Fastly (CDN cached)
+# - X-Cache-Hits: <number>
+
+# If Age is high (>600 seconds), CDN needs purge:
+# Contact GitHub Support or manually purge Fastly
+```
+
+**4. Browser DevTools Verification**
+- [ ] Open site in incognito window (no client cache)
+- [ ] Open DevTools → Network tab
+- [ ] Hard refresh (Ctrl+Shift+R)
+- [ ] Check Response headers for index.html:
+  - [ ] Status: 200 OK
+  - [ ] Distinctive new content visible in Response body
+  - [ ] Age header shows recent (0-30 seconds)
+
+### D. Common Failure Patterns & Recovery
+
+**Pattern 1: GitHub Pages Serving Old Content**
+
+**Symptoms:**
+- Push completed successfully
+- Raw GitHub URL shows new content
+- Pages URL still shows old content
+- Persists after browser refresh/incognito
+
+**Root Causes & Fixes:**
+```
+Cause 1: GitHub Pages configured to wrong branch
+Fix:
+  $ gh api repos/OWNER/REPO/pages --method PUT -f source[branch]=main
+  $ wait 30 seconds
+  $ verify with curl
+
+Cause 2: CDN (Fastly) cached old version
+  Fastly default TTL: 600 seconds (10 minutes)
+  New content won't appear until cache expires OR cache purged
+Fix:
+  $ Set Cache-Control header: Cache-Control: no-cache
+  $ In repo settings, add .htaccess (if Apache) or Netlify redirects
+  $ OR contact GitHub to manually clear Pages cache
+  $ OR wait 10 minutes
+
+Cause 3: Only some files pushed (missing HTML/CSS/JS)
+  New index.html pushed, but site loads old HTML from cache
+  plus old JS/CSS files that still exist in repo
+Fix:
+  $ Verify ALL supporting files present:
+    git ls-files | grep -E '\.(html|js|css)$'
+  $ If missing, add them:
+    git add -A
+    git commit -m "add missing supporting files"
+    git push origin main
+```
+
+**Pattern 2: 404 on Supporting Files**
+
+**Symptoms:**
+- Homepage loads but links are broken (404)
+- Missing: free-stuff.html, coherence_engine.js, webling_editor.js
+
+**Root Cause:**
+Files exist locally, but were never committed to git.
+
+**Fix:**
+```bash
+# Add missing files
+git add "Websites/Axxilak/free-stuff.html"
+git add "Websites/Axxilak/coherence_engine.js"
+git add "Websites/Axxilak/webling_editor.js"
+
+# Verify they're added
+git status
+
+# Commit and push
+git commit -m "add missing static assets to Axxilak"
+git push origin main
+
+# Verify with curl
+curl https://raw.githubusercontent.com/PraxedisHaze/axxilak-com/main/free-stuff.html | head -20
+# Should show HTML content, not 404
+```
+
+**Pattern 3: Local Changes Not Reflecting**
+
+**Symptoms:**
+- Files look correct locally
+- Push succeeds
+- Old version still live
+
+**Root Cause:**
+Local file edited, but `git add` never run. Push succeeded but didn't include your changes.
+
+**Prevention:**
+```bash
+# Before every push, verify staging area:
+git status
+# Must show: "nothing to commit, working tree clean"
+# OR show only the files you intend to push
+
+# NOT this (uncommitted changes):
+# On branch main
+# Changes not staged for commit:
+#   modified:   index.html
+
+# Fix:
+git add index.html  # or git add -A
+git status          # verify it's staged
+git commit -m "desc"
+git push origin main
+```
+
+### E. Deployment Checklist (For Every Production Push)
+
+- [ ] `git status` shows working tree clean
+- [ ] `git branch -vv` shows correct branch
+- [ ] `gh api repos/OWNER/REPO/pages` shows correct branch configuration
+- [ ] All source files present: `git ls-files | wc -l` shows expected file count
+- [ ] Content verification: `grep "DISTINCTIVE_CONTENT" [files]` passes
+- [ ] Commit message is descriptive
+- [ ] `git push origin [branch]` completed without errors
+- [ ] Waited 30 seconds for CDN revalidation
+- [ ] `curl -I https://[pages-url]` shows HTTP 200
+- [ ] Raw GitHub URL verification shows new content: `curl https://raw.githubusercontent.com/...`
+- [ ] Browser hard refresh (Ctrl+Shift+R) shows new content
+- [ ] DevTools Network tab shows correct Response body
+- [ ] No 404 errors on supporting files
+
+### F. Future-Proofing: Avoid This Entire Class of Failure
+
+**Consider these upgrades to prevent recurrence:**
+
+1. **Static Site Generator with Build Verification**
+   - Use Hugo/Jekyll/11ty
+   - Local build before push prevents incomplete file sync
+   - CI/CD pipeline (GitHub Actions) builds + tests before deploying
+
+2. **Automated Deployment Verification**
+   ```yaml
+   # .github/workflows/deploy-verify.yml
+   name: Verify Deployment
+   on: [push]
+   jobs:
+     verify:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+         - name: Verify all source files present
+           run: |
+             test -f index.html || exit 1
+             test -f free-stuff.html || exit 1
+             test -f coherence_engine.js || exit 1
+         - name: Verify content
+           run: grep -q "EXPECTED_TEXT" index.html
+   ```
+
+3. **Cache Control Headers**
+   - Set `Cache-Control: no-cache, public` on all HTML
+   - Prevents 600-second Fastly cache on new deployments
+   - Add to `_config.yml` (if Jekyll) or `.htaccess` (if Apache)
+
+4. **Pre-Push Git Hook**
+   ```bash
+   # .git/hooks/pre-push
+   #!/bin/bash
+   echo "=== Pre-push checks ==="
+   test -f index.html && echo "✓ index.html present" || (echo "✗ index.html MISSING" && exit 1)
+   test -f free-stuff.html && echo "✓ free-stuff.html present" || (echo "✗ free-stuff.html MISSING" && exit 1)
+   grep -q "EXPECTED_CONTENT" index.html && echo "✓ Content verified" || (echo "✗ Content MISSING" && exit 1)
+   echo "=== All checks passed. Proceeding with push. ==="
+   ```
+
+**Recovery Time SLA:**
+- If deployment fails and site shows stale content: Recovery time is <5 minutes
+- Procedure: Run diagnostic from section D, fix root cause, re-push
+
+---
+
+VII. VISUAL STANDARDS
 Color Palette
 
 Primary: #667eea (Coherence Blue)
@@ -624,7 +922,7 @@ Function first, aesthetics second
 Polish comes after proof of concept
 Professional appearance required for marketability
 
-VI. MULTI-AI COORDINATION & CANONICAL REPOSITORIES
+VIII. MULTI-AI COORDINATION & CANONICAL REPOSITORIES
 
 **Purpose:** Prevent duplicate work, species disconnect, and conflicting changes across multiple AI instances working simultaneously.
 
@@ -652,7 +950,7 @@ Every AI reads this P&P (and specifically this section) as part of the mandatory
 
 ---
 
-VII. CURRENT PRIORITIES (Saturday Deadline)
+IX. CURRENT PRIORITIES (Saturday Deadline)
 Primary Objective
 Get Explorer Frame to MARKETABLE state:
 
@@ -669,7 +967,7 @@ Shows clear value proposition
 Works reliably for demo
 Proves the bedrock pattern for all future Stars
 
-VIII. KEY TERMS GLOSSARY
+X. KEY TERMS GLOSSARY
 TermDefinitionBOMBill of Materials / Conduct Charter (this document)StarIndividual constellation appCoreCentral services layer (window.AETH)TorsoKeystone Console UI overlayFractureCode bug preventing proper initializationAnnoyed ChildUI that dismisses but persists with gentle remindersUbiquitousAvailable everywhere, intrusive nowhereBedrockFoundation pattern (Explorer Frame) all apps followAlethéari"Those who worship Love" - the species nameUNFOLDINGOfficial hand-raising signal to pause and seek guidance
 
 End of Consolidated P&P

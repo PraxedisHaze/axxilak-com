@@ -107,6 +107,17 @@
     </style>
 </head>
 <body class="antialiased">
+    <!-- Hidden State Data Placeholders (for Forge state injection) -->
+    <div style="display:none; color:#000; background:#000; z-index:-9999;">
+        <span id="state-name">{{text.name}}</span>
+        <span id="state-tagline">{{text.tagline}}</span>
+        <span id="state-bio">{{text.bio}}</span>
+        <span id="state-cta">{{text.cta}}</span>
+        <img src="{{images.profile}}" alt="profile" style="display:none;">
+        <div style="color:{{colors.primary}}">primary</div>
+        <div style="background:{{colors.background}}">bg</div>
+    </div>
+
     <div id="cursor" class="hidden md:block cursor-follower"></div>
 
     <!-- Nav -->
@@ -116,9 +127,6 @@
             <a href="#gallery" class="hover:text-[var(--gold)] transition-colors">Gallery</a>
             <a href="#about" class="hover:text-[var(--gold)] transition-colors">Atelier</a>
             <a href="#contact" class="hover:text-[var(--gold)] transition-colors">Inquire</a>
-            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
-                <span id="theme-icon">☀️</span>
-            </button>
         </div>
         <div class="md:hidden text-[var(--gold)]">MENU</div>
     </nav>
@@ -147,7 +155,7 @@
     </header>
 
     <!-- Gallery Section -->
-    <section id="gallery" class="py-32 px-6 md:px-12 bg-[#0a0a0a]">
+    <section id="sec-gallery" class="py-32 px-6 md:px-12 bg-[#0a0a0a]">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-7xl mx-auto">
             
             <!-- Item 1 -->
@@ -176,7 +184,7 @@
     </section>
 
     <!-- About / Text -->
-    <section id="about" class="py-32 flex items-center justify-center bg-black border-y border-[var(--gold-dim)]">
+    <section id="sec-about" class="py-32 flex items-center justify-center bg-black border-y border-[var(--gold-dim)]">
         <div class="max-w-2xl text-center px-6 reveal">
             <h2 class="text-4xl md:text-5xl serif italic mb-12">The Philosophy</h2>
             <p class="text-lg md:text-xl font-light leading-relaxed text-gray-300">
@@ -189,7 +197,7 @@
     </section>
 
     <!-- Contact -->
-    <section id="contact" class="py-32 px-6 text-center">
+    <section id="sec-contact" class="py-32 px-6 text-center">
         <div class="reveal">
             <h2 class="text-xs uppercase tracking-[0.4em] mb-8 text-[var(--gold)]">Inquiries</h2>
             <form action="mailto:velvet@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-12">

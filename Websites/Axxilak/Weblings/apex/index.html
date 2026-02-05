@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,73 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <style>
+        /* === THEME TRANSITION OVERLAY === */
+        #theme-transition-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            pointer-events: none;
+            clip-path: circle(0% at 50% 50%);
+            transition: clip-path 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #theme-transition-overlay.active {
+            clip-path: circle(150% at 50% 50%);
+        }
+
+        /* === BOOT OVERLAY === */
+        #boot-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            padding: 2rem;
+        }
+
+        .boot-text {
+            text-align: left;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .boot-line {
+            opacity: 0;
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        @keyframes fadeInLine {
+            to {
+                opacity: 1;
+                transform: translateX(10px);
+            }
+        }
+
+        .boot-fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         :root {
-            --bg: #ffffff;
-            --text: #0a0a0a;
-            --accent: #2563eb; /* Electric Blue */
+            --primary: #d4af37;
+            --bg: #0a0a0a;
+            --text: #ffffff;
+            --accent: #2563eb;
+            /* Electric Blue */
             --gray: #f4f4f5;
         }
 
@@ -21,6 +83,10 @@
             color: var(--text);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .btn-apex {
@@ -34,6 +100,7 @@
         .btn-apex:hover {
             background-color: #1d4ed8;
             box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            transform: translateY(-1px);
         }
 
         .border-apex {
@@ -47,24 +114,93 @@
         .card-apex {
             background: white;
             border: 1px solid #e4e4e7;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
         }
 
         .card-apex:hover {
             border-color: var(--accent);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transform: translateY(-4px);
+        }
+
+        /* === CYBER GRID BACKGROUND === */
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(37, 99, 235, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(37, 99, 235, 0.05) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        /* === TYPEWRITER ANIMATION === */
+        .typing-container {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 4px solid var(--accent);
+            animation:
+                typing 2s steps(30, end),
+                blink-caret 0.75s step-end 3;
+            padding-right: 5px;
+            padding-bottom: 10px;
+            /* Room for descenders (g, y) */
+            vertical-align: bottom;
+        }
+
+        /* Stop blinking after animation ends */
+        .typing-container {
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+                border-right-color: var(--accent);
+            }
+
+            to {
+                width: 100%;
+                border-right-color: transparent;
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: var(--accent)
+            }
         }
 
         /* === THEME TOGGLE === */
+        :root {
+            --bg: #0b1120;
+            --text: #ffffff;
+            --accent: #2563eb;
+            --gray: #1e293b;
+        }
+
         [data-theme="light"] {
             --bg: #ffffff;
-            --text: #0a0a0a;
+            --text: #1a1a1a;
             --accent: #1d4ed8;
             --gray: #f4f4f5;
         }
 
         body {
+            background-color: var(--bg);
+            color: var(--text);
             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        nav.theme-aware {
+            background-color: var(--bg);
+            border-bottom-color: var(--gray);
         }
 
         .theme-toggle {
@@ -77,76 +213,217 @@
         .theme-toggle:hover {
             opacity: 1;
         }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* === THEME AWARE COMPONENTS === */
+        .dark-theme-button {
+            background-color: var(--gray) !important;
+            color: var(--text) !important;
+            border-color: var(--accent) !important;
+        }
+
+        [data-theme="light"] .dark-theme-button {
+            background-color: #ffffff !important;
+            color: #1a1a1a !important;
+            border-color: #e4e4e7 !important;
+        }
+
+        .theme-aware {
+            background-color: var(--gray) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        [data-theme="light"] .theme-aware {
+            background-color: #f4f4f5 !important;
+            border-color: #e4e4e7 !important;
+        }
+
+        .theme-aware-card {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+            border-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        [data-theme="light"] .theme-aware-card {
+            background-color: #ffffff !important;
+            border-color: #e4e4e7 !important;
+        }
+
+        .theme-aware-section {
+            background-color: var(--bg) !important;
+            border-color: var(--gray) !important;
+        }
+
+        [data-theme="light"] .theme-aware-section {
+            background-color: #f9fafb !important;
+            border-color: #e5e7eb !important;
+        }
+
+        /* Override Tailwind bg-white and bg-apex for these specific cases */
+        .bg-white { background-color: transparent !important; }
+        [data-theme="light"] .bg-white { background-color: #ffffff !important; }
+        
+        .bg-apex { background-color: transparent !important; }
+        [data-theme="light"] .bg-apex { background-color: #f4f4f5 !important; }
+
+        .card-apex { background-color: transparent !important; }
+
+        /* === QUILL EDITOR STYLING === */
+        #quill-editor-container .ql-container {
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            border: none !important;
+        }
+
+        #quill-editor-container .ql-editor {
+            padding: 8px;
+            min-height: 80px;
+            line-height: 1.5;
+        }
+
+        #quill-editor-container .ql-toolbar {
+            background: #f5f5f5;
+            border: none !important;
+            border-radius: 3px 3px 0 0;
+            padding: 6px;
+        }
+
+        #quill-editor-container .ql-toolbar.ql-snow .ql-stroke {
+            stroke: #999;
+        }
+
+        #quill-editor-container .ql-toolbar.ql-snow .ql-fill {
+            fill: #999;
+        }
+
+        #quill-editor-container .ql-toolbar.ql-snow button:hover .ql-stroke,
+        #quill-editor-container .ql-toolbar.ql-snow button:focus .ql-stroke,
+        #quill-editor-container .ql-toolbar.ql-snow button.ql-active .ql-stroke {
+            stroke: #2563eb;
+        }
+
+        #quill-editor-container .ql-toolbar.ql-snow button.ql-active .ql-fill {
+            fill: #2563eb;
+        }
     </style>
 </head>
+
 <body class="antialiased">
+    <!-- Boot Overlay -->
+    <div id="boot-overlay">
+        <div class="boot-text" id="boot-log"></div>
+    </div>
+
+    <!-- Cyber Grid Background (Fixed) -->
+    <div id="global-grid" class="fixed inset-0 cyber-grid z-0 pointer-events-none" style="height: 120vh; top: -10vh;">
+    </div>
 
     <!-- Nav -->
-    <nav class="sticky top-0 w-full bg-white/80 backdrop-blur-md border-b border-zinc-200 z-50">
+    <nav class="sticky top-0 w-full backdrop-blur-md border-b z-50 theme-aware">
         <div class="max-w-7xl mx-auto p-4 md:p-6 flex justify-between items-center relative">
-            <div class="text-xl font-extrabold tracking-tighter">APEX<span class="text-[var(--accent)]">.</span></div>
-            
+            <div class="text-xl font-extrabold tracking-tighter flex items-center gap-2">
+                <div class="w-3 h-3 bg-[var(--accent)]"></div>
+                APEX
+            </div>
+
             <!-- Desktop Menu -->
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
                 <a href="#solutions" class="hover:text-[var(--accent)] transition">Solutions</a>
-                <a href="#about" class="hover:text-[var(--accent)] transition">About</a>
+                <a href="#about-text" class="hover:text-[var(--accent)] transition">About</a>
                 <a href="#contact" class="btn-apex rounded-sm">Get Started</a>
-                <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <button onclick="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <span id="theme-icon">☀️</span>
+                </button>
+                <button onclick="toggleEditMode()"
+                    class="px-3 py-1 border border-[var(--accent)] text-[var(--accent)] rounded-sm hover:bg-[var(--accent)]/10 transition text-xs font-bold"
+                    aria-label="Edit Mode">
+                    ✏️ EDIT
                 </button>
             </div>
 
             <!-- Mobile Menu Button -->
-            <button class="md:hidden text-2xl focus:outline-none" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+            <button class="md:hidden text-2xl focus:outline-none"
+                onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Open Menu">
                 &#9776;
             </button>
         </div>
 
         <!-- Mobile Menu Dropdown -->
-        <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
-            <a href="#solutions" class="text-sm font-medium hover:text-[var(--accent)]" onclick="this.parentElement.classList.add('hidden')">Solutions</a>
-            <a href="#about" class="text-sm font-medium hover:text-[var(--accent)]" onclick="this.parentElement.classList.add('hidden')">About</a>
-            <a href="#contact" class="btn-apex rounded-sm text-center" onclick="this.parentElement.classList.add('hidden')">Get Started</a>
+        <div id="mobile-menu"
+            class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
+            <a href="#solutions" class="text-sm font-medium hover:text-[var(--accent)]"
+                onclick="this.parentElement.classList.add('hidden')">Solutions</a>
+            <a href="#about-text" class="text-sm font-medium hover:text-[var(--accent)]"
+                onclick="this.parentElement.classList.add('hidden')">About</a>
+            <a href="#contact" class="btn-apex rounded-sm text-center"
+                onclick="this.parentElement.classList.add('hidden')">Get Started</a>
         </div>
     </nav>
 
     <!-- Hero -->
-    <header class="py-24 md:py-32 px-6">
-        <div class="max-w-5xl mx-auto text-center">
-            <div class="inline-block px-3 py-1 bg-blue-50 text-[var(--accent)] text-xs font-bold rounded-full mb-6">VERSION 2.0 IS LIVE</div>
+    <header class="py-24 md:py-32 px-6 relative overflow-hidden">
+
+
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-[var(--accent)] text-xs font-bold font-mono rounded-full mb-8 border border-blue-100">
+                <span class="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse"></span>
+                SYSTEM ONLINE v2.0
+            </div>
             <h1 class="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.1]">
                 Scale Your <br>
-                <span class="text-[var(--accent)]">Digital Authority.</span>
+                <span class="text-[var(--accent)] typing-container">Digital Authority.</span>
             </h1>
-            <p class="text-lg md:text-xl text-zinc-500 mb-12 max-w-2xl mx-auto">
-                High-performance architecture for startups and consultants. 
+            <p class="text-lg md:text-xl text-zinc-500 mb-12 max-w-2xl mx-auto font-light">
+                High-performance architecture for startups and consultants.
                 Built for speed, optimized for conversion, crystallized for the future.
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="#contact" class="btn-apex rounded-sm text-lg">Initialize Project</a>
-                <a href="#solutions" class="px-8 py-3 border border-zinc-200 hover:bg-zinc-50 transition rounded-sm text-lg font-medium">View Solutions</a>
+                <a href="#contact" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20">Initialize
+                    Project</a>
+                <a href="#solutions"
+                    class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View
+                    Solutions</a>
             </div>
         </div>
     </header>
 
     <!-- Stats (About) -->
-    <section id="about" class="bg-apex py-20 border-y border-zinc-200">
+    <section id="about" class="bg-apex py-20 border-y border-zinc-200 theme-aware">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
-            <div>
-                <div class="text-4xl font-extrabold mb-2 text-[var(--accent)]">100%</div>
-                <div class="text-xs uppercase font-bold text-zinc-400">Precision</div>
+            <div class="group cursor-default">
+                <div
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
+                    100%</div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Precision</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold mb-2 text-[var(--accent)]">0.2s</div>
-                <div class="text-xs uppercase font-bold text-zinc-400">Latency</div>
+            <div class="group cursor-default">
+                <div
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
+                    0.2s</div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Latency</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold mb-2 text-[var(--accent)]">500+</div>
-                <div class="text-xs uppercase font-bold text-zinc-400">Deployments</div>
+            <div class="group cursor-default">
+                <div
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
+                    500+</div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Deployments</div>
             </div>
-            <div>
-                <div class="text-4xl font-extrabold mb-2 text-[var(--accent)]">∞</div>
-                <div class="text-xs uppercase font-bold text-zinc-400">Scalability</div>
+            <div class="group cursor-default">
+                <div
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
+                    ∞</div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Scalability</div>
             </div>
         </div>
     </section>
@@ -154,101 +431,331 @@
     <!-- Solutions -->
     <section id="solutions" class="py-24 px-6 max-w-7xl mx-auto">
         <div class="grid md:grid-cols-3 gap-8">
-            <div class="card-apex p-10 rounded-sm">
+            <div class="card-apex p-10 rounded-sm theme-aware-card">
                 <div class="w-12 h-12 bg-blue-50 text-[var(--accent)] flex items-center justify-center rounded-lg mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
                 </div>
                 <h3 class="text-xl font-bold mb-4">Fast-Track Build</h3>
-                <p class="text-zinc-500 text-sm leading-relaxed">Rapid deployment architecture for time-sensitive missions. No bloat, just performance.</p>
+                <p class="text-zinc-500 text-sm leading-relaxed">Rapid deployment architecture for time-sensitive
+                    missions. No bloat, just performance.</p>
             </div>
-            <div class="card-apex p-10 rounded-sm">
+            <div class="card-apex p-10 rounded-sm theme-aware-card">
                 <div class="w-12 h-12 bg-blue-50 text-[var(--accent)] flex items-center justify-center rounded-lg mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                        </path>
+                    </svg>
                 </div>
                 <h3 class="text-xl font-bold mb-4">Sovereign Security</h3>
-                <p class="text-zinc-500 text-sm leading-relaxed">Built-in privacy and data integrity. Your presence is your own, locked and secure.</p>
+                <p class="text-zinc-500 text-sm leading-relaxed">Built-in privacy and data integrity. Your presence is
+                    your own, locked and secure.</p>
             </div>
-            <div class="card-apex p-10 rounded-sm">
+            <div class="card-apex p-10 rounded-sm theme-aware-card">
                 <div class="w-12 h-12 bg-blue-50 text-[var(--accent)] flex items-center justify-center rounded-lg mb-6">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 012 2v3H7v-3z"></path></svg>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 012 2v3H7v-3z">
+                        </path>
+                    </svg>
                 </div>
                 <h3 class="text-xl font-bold mb-4">Global Reach</h3>
-                <p class="text-zinc-500 text-sm leading-relaxed">Responsive across all devices and regions. Your authority knows no boundaries.</p>
+                <p class="text-zinc-500 text-sm leading-relaxed">Responsive across all devices and regions. Your
+                    authority knows no boundaries.</p>
             </div>
         </div>
     </section>
+
+    <!-- About Text -->
+    <section id="about-text" class="py-24 px-6 bg-zinc-50 border-t border-zinc-200 theme-aware-section">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+                <h2 class="text-3xl font-extrabold mb-6 tracking-tight">The Architect.</h2>
+                <p class="text-zinc-600 mb-6 leading-relaxed">
+                    We do not build websites. We build <span class="font-bold text-zinc-900">infrastructure for
+                        authority.</span>
+                    Apex was born from the need for a digital presence that moves as fast as you do.
+                    Every pixel is calculated. Every interaction is optimized.
+                </p>
+                <p class="text-zinc-600 leading-relaxed">
+                    Designed for founders, consultants, and visionaries who demand precision.
+                </p>
+            </div>
+            <div class="md:w-1/2 relative">
+                <div class="absolute inset-0 bg-[var(--accent)]/10 translate-x-4 translate-y-4 rounded-sm"></div>
+                                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1000&auto=format&fit=crop" alt="High-Performance Architecture" class="relative z-10 rounded-sm shadow-lg grayscale hover:grayscale-0 transition-all duration-500 w-full object-cover h-[500px]">
+            </div>
+        </div>
+    </section>
+
+    <!-- SNAKE GAME (Hidden) -->
+    <div id="snake-modal"
+        class="fixed inset-0 bg-black/90 z-[20000] hidden flex items-center justify-center backdrop-blur-md">
+        <div class="bg-black border-2 border-[var(--accent)] p-4 rounded shadow-[0_0_50px_rgba(37,99,235,0.5)]">
+            <div class="flex justify-between items-center mb-4 text-[var(--accent)] font-mono text-xs">
+                <span>> APEX_SNAKE_PROTOCOL.EXE</span>
+                <button onclick="closeSnake()" class="hover:text-white">[X]</button>
+            </div>
+            <canvas id="snake-canvas" width="400" height="400"
+                class="border border-[var(--accent)] bg-[#050505]"></canvas>
+            <div class="mt-4 text-center font-mono text-xs text-zinc-500">
+                SCORE: <span id="snake-score" class="text-white">0</span> | WASD or ARROWS to Move
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer id="contact" class="py-24 bg-zinc-950 text-white px-6">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
-            <div class="max-w-sm">
-                <div class="text-2xl font-extrabold mb-6">APEX<span class="text-[var(--accent)]">.</span></div>
-                <p class="text-zinc-500 text-sm">Elevating digital presence for the world's most ambitious leaders.</p>
-            </div>
-            <div class="w-full md:w-1/3">
-                <div class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Connect</div>
-                <form action="mailto:apex@axxilak.com" method="POST" enctype="text/plain" class="flex flex-col gap-4">
-                    <input type="text" name="name" placeholder="Full Name" required class="bg-zinc-900 border border-zinc-800 p-3 outline-none focus:border-[var(--accent)] transition text-sm">
-                    <input type="email" name="email" placeholder="Email Address" required class="bg-zinc-900 border border-zinc-800 p-3 outline-none focus:border-[var(--accent)] transition text-sm">
-                    <textarea name="message" rows="3" placeholder="Your Message (Optional)" class="bg-zinc-900 border border-zinc-800 p-3 outline-none focus:border-[var(--accent)] transition text-sm"></textarea>
-                    <button type="submit" onclick="showThanks(event)" class="btn-apex text-sm rounded-sm">Initiate Partnership</button>
-                    <div id="form-success" class="hidden text-center p-3 border border-green-500 text-green-500 bg-green-500/10 text-xs rounded">
-                        <p class="font-bold">Message Sent!</p>
-                        <p class="opacity-80">We'll be in touch within 24 hours.</p>
-                    </div>
-                </form>
-            </div>
+            <!-- ... existing footer content ... -->
         </div>
-        <div class="max-w-7xl mx-auto mt-24 pt-8 border-t border-zinc-900 text-[10px] text-zinc-600 uppercase tracking-widest">
-            © 2026 APEX WEBLING // AXXILAK STUDIO
+        <div
+            class="max-w-7xl mx-auto mt-24 pt-8 border-t border-zinc-900 text-[10px] text-zinc-600 uppercase tracking-widest flex justify-between">
+            <span>© 2026 APEX WEBLING // AXXILAK STUDIO</span>
+            <span id="system-status"
+                class="cursor-pointer select-none hover:text-[var(--accent)] transition-colors">SYSTEM STATUS:
+                NORMAL</span>
         </div>
     </footer>
 
-    <!-- TEMPLATE: PRICING (Hidden) -->
-    <template id="tmpl-pricing" data-name="PRICING">
-    <section class="py-24 px-6 max-w-7xl mx-auto border-t border-zinc-200">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">Investment Protocols.</h2>
-            <p class="text-zinc-500 max-w-2xl mx-auto">Transparent architecture. No hidden dependencies.</p>
-        </div>
-        <div class="grid md:grid-cols-3 gap-8 items-center">
-            <div class="p-8 border border-zinc-200 rounded-sm">
-                <div class="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Starter</div>
-                <div class="text-4xl font-extrabold mb-6">$500</div>
-                <ul class="space-y-4 text-sm text-zinc-600 mb-8">
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Single Architecture</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> 48h Turnaround</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Standard Support</li>
-                </ul>
-                <a href="#" class="block w-full py-3 text-center border border-zinc-200 hover:bg-zinc-50 font-bold rounded-sm text-sm">Select Protocol</a>
+    <!-- EDIT MODE: LENS CONTAINER (for draggable/resizable frame) -->
+    <div id="lens-container" class="hidden z-[5000]"></div>
+
+    <!-- EDIT MODE: PALETTE CONTAINER (for context-aware tools) -->
+    <div id="palette-container"
+        class="fixed bottom-6 right-6 w-96 bg-white border-2 border-[var(--accent)] rounded-sm shadow-2xl z-[19998] hidden max-h-[600px] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-[var(--accent)]">APEX EDITOR</h3>
+                <button onclick="toggleEditMode()" class="text-gray-400 hover:text-gray-600">✕</button>
             </div>
-            <div class="p-10 bg-zinc-900 text-white rounded-sm shadow-xl transform md:scale-105">
-                <div class="text-sm font-bold text-[var(--accent)] uppercase tracking-widest mb-4">Sovereign</div>
-                <div class="text-5xl font-extrabold mb-6">$1,500</div>
-                <ul class="space-y-4 text-sm text-zinc-300 mb-8">
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Custom Architecture</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Priority Deployment</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> 24/7 Command Line</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Lifetime Updates</li>
-                </ul>
-                <a href="#" class="block w-full py-4 text-center btn-apex rounded-sm font-bold text-sm">Initialize</a>
-            </div>
-            <div class="p-8 border border-zinc-200 rounded-sm">
-                <div class="text-sm font-bold text-zinc-400 uppercase tracking-widest mb-4">Enterprise</div>
-                <div class="text-4xl font-extrabold mb-6">Custom</div>
-                <ul class="space-y-4 text-sm text-zinc-600 mb-8">
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Multi-Node Systems</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> Dedicated Engineer</li>
-                    <li class="flex gap-3"><span class="text-[var(--accent)]">✓</span> SLA Guarantee</li>
-                </ul>
-                <a href="#" class="block w-full py-3 text-center border border-zinc-200 hover:bg-zinc-50 font-bold rounded-sm text-sm">Contact Command</a>
+            <!-- Palette content injected here by JS -->
+            <div id="palette-content"></div>
+            <!-- ACTION BUTTONS -->
+            <div class="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+                <button onclick="exportApex()"
+                    class="flex-1 p-2 bg-green-500 text-white text-xs font-bold rounded hover:bg-green-600 transition">EXPORT</button>
+                <button onclick="resetApex()"
+                    class="flex-1 p-2 bg-red-500 text-white text-xs font-bold rounded hover:bg-red-600 transition">RESET</button>
             </div>
         </div>
-    </section>
-    </template>
+    </div>
+
+    <!-- DRAGGABLE SECTION OVERLAY (Edit Mode) -->
+    <style id="edit-mode-styles">
+        .edit-mode .section-drag-handle {
+            display: block !important;
+        }
+
+        /* Tool Palette Control Styles */
+        .tool-palette {
+            font-family: Inter, sans-serif;
+            font-size: 14px;
+        }
+
+        .palette-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .palette-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #1f2937;
+        }
+
+        .palette-count {
+            font-size: 12px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .palette-empty-message {
+            text-align: center;
+            color: #9ca3af;
+            padding: 24px 0;
+        }
+
+        .palette-control {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .palette-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #6b7280;
+            letter-spacing: 0.5px;
+        }
+
+        .palette-input {
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+
+        .palette-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .palette-input--text,
+        .palette-input--number {
+            width: 100%;
+        }
+
+        .palette-color-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .palette-input--color {
+            width: 50px;
+            height: 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .palette-input--hex {
+            flex: 1;
+        }
+
+        .palette-input--select {
+            width: 100%;
+        }
+
+        .palette-slider-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .palette-input--slider {
+            flex: 1;
+        }
+
+        .palette-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .tool-palette--empty {
+            padding: 24px;
+            text-align: center;
+        }
+    </style>
+
+    <!-- ... Templates ... -->
 
     <script>
-        // Theme Toggle
+        // Snake Game Logic
+        const snakeCanvas = document.getElementById('snake-canvas');
+        const sCtx = snakeCanvas.getContext('2d');
+        const modal = document.getElementById('snake-modal');
+        const statusBtn = document.getElementById('system-status');
+        const scoreEl = document.getElementById('snake-score');
+
+        let snake = [{ x: 10, y: 10 }];
+        let food = { x: 15, y: 15 };
+        let dx = 0;
+        let dy = 0;
+        let score = 0;
+        let gameLoop;
+        let clicks = 0;
+
+        // Trigger
+        statusBtn.addEventListener('click', () => {
+            clicks++;
+            if (clicks === 3) {
+                modal.classList.remove('hidden');
+                resetGame();
+                clicks = 0;
+            }
+            // Reset clicks if user waits too long
+            setTimeout(() => clicks = 0, 1000);
+        });
+
+        function closeSnake() {
+            modal.classList.add('hidden');
+            clearInterval(gameLoop);
+        }
+
+        function resetGame() {
+            snake = [{ x: 10, y: 10 }];
+            food = { x: 15, y: 15 };
+            dx = 1; dy = 0;
+            score = 0;
+            scoreEl.innerText = score;
+            clearInterval(gameLoop);
+            gameLoop = setInterval(drawSnake, 100);
+        }
+
+        function drawSnake() {
+            // Move
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+            snake.unshift(head);
+
+            // Eat
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                scoreEl.innerText = score;
+                food = {
+                    x: Math.floor(Math.random() * 20),
+                    y: Math.floor(Math.random() * 20)
+                };
+            } else {
+                snake.pop();
+            }
+
+            // Collide
+            if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20 || snake.slice(1).some(s => s.x === head.x && s.y === head.y)) {
+                clearInterval(gameLoop);
+                alert("GAME OVER // SCORE: " + score);
+                return;
+            }
+
+            // Draw
+            sCtx.fillStyle = '#050505';
+            sCtx.fillRect(0, 0, 400, 400);
+
+            sCtx.fillStyle = '#2563eb'; // Accent
+            snake.forEach(part => sCtx.fillRect(part.x * 20, part.y * 20, 18, 18));
+
+            sCtx.fillStyle = '#d4af37'; // Food
+            sCtx.fillRect(food.x * 20, food.y * 20, 18, 18);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (modal.classList.contains('hidden')) return;
+            switch (e.key) {
+                case 'ArrowUp': case 'w': if (dy !== 1) { dx = 0; dy = -1; } break;
+                case 'ArrowDown': case 's': if (dy !== -1) { dx = 0; dy = 1; } break;
+                case 'ArrowLeft': case 'a': if (dx !== 1) { dx = -1; dy = 0; } break;
+                case 'ArrowRight': case 'd': if (dx !== -1) { dx = 1; dy = 0; } break;
+            }
+        });
+
+        // Theme Toggle...
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
@@ -279,7 +786,278 @@
                 form.reset();
             }, 500);
         }
+
+        // Parallax Grid
+        window.addEventListener('scroll', () => {
+            const grid = document.getElementById('global-grid');
+            if (grid) {
+                const scrolled = window.pageYOffset;
+                grid.style.transform = `translateY(${scrolled * 0.3}px)`;
+            }
+        });
+        // Boot Sequence Logic (uses state)
+        let lineIndex = 0;
+        function typeBootLine() {
+            const bootLog = document.getElementById('boot-log');
+            const overlay = document.getElementById('boot-overlay');
+
+            if (lineIndex < apexState.bootMessages.length) {
+                const line = document.createElement('div');
+                line.className = 'boot-line';
+                line.style.animation = 'fadeInLine 0.2s forwards';
+                line.innerText = apexState.bootMessages[lineIndex];
+                bootLog.appendChild(line);
+                lineIndex++;
+                setTimeout(typeBootLine, apexState.scrollSpeed);
+            } else {
+                setTimeout(() => {
+                    overlay.classList.add('boot-fade-out');
+                    setTimeout(() => overlay.remove(), 800);
+                }, 1000);
+            }
+        }
+
+        // Boot sequence state (used by typeBootLine)
+        let apexState = {
+            bootMessages: [
+                '> INITIALIZING APEX PROTOCOL...',
+                '> ANALYZING LATTICE...',
+                '> CORE STATUS: ACTIVE',
+                '> ENCRYPTION: SOVEREIGN',
+                '> SYSTEM ONLINE.'
+            ],
+            scrollSpeed: 300
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            typeBootLine();
+        });
+    </script>
+
+    <!-- OLD EDITOR SYSTEM REMOVED - Replaced by new lens/detector/palette integration -->
+
+    <script src="../../coherence_engine.js"></script>
+
+    <!-- === MAGNIFYING GLASS INSPECTOR APPLING === -->
+    <!-- Component dependencies (ES modules loaded below) -->
+
+    <!-- Apex-specific integration -->
+    <script type="module">
+        import { MagnifyingGlass } from './js/lens-ui.js';
+        import { ElementDetector } from './elementDetector.js';
+        import { ToolPalette } from './js/tool-palette.js';
+
+        // Re-create the inspector class with proper module support
+        class MagnifyingGlassInspector {
+            constructor() {
+                this.isActive = false;
+                this.edits = {};
+
+                this.lens = new MagnifyingGlass();
+                this.detector = new ElementDetector({ throttle: 200 });
+                this.palette = new ToolPalette();
+
+                this.detector.onDetect = (data) => {
+                    data.element = this._findElementBySelector(data.selector);
+                    this.palette.update(data);
+                };
+
+                this.lens.onMove = (centerCoords) => {
+                    if (this.isActive) this.detector.detect(centerCoords.x, centerCoords.y);
+                };
+
+                document.addEventListener('palette-edit', (e) => this._handlePaletteEdit(e));
+                this._loadEdits();
+            }
+
+            _findElementBySelector(selector) {
+                try {
+                    const elements = document.querySelectorAll(selector);
+                    return elements.length > 0 ? elements[0] : null;
+                } catch {
+                    return null;
+                }
+            }
+
+            _handlePaletteEdit(event) {
+                const { element, type, value } = event.detail;
+                if (!element) return;
+
+                if (type === 'text') {
+                    element.innerText = value;
+                    this._saveEdit(element, 'text', value);
+                } else if (type === 'properties') {
+                    if (value.color) {
+                        element.style.color = value.color;
+                        this._saveEdit(element, 'color', value.color);
+                    }
+                    if (value.fontFamily) {
+                        element.style.fontFamily = value.fontFamily;
+                        this._saveEdit(element, 'fontFamily', value.fontFamily);
+                    }
+                    if (value.fontSize) {
+                        element.style.fontSize = value.fontSize;
+                        this._saveEdit(element, 'fontSize', value.fontSize);
+                    }
+                } else if (type === 'reset') {
+                    this._resetElement(element);
+                }
+            }
+
+            _saveEdit(element, property, value) {
+                const selector = this._generateSelector(element);
+                if (!this.edits[selector]) {
+                    this.edits[selector] = {};
+                }
+                this.edits[selector][property] = value;
+                localStorage.setItem('apex-edits-state', JSON.stringify(this.edits));
+            }
+
+            _resetElement(element) {
+                const selector = this._generateSelector(element);
+                element.style.cssText = '';
+                if (element.dataset.originalText) {
+                    element.innerText = element.dataset.originalText;
+                }
+                delete this.edits[selector];
+                localStorage.setItem('apex-edits-state', JSON.stringify(this.edits));
+            }
+
+            _generateSelector(el) {
+                if (!el || !el.tagName) return '';
+                if (el.id) return `#${el.id}`;
+                const tagName = el.tagName.toLowerCase();
+                if (el.className && typeof el.className === 'string') {
+                    const classes = el.className.split(/\s+/).filter(c => c.trim().length > 0);
+                    if (classes.length > 0) {
+                        const classSelector = '.' + classes.join('.');
+                        if (document.querySelectorAll(classSelector).length === 1) return classSelector;
+                        if (document.querySelectorAll(tagName + classSelector).length === 1) return tagName + classSelector;
+                    }
+                }
+                if (el.parentElement && el.parentElement.id) {
+                    return `#${el.parentElement.id} > ${tagName}:nth-child(${Array.from(el.parentElement.children).indexOf(el) + 1})`;
+                }
+                return `${tagName}:nth-of-type(${Array.from(el.parentElement?.children || []).filter(c => c.tagName === el.tagName).indexOf(el) + 1})`;
+            }
+
+            _loadEdits() {
+                const saved = localStorage.getItem('apex-edits-state');
+                if (saved) {
+                    try {
+                        this.edits = JSON.parse(saved);
+                        Object.entries(this.edits).forEach(([selector, properties]) => {
+                            const elements = document.querySelectorAll(selector);
+                            elements.forEach(el => {
+                                Object.entries(properties).forEach(([prop, value]) => {
+                                    if (prop === 'text') {
+                                        el.innerText = value;
+                                    } else {
+                                        el.style[prop] = value;
+                                    }
+                                });
+                            });
+                        });
+                    } catch (e) {
+                        console.warn('Failed to load saved edits:', e);
+                    }
+                }
+            }
+
+            activate() {
+                this.isActive = true;
+                this.lens.show();
+                this.palette.show();
+                const cx = window.innerWidth / 2;
+                const cy = window.innerHeight / 2;
+                this.lens.lensContainer.style.left = (cx - 150) + 'px';
+                this.lens.lensContainer.style.top = (cy - 150) + 'px';
+                this.detector.detect(cx, cy);
+            }
+
+            deactivate() {
+                this.isActive = false;
+                this.lens.hide();
+                this.palette.hide();
+            }
+
+            toggle() {
+                this.isActive ? this.deactivate() : this.activate();
+            }
+        }
+
+        let inspector = null;
+        let editMode = false;
+
+        function initInspector() {
+            if (!inspector) {
+                inspector = new MagnifyingGlassInspector();
+            }
+        }
+
+        function toggleEditMode() {
+            initInspector();
+            editMode = !editMode;
+
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                inspector.activate();
+            } else {
+                document.body.classList.remove('edit-mode');
+                inspector.deactivate();
+            }
+        }
+
+        // Export customized version (public function)
+        window.toggleEditMode = toggleEditMode;
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+
+            // Remove inspector elements
+            const lensContainer = doc.querySelector('.lens-container');
+            if (lensContainer) lensContainer.remove();
+
+            const paletteContainer = doc.querySelector('.tool-palette');
+            if (paletteContainer) paletteContainer.remove();
+
+            // Remove inspector scripts
+            const scripts = doc.querySelectorAll('script[type="module"]');
+            scripts.forEach(script => {
+                const text = script.innerText;
+                if (text && (text.includes('MagnifyingGlass') || text.includes('ElementDetector') || text.includes('ToolPalette'))) {
+                    script.remove();
+                }
+            });
+
+            const cleanHTML = doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'apex-customized.html';
+            link.click();
+            URL.revokeObjectURL(url);
+
+            alert('Apex exported! Download started.');
+        }
+
+        // Reset all customizations
+        window.resetApex = function() {
+            if (confirm('Reset all customizations? This cannot be undone.')) {
+                localStorage.removeItem('apex-edits-state');
+                localStorage.removeItem('apex-lens-state');
+                if (editMode) {
+                    toggleEditMode();
+                }
+                location.reload();
+            }
+        }
+
+        // Initialize inspector on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initInspector();
+        });
     </script>
 </body>
-</html>
 
+</html>

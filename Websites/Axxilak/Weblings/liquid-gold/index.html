@@ -170,6 +170,17 @@
 
 <body class="selection:bg-amber-900 selection:text-white">
 
+    <!-- Hidden State Data Placeholders (for Forge state injection) -->
+    <div style="display:none; color:#000; background:#000; z-index:-9999;">
+        <span id="state-name">{{text.name}}</span>
+        <span id="state-tagline">{{text.tagline}}</span>
+        <span id="state-bio">{{text.bio}}</span>
+        <span id="state-cta">{{text.cta}}</span>
+        <img src="{{images.profile}}" alt="profile" style="display:none;">
+        <div style="color:{{colors.primary}}">primary</div>
+        <div style="background:{{colors.background}}">bg</div>
+    </div>
+
     <!-- Background Animation -->
     <canvas id="neuro-canvas"></canvas>
 
@@ -362,7 +373,7 @@
                         <div class="w-10 h-10 border border-white/10 flex items-center justify-center rounded-full">
                             <i class="fa-solid fa-envelope text-amber-500"></i>
                         </div>
-                        <span class="font-light">hello@axxilak.com</span>
+                        <span class="font-light">contact@axxilak.com</span>
                     </div>
                     
                     <div class="flex gap-3">
@@ -382,7 +393,7 @@
                 </div>
             </div>
 
-            <form id="contact-form" action="mailto:liquid@axxilak.com" method="POST" enctype="text/plain" class="glass-panel p-8 md:p-12 space-y-6 reveal" style="transition-delay: 200ms;">
+            <form id="contact-form" action="mailto:contact@axxilak.com" method="POST" enctype="text/plain" class="glass-panel p-8 md:p-12 space-y-6 reveal" style="transition-delay: 200ms;">
                 <div>
                     <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
                     <input type="text" name="name" required

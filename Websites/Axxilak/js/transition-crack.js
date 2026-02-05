@@ -131,7 +131,10 @@ class CrackingTransition {
         // Start with radial mask completely hidden (reveal starts at 0%)
         this.forgeIframe.style.maskImage = 'radial-gradient(circle at center, black 0%, transparent 0.1%)';
         this.forgeIframe.style.webkitMaskImage = 'radial-gradient(circle at center, black 0%, transparent 0.1%)';
-        const forgeUrl = `axxilak_forge_v3.2.html?template=${this.selectedWebling}&t=${Date.now()}`;
+        const baseUrl = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:8000/Websites/Axxilak/Axxilak%20Forge%20v4.0%20-%20The%20Composer.html'
+            : `${window.location.origin}/Websites/Axxilak/Axxilak%20Forge%20v4.0%20-%20The%20Composer.html`;
+        const forgeUrl = `${baseUrl}?template=${this.selectedWebling}&t=${Date.now()}`;
         console.log(`[Transition] Loading Forge with URL: ${forgeUrl}`);
         this.forgeIframe.src = forgeUrl;
         document.body.appendChild(this.forgeIframe);
@@ -484,7 +487,10 @@ class CrackingTransition {
      */
     _fallbackNavigation() {
         this._cleanup();
-        const forgeUrl = `axxilak_forge_v3.1.html?template=${this.selectedWebling}`;
+        const baseUrl = window.location.origin === 'null' || window.location.protocol === 'file:'
+            ? 'http://localhost:8000/Websites/Axxilak/Axxilak%20Forge%20v4.0%20-%20The%20Composer.html'
+            : `${window.location.origin}/Websites/Axxilak/Axxilak%20Forge%20v4.0%20-%20The%20Composer.html`;
+        const forgeUrl = `${baseUrl}?template=${this.selectedWebling}`;
         window.location.href = forgeUrl;
     }
 

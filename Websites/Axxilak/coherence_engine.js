@@ -24,7 +24,7 @@
     function initCoherenceEngine() {
         if (isActive) return;
         isActive = true;
-        console.log("✧ COHERENCE ENGINE ENGAGED: PHASE 2 ✧");
+        console.log("✧ COHERENCE ENGINE ENGAGED: PHASE 3 (SUMMONER) ✧");
 
         // 1. Inject Styles
         const css = 
@@ -98,7 +98,7 @@
             "}" +
             ".coherence-close:hover { color: #fff; }" +
             
-            // Editable Elements (Persistent Outline)
+            // Editable Elements
             ".coherence-editable {" +
             "    outline: 1px dashed rgba(255, 255, 255, 0.1);" +
             "    transition: all 0.2s;" +
@@ -139,7 +139,7 @@
             "    z-index: 10000;" +
             "    opacity: 0;" +
             "    transition: opacity 0.2s;" +
-            "    pointer-events: none;" +
+            "    pointer-events: none;" + 
             "}" +
             ".coherence-section:hover .coherence-section-toolbar {" +
             "    opacity: 1;" +
@@ -159,7 +159,40 @@
             "}" +
             ".btn-danger:hover { background: #ef4444; color: white; }" +
             ".coherence-section { position: relative; border: 1px dashed transparent; }" +
-            ".coherence-section:hover { border-color: rgba(255,255,255,0.1); }";
+            ".coherence-section:hover { border-color: rgba(255,255,255,0.1); }" +
+            
+            // Summoner Menu (The Ghost Button's Interface)
+            ".coherence-summoner {" +
+            "    position: fixed;" +
+            "    bottom: 90px;" +
+            "    left: 50%;" +
+            "    transform: translateX(-50%);" +
+            "    background: #111;" +
+            "    border: 1px solid #333;" +
+            "    border-radius: 8px;" +
+            "    width: 200px;" +
+            "    display: none;" +
+            "    flex-direction: column;" +
+            "    overflow: hidden;" +
+            "    box-shadow: 0 10px 30px rgba(0,0,0,0.8);" +
+            "    z-index: 100000;" +
+            "}" +
+            ".coherence-summon-item {" +
+            "    padding: 12px;" +
+            "    background: transparent;" +
+            "    border: none;" +
+            "    border-bottom: 1px solid #222;" +
+            "    color: #888;" +
+            "    text-align: left;" +
+            "    cursor: pointer;" +
+            "    font-family: sans-serif;" +
+            "    font-size: 12px;" +
+            "    transition: all 0.2s;" +
+            "}" +
+            ".coherence-summon-item:hover {" +
+            "    background: #222;" +
+            "    color: #d4af37;" +
+            "}";
 
         const style = document.createElement('style');
         style.innerHTML = css;
@@ -170,52 +203,103 @@
         ui.className = 'coherence-ui-glass';
         ui.innerHTML = 
             '<div class="coherence-label">Coherence Engaged</div>' +
+            '<button id="coherence-add" class="coherence-section-btn" style="border-radius: 20px; border: 1px solid #333; margin-right: 10px;">+ Add</button>' +
             '<button id="coherence-save" class="coherence-btn">Commit to Reality</button>' +
             '<button id="coherence-close" class="coherence-close">✕</button>';
         document.body.appendChild(ui);
+        
+        // 2.5 Inject Summoner Menu
+        const menu = document.createElement('div');
+        menu.id = 'coherence-summoner-menu';
+        menu.className = 'coherence-summoner';
+        document.body.appendChild(menu);
 
         // 3. Awaken Elements
         activateTextEditing();
         activateImageSwapping();
         activateSectionControls();
         interceptLinks();
+        buildSummonerMenu();
 
         // 4. Bind Actions
         document.getElementById('coherence-save').onclick = commitToReality;
         document.getElementById('coherence-close').onclick = shutdownEngine;
+        document.getElementById('coherence-add').onclick = toggleSummoner;
+    }
+    
+    function buildSummonerMenu() {
+        const menu = document.getElementById('coherence-summoner-menu');
+        menu.innerHTML = ''; // Clear
+        
+        // Find all templates in the document
+        const templates = document.querySelectorAll('template[data-name]');
+        
+        if (templates.length === 0) {
+            menu.innerHTML = '<div style="padding:10px; color:#666; font-size:10px;">No Blueprints Found</div>';
+            return;
+        }
+        
+        templates.forEach(tpl => {
+            const btn = document.createElement('button');
+            btn.className = 'coherence-summon-item';
+            btn.innerText = '+ ' + tpl.getAttribute('data-name');
+            btn.onclick = () => summonTemplate(tpl);
+            menu.appendChild(btn);
+        });
+    }
+    
+    function toggleSummoner() {
+        const menu = document.getElementById('coherence-summoner-menu');
+        menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+    
+    function summonTemplate(tpl) {
+        // Clone content
+        const clone = tpl.content.cloneNode(true);
+        // Inject before Footer (assuming footer is last main element)
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.parentNode.insertBefore(clone, footer);
+        } else {
+            document.body.appendChild(clone);
+        }
+        
+        // Re-scan for interactive elements
+        activateTextEditing(); // Re-bind new text
+        activateSectionControls(); // Add toolbar to new section
+        
+        // Close menu
+        document.getElementById('coherence-summoner-menu').style.display = 'none';
+        
+        // Scroll to new section
+        footer.previousElementSibling.scrollIntoView({behavior: 'smooth'});
     }
 
     function activateTextEditing() {
-        // Broad selector, but filtering carefully
         const textNodes = document.querySelectorAll('h1, h2, h3, h4, p, span, li, a, button, div');
-        
         textNodes.forEach(el => {
             if (el.closest('.coherence-ui-glass')) return;
             if (el.closest('.coherence-section-toolbar')) return;
             
-            // Logic: Only edit if it has direct text content and NO element children (leaf node)
             const hasText = el.textContent.trim().length > 0;
             const isLeaf = el.children.length === 0;
             
             if (hasText && isLeaf) {
                 el.classList.add('coherence-editable');
                 
-                // Override clicks
                 el.addEventListener('click', (e) => {
                     if (!isActive) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     el.contentEditable = "true";
                     el.focus();
-                }, true); // Capture phase to beat default handlers
+                }, true);
 
                 el.onblur = () => {
                     el.contentEditable = "false";
                 };
                 
                 el.onkeydown = (e) => {
-                     // Allow Enter for paragraphs, prevent for headers/buttons
                      if (e.key === 'Enter' && !['P', 'LI'].includes(el.tagName)) {
                         e.preventDefault();
                         el.blur();
@@ -258,68 +342,41 @@
         const sections = document.querySelectorAll('section, header, footer');
         sections.forEach(sec => {
             if (sec.closest('.coherence-ui-glass')) return;
+            if (sec.classList.contains('coherence-section')) return; // Already bound
             
             sec.classList.add('coherence-section');
             
-            // Create Toolbar
             const toolbar = document.createElement('div');
             toolbar.className = 'coherence-section-toolbar';
-            toolbar.contentEditable = "false"; // Protect toolbar
+            toolbar.contentEditable = "false"; 
             
-            // Move Up
             const btnUp = document.createElement('button');
             btnUp.innerHTML = '↑';
             btnUp.className = 'coherence-section-btn';
-            btnUp.onclick = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                if (sec.previousElementSibling) {
-                    sec.parentNode.insertBefore(sec, sec.previousElementSibling);
-                    sec.scrollIntoView({behavior: 'smooth', block: 'center'});
-                }
-            };
+            btnUp.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if (sec.previousElementSibling) sec.parentNode.insertBefore(sec, sec.previousElementSibling); };
             
-            // Move Down
             const btnDown = document.createElement('button');
             btnDown.innerHTML = '↓';
             btnDown.className = 'coherence-section-btn';
-            btnDown.onclick = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                if (sec.nextElementSibling) {
-                    sec.parentNode.insertBefore(sec.nextElementSibling, sec);
-                    sec.scrollIntoView({behavior: 'smooth', block: 'center'});
-                }
-            };
+            btnDown.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if (sec.nextElementSibling) sec.parentNode.insertBefore(sec.nextElementSibling, sec); };
             
-            // Duplicate
             const btnDup = document.createElement('button');
             btnDup.innerHTML = 'Clone';
             btnDup.className = 'coherence-section-btn';
-            btnDup.onclick = (e) => {
+            btnDup.onclick = (e) => { 
                 e.preventDefault(); e.stopPropagation();
                 const clone = sec.cloneNode(true);
-                // Remove existing toolbars from clone to avoid nesting/duplication
-                const existingBars = clone.querySelectorAll('.coherence-section-toolbar');
-                existingBars.forEach(b => b.remove());
-                
+                clone.classList.remove('coherence-section'); // Strip status so re-init works cleanly
+                clone.querySelectorAll('.coherence-section-toolbar').forEach(b => b.remove());
                 sec.parentNode.insertBefore(clone, sec.nextSibling);
-                // Re-init controls on the new clone (recursive) 
-                // For MVP: We just reload engine or basic re-init. 
-                // Better: Just manually add controls to clone.
-                // clone.classList.add('coherence-section');
-                // activateSectionControls(); // Re-run to catch new elements
-                alert("Section cloned. (Re-engage Lux to edit the clone fully)");
+                activateSectionControls(); // Re-bind new section
+                activateTextEditing(); // Re-bind new text
             };
             
-            // Delete
             const btnDel = document.createElement('button');
             btnDel.innerHTML = '✕';
             btnDel.className = 'coherence-section-btn btn-danger';
-            btnDel.onclick = (e) => {
-                e.preventDefault(); e.stopPropagation();
-                if(confirm("Delete this section?")) {
-                    sec.remove();
-                }
-            };
+            btnDel.onclick = (e) => { e.preventDefault(); e.stopPropagation(); if(confirm("Delete this section?")) sec.remove(); };
             
             toolbar.append(btnUp, btnDown, btnDup, btnDel);
             sec.prepend(toolbar);
@@ -330,45 +387,40 @@
         const links = document.querySelectorAll('a');
         links.forEach(a => {
             a.addEventListener('click', (e) => {
-                if (isActive) {
-                    // Always prevent default navigation if we are in Coherence Mode
-                    // This allows clicking "Start a Project" to edit the text without moving.
-                    e.preventDefault();
-                    // Let the event bubble to the text editor handler
-                }
+                if (isActive) e.preventDefault();
             }, false);
         });
     }
 
     function commitToReality() {
-        const clone = document.documentElement.cloneNode(true);
-        const engineUI = clone.querySelector('.coherence-ui-glass');
-        if (engineUI) engineUI.remove();
-
-        const dirtyEls = clone.querySelectorAll('.coherence-editable, .coherence-image, .coherence-section');
-        const toolbars = clone.querySelectorAll('.coherence-section-toolbar');
+        // DEMO MODE: Modal Logic
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(8px);
+            z-index: 100000; display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease;
+        `;
         
-        dirtyEls.forEach(el => {
-            el.classList.remove('coherence-editable', 'coherence-image', 'coherence-section');
-            el.removeAttribute('contenteditable');
-        });
+        modal.innerHTML = `
+            <div style="background: #111; border: 1px solid #d4af37; padding: 40px; text-align: center; max-width: 500px; position: relative;">
+                <button id="demo-close" style="position: absolute; top: 10px; right: 10px; background: none; border: none; color: #666; cursor: pointer;">✕</button>
+                <div style="color: #d4af37; font-size: 12px; text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 20px;">Architecture Crystallized</div>
+                <h2 style="color: white; font-family: 'Cinzel', serif; font-size: 32px; margin-bottom: 20px;">Unlock Your Reality</h2>
+                <p style="color: #888; font-family: 'Outfit', sans-serif; line-height: 1.6; margin-bottom: 30px;">
+                    You have shaped this webling to your vision. To export the source code and take full ownership, acquire the Sovereign Key.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="window.location.href='./Axxilak Forge v4.0 (The Composer).html'" style="background: #d4af37; color: black; border: none; padding: 12px 30px; font-weight: bold; text-transform: uppercase; cursor: pointer; letter-spacing: 0.1em;">
+                        Acquire License ($20)
+                    </button>
+                </div>
+            </div>
+        `;
         
-        toolbars.forEach(t => t.remove()); // Remove toolbars
-
-        const htmlContent = "<!DOCTYPE html>\n" + clone.outerHTML;
-        
-        const blob = new Blob([htmlContent], { type: "text/html" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "my_webling.html";
-        a.click();
-
-        const btn = document.getElementById('coherence-save');
-        const originalText = btn.innerText;
-        btn.innerText = "Reality Anchored";
-        setTimeout(() => {
-            btn.innerText = originalText;
-        }, 2000);
+        document.body.appendChild(modal);
+        document.getElementById('demo-close').onclick = () => modal.remove();
+        modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     }
 
     function shutdownEngine() {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axxilak Forge v3.2 | Sovereign Workspace</title>
+    <title>Axxilak Forge v4.0 | The Composer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,6 +24,7 @@
             overflow: hidden;
         }
 
+        /* Pseudo-Haptics */
         .tactile-btn {
             transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
             transform: scale(1);
@@ -34,17 +35,25 @@
             opacity: 0.9;
         }
 
+        /* Toggle Switch Styling */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: var(--gold);
+        }
+
+        .toggle-checkbox:checked+.toggle-label {
+            background-color: var(--gold);
+        }
+
         .infinite-grid {
             background-color: #050505;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
             box-shadow: inset 0 0 100px #000;
         }
 
         ::-webkit-scrollbar {
-            width: 10px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -53,40 +62,11 @@
 
         ::-webkit-scrollbar-thumb {
             background: #334155;
-            border-radius: 5px;
-            border: 2px solid #0f172a;
+            border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--gold);
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: var(--gold);
-            margin-top: -6px;
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-            transition: transform 0.1s;
-        }
-
-        input[type=range]::-webkit-slider-thumb:hover {
-            transform: scale(1.2);
-        }
-
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            background: #334155;
-            border-radius: 2px;
         }
 
         .loader {
@@ -147,7 +127,7 @@
                         class="text-[#d4af37]">Forge</span></h1>
                 <div
                     class="flex items-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest font-mono mt-1">
-                    <span>v3.2 Stable</span>
+                    <span>v4.0 Composer</span>
                     <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
                     <span id="save-status" class="text-green-500 transition-colors duration-500">System Ready</span>
                 </div>
@@ -157,18 +137,16 @@
         <div class="flex items-center gap-4">
             <div class="hidden md:flex bg-white/5 rounded-lg p-1 border border-white/5">
                 <button onclick="toggleHandedness()" title="Toggle Southpaw Layout (Shift+S)"
-                    class="tactile-btn w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
-                    <i class="fa-solid fa-hand text-xs"></i>
-                </button>
+                    class="tactile-btn w-8 h-8 flex items-center justify-center rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors"><i
+                        class="fa-solid fa-hand text-xs"></i></button>
             </div>
             <button onclick="downloadHtmlOnly()"
-                class="tactile-btn text-slate-400 hover:text-white px-4 py-2 text-xs font-medium transition-colors border border-white/10 rounded hover:border-white/30 hidden md:flex items-center gap-2">
-                <i class="fa-solid fa-code"></i> HTML Only
-            </button>
+                class="tactile-btn text-slate-400 hover:text-white px-4 py-2 text-xs font-medium transition-colors border border-white/10 rounded hover:border-white/30 hidden md:flex items-center gap-2"><i
+                    class="fa-solid fa-code"></i> HTML Only</button>
             <button onclick="buyAndDownload()"
-                class="tactile-btn buy-pulse bg-[#d4af37] hover:bg-[#b5952f] text-slate-900 font-bold py-2 px-6 rounded text-sm shadow-lg flex items-center gap-2">
-                <i class="fa-solid fa-briefcase"></i> <span class="tracking-wide">Purchase License ($50)</span>
-            </button>
+                class="tactile-btn buy-pulse bg-[#d4af37] hover:bg-[#b5952f] text-slate-900 font-bold py-2 px-6 rounded text-sm shadow-lg flex items-center gap-2"><i
+                    class="fa-solid fa-briefcase"></i> <span class="tracking-wide">Purchase License
+                    ($50)</span></button>
         </div>
     </header>
 
@@ -178,105 +156,142 @@
         <!-- SIDEBAR -->
         <aside id="sidebar-panel"
             class="w-80 bg-[#0f172a] border-r border-white/5 flex flex-col shrink-0 z-20 shadow-xl transition-all duration-300">
+            <!-- Template Selector -->
             <div class="p-5 border-b border-white/5 bg-[#141e33]">
-                <label
-                    class="text-[9px] text-[#d4af37] uppercase font-bold tracking-[0.2em] mb-3 block">Architecture</label>
+                <label class="text-[9px] text-[#d4af37] uppercase font-bold tracking-[0.2em] mb-3 block">Base
+                    Architecture</label>
                 <div class="relative group">
                     <select id="template-selector" onchange="switchTemplate(this.value)"
                         class="w-full bg-[#0b1120] text-gray-200 text-sm font-medium border border-white/10 rounded-lg p-3 appearance-none focus:border-[#d4af37] focus:ring-1 focus:ring-[#d4af37] outline-none cursor-pointer transition-all hover:border-white/20">
                         <option value="liquid-gold">Liquid Gold (Premium)</option>
-                        <option value="consultant">The Consultant</option>
                         <option value="velvet">Velvet (Minimalist)</option>
-                        <option value="iron-ink">Iron & Ink</option>
-                        <option value="scholar">The Scholar</option>
-                        <option value="oracle">Oracle</option>
-                        <option value="apex">Apex</option>
-                        <option value="aura">Aura</option>
-                        <option value="canvas">Canvas</option>
-                        <option value="cipher">Cipher</option>
-                        <option value="gaia">Gaia</option>
-                        <option value="neon-tokyo">Neon Tokyo</option>
-                        <option value="summit">Summit</option>
-                        <option value="ether">Ether</option>
                     </select>
                     <div
                         class="absolute right-3 top-3.5 text-slate-500 pointer-events-none group-hover:text-[#d4af37] transition-colors">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                    </div>
+                        <i class="fa-solid fa-chevron-down text-xs"></i></div>
                 </div>
             </div>
 
+            <!-- Controls -->
             <div class="flex-1 overflow-y-auto p-6 custom-scroll space-y-8">
-                <!-- Hardcoded Controls -->
+
+                <!-- NEW: Layout Composer -->
                 <div>
                     <h2
                         class="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
-                        <i class="fa-solid fa-pen-nib text-[#d4af37]"></i> Identity
+                        <i class="fa-solid fa-layer-group text-[#d4af37]"></i> Layout Composer
                     </h2>
-                    <div class="space-y-5">
-                        <div class="group">
-                            <label
-                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block group-hover:text-[#d4af37] transition-colors">Display
-                                Name</label>
-                            <input type="text" id="ctrl-name"
-                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none transition-all placeholder-white/20"
-                                oninput="updateState('text.name', this.value)">
+                    <div class="space-y-3 bg-[#0b1120] p-4 rounded-lg border border-white/5">
+                        <!-- Toggles -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">About Section</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer"
+                                    onchange="toggleSection('about', this.checked)" id="tog-about">
+                                <div
+                                    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#d4af37]">
+                                </div>
+                            </label>
                         </div>
-                        <div class="group">
-                            <label
-                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block group-hover:text-[#d4af37] transition-colors">Role
-                                / Tagline</label>
-                            <input type="text" id="ctrl-tagline"
-                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none transition-all"
-                                oninput="updateState('text.tagline', this.value)">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Services / Pricing</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer"
+                                    onchange="toggleSection('services', this.checked)" id="tog-services" checked>
+                                <div
+                                    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#d4af37]">
+                                </div>
+                            </label>
                         </div>
-                        <div class="group">
-                            <label
-                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block group-hover:text-[#d4af37] transition-colors">Professional
-                                Bio</label>
-                            <textarea id="ctrl-bio" rows="4"
-                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none transition-all resize-none"
-                                oninput="updateState('text.bio', this.value)"></textarea>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Image Gallery</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer"
+                                    onchange="toggleSection('gallery', this.checked)" id="tog-gallery">
+                                <div
+                                    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#d4af37]">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">Testimonials</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer"
+                                    onchange="toggleSection('testimonials', this.checked)" id="tog-testimonials">
+                                <div
+                                    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#d4af37]">
+                                </div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-300">FAQ</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer"
+                                    onchange="toggleSection('faq', this.checked)" id="tog-faq">
+                                <div
+                                    class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#d4af37]">
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
 
+                <!-- Core Identity -->
                 <div>
                     <h2
                         class="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
-                        <i class="fa-solid fa-palette text-[#d4af37]"></i> Aesthetics
-                    </h2>
+                        <i class="fa-solid fa-pen-nib text-[#d4af37]"></i> Identity</h2>
+                    <div class="space-y-5">
+                        <div class="group"><label
+                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">Display
+                                Name</label><input type="text" id="ctrl-name"
+                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none"
+                                oninput="updateState('text.name', this.value)"></div>
+                        <div class="group"><label
+                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">Role
+                                / Tagline</label><input type="text" id="ctrl-tagline"
+                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none"
+                                oninput="updateState('text.tagline', this.value)"></div>
+                        <div class="group"><label
+                                class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-1.5 block">Professional
+                                Bio</label><textarea id="ctrl-bio" rows="4"
+                                class="w-full bg-[#0b1120] border border-white/10 rounded-md p-2.5 text-sm text-white focus:border-[#d4af37] outline-none"
+                                oninput="updateState('text.bio', this.value)"></textarea></div>
+                    </div>
+                </div>
+
+                <!-- Aesthetics -->
+                <div>
+                    <h2
+                        class="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
+                        <i class="fa-solid fa-palette text-[#d4af37]"></i> Aesthetics</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
+                        <div><label
                                 class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-2 block">Primary</label>
                             <div class="flex items-center gap-2 bg-[#0b1120] p-1.5 rounded-md border border-white/10">
                                 <input type="color" id="ctrl-primary"
                                     class="w-6 h-6 rounded cursor-pointer border-none bg-transparent p-0"
-                                    oninput="updateState('colors.primary', this.value)">
-                                <span class="text-[10px] font-mono text-slate-400 flex-1 text-right"
-                                    id="lbl-primary">#D4AF37</span>
-                            </div>
+                                    oninput="updateState('colors.primary', this.value)"><span
+                                    class="text-[10px] font-mono text-slate-400 flex-1 text-right"
+                                    id="lbl-primary">#D4AF37</span></div>
                         </div>
-                        <div>
-                            <label
+                        <div><label
                                 class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-2 block">Canvas</label>
                             <div class="flex items-center gap-2 bg-[#0b1120] p-1.5 rounded-md border border-white/10">
                                 <input type="color" id="ctrl-bg"
                                     class="w-6 h-6 rounded cursor-pointer border-none bg-transparent p-0"
-                                    oninput="updateState('colors.background', this.value)">
-                                <span class="text-[10px] font-mono text-slate-400 flex-1 text-right"
-                                    id="lbl-bg">#0A0A0A</span>
-                            </div>
+                                    oninput="updateState('colors.background', this.value)"><span
+                                    class="text-[10px] font-mono text-slate-400 flex-1 text-right"
+                                    id="lbl-bg">#0A0A0A</span></div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Media -->
                 <div>
                     <h2
                         class="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
-                        <i class="fa-solid fa-image text-[#d4af37]"></i> Media
-                    </h2>
+                        <i class="fa-solid fa-image text-[#d4af37]"></i> Media</h2>
                     <div class="relative group cursor-pointer">
                         <input type="file" id="ctrl-img-upload" accept="image/*" class="hidden"
                             onchange="handleSmartImageUpload(this)">
@@ -291,8 +306,8 @@
                         <div id="compression-indicator"
                             class="hidden absolute inset-0 bg-[#0f172a]/90 flex items-center justify-center rounded-lg z-10 backdrop-blur-sm">
                             <div class="text-center">
-                                <div class="loader mb-2 mx-auto"></div>
-                                <span class="text-[9px] text-[#d4af37] uppercase tracking-widest">Optimizing...</span>
+                                <div class="loader mb-2 mx-auto"></div><span
+                                    class="text-[9px] text-[#d4af37] uppercase tracking-widest">Optimizing...</span>
                             </div>
                         </div>
                     </div>
@@ -301,10 +316,9 @@
 
             <div
                 class="p-3 border-t border-white/5 bg-[#0b1120] flex justify-between items-center text-[9px] text-slate-500 font-mono">
-                <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                    <span>MEMORY: <span id="state-size" class="text-slate-300">0.0 KB</span></span>
-                </div>
+                <div class="flex items-center gap-2"><span
+                        class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span><span>MEMORY: <span
+                            id="state-size" class="text-slate-300">0.0 KB</span></span></div>
                 <span>SESSION: ACTIVE</span>
             </div>
         </aside>
@@ -335,55 +349,54 @@
     </main>
 
     <!-- === SAFE TEMPLATE STORAGE (FALLBACKS) === -->
-    <!-- 1. CONSULTANT -->
-    <script type="text/template" id="tpl-consultant">
-        <!DOCTYPE html><html lang="en"><head><style>:root{--primary:{{colors.primary}};--bg:{{colors.background}};--text:{{colors.text}};}body{font-family:'Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);margin:0;display:flex;flex-direction:column;min-height:100vh}.container{max-width:900px;margin:0 auto;padding:2rem}h1{font-size:3rem;line-height:1.1}.btn{background:var(--primary);color:#000;padding:10px 20px;text-decoration:none;font-weight:bold;display:inline-block}.img-box img{max-width:100%;box-shadow:-20px 20px 0 var(--primary)}input,textarea{width:100%;padding:10px;margin-bottom:10px;background:rgba(255,255,255,0.05);border:1px solid #333;color:inherit}</style></head><body><div class="container"><header style="display:flex;justify-content:space-between;align-items:center;padding:2rem 0"><div style="font-weight:900;font-size:1.5rem">{{text.name}}</div><a href="#contact" class="btn">Contact</a></header><section style="display:flex;gap:4rem;align-items:center;padding:4rem 0"> <div style="flex:1"><p style="color:var(--primary);font-weight:bold;text-transform:uppercase;letter-spacing:2px;font-size:0.8rem">{{text.tagline}}</p><h1>{{text.bio_short}}</h1><p>{{text.bio}}</p></div><div class="img-box" style="flex:1"><img src="{{images.profile}}"></div></section><section id="contact" style="margin-top:4rem;border-top:1px solid #333;padding-top:4rem"><h3>Send a Message</h3><form><input type="text" placeholder="Name"><input type="email" placeholder="Email"><textarea placeholder="Message..." rows="4"></textarea><button class="btn">Send</button></form></section></div></body></html>
-    </script>
-
-    <!-- 2. LIQUID GOLD -->
-    <script type="text/template" id="tpl-liquid-gold">
-        <!DOCTYPE html><html lang="en"><head><style>:root{--gold:{{colors.primary}};--dark:{{colors.background}};--light:#f1f1f1}body{background:var(--dark);color:var(--light);font-family:'Garamond',serif;text-align:center;margin:0}.container{max-width:800px;margin:0 auto;padding:60px 20px}img{width:150px;height:150px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;margin:0 auto;display:block}h1{font-size:4rem;font-weight:100;letter-spacing:0.1em;text-transform:uppercase;margin:20px 0}.cta{border:1px solid var(--gold);color:var(--gold);padding:15px 30px;text-decoration:none;text-transform:uppercase;letter-spacing:2px;display:inline-block;transition:0.3s}.cta:hover{background:var(--gold);color:black}input,textarea{width:100%;background:#111;border:none;border-bottom:1px solid #333;padding:15px;color:white;margin-bottom:20px;font-family:sans-serif}input:focus,textarea:focus{border-bottom-color:var(--gold);outline:none}</style></head><body><div class="container"><img src="{{images.profile}}"><p style="color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:0.8rem;margin-top:20px">{{text.tagline}}</p><h1>{{text.name}}</h1><p style="font-family:sans-serif;line-height:1.8;color:#888;margin-bottom:40px">{{text.bio}}</p><a href="#contact" class="cta">{{text.cta}}</a><div id="contact" style="margin-top:80px;text-align:left"><label style="color:var(--gold);font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:10px">Inquiry</label><input type="text" placeholder="Your Name"><input type="email" placeholder="Your Email"><textarea placeholder="How can we help?" rows="4"></textarea><button class="cta" style="width:100%;cursor:pointer">Send Message</button></div></div></body></html>
-    </script>
-
-    <!-- 3. VELVET -->
-    <script type="text/template" id="tpl-velvet">
-        <!DOCTYPE html><html lang="en"><head><style>:root{--accent:{{colors.primary}};--bg:{{colors.background}};--text:{{colors.text}}}body{background:var(--bg);color:var(--text);font-family:'Arial',sans-serif;margin:0;padding:40px;height:100vh;box-sizing:border-box;display:flex;align-items:center;justify-content:center}.layout{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1200px;width:100%}h1{font-size:5rem;line-height:0.9;margin:0;letter-spacing:-2px}.meta{border-left:2px solid var(--accent);padding-left:20px;margin-top:30px;font-family:monospace}img{width:100%;height:500px;object-fit:cover;border-radius:20px}textarea{width:100%;background:#f4f4f5;border:none;padding:20px;border-radius:10px;margin-top:20px;font-family:inherit}@media(max-width:768px){.layout{grid-template-columns:1fr;height:auto}h1{font-size:3rem}}</style></head><body><div class="layout"><div><h1>{{text.name}}<span style="color:var(--accent)">.</span></h1><div class="meta"><p>{{text.tagline}}</p><p>{{text.bio}}</p></div><textarea placeholder="Write a message..."></textarea></div><div><img src="{{images.profile}}"></div></div></body></html>
-    </script>
+    <!-- Ideally logic fetches from external files, but these serve as reliable fallbacks -->
+    <script type="text/template"
+        id="tpl-consultant"><!DOCTYPE html><html lang="en"><head><title>Consultant</title></head><body><h1>Consultant Placeholder</h1></body></html></script>
+    <script type="text/template"
+        id="tpl-liquid-gold"><!DOCTYPE html><html lang="en"><head><title>Liquid</title></head><body><h1>Liquid Placeholder</h1></body></html></script>
+    <script type="text/template"
+        id="tpl-velvet"><!DOCTYPE html><html lang="en"><head><title>Velvet</title></head><body><h1>Velvet Placeholder</h1></body></html></script>
 
     <!-- EDITOR SOURCE (THE QUINE) - SAFELY ESCAPED -->
     <script type="text/template" id="tpl-editor-source">
 <!DOCTYPE html><html lang="en"><head><title>Axxilak Editor</title><style>body{margin:0;font-family:sans-serif;display:flex;height:100vh;background:#111;color:#fff}#sidebar{width:300px;background:#222;padding:20px;border-right:1px solid #333}input,textarea{width:100%;background:#333;border:1px solid #444;color:#fff;padding:8px;margin-bottom:10px}iframe{flex:1;border:none;background:#fff}.btn{width:100%;padding:10px;background:#d4af37;border:none;font-weight:bold;cursor:pointer;margin-top:20px}</style></head><body><div id="sidebar"><h3>Axxilak Editor</h3><div id="controls"></div><button class="btn" onclick="exportSite()">EXPORT HTML</button></div><iframe id="preview"></iframe><script>
-// Quine Safe-Guards
 const state = '__STATE_PLACEHOLDER__';
 const template = `__TEMPLATE_PLACEHOLDER__`;
-
 const frame=document.getElementById('preview');const controls=document.getElementById('controls');
 function render(){
     let h=template;
     if(typeof state === 'object') {
-        for(let s in state){for(let k in state[s]){h=h.replaceAll(`{{${s}.${k}}}`,state[s][k]);}}
+        for(let s in state){
+            if(s==='sections'){ for(let sec in state.sections) { if(state.sections[sec]===false) { h = h.replace(`id="sec-${sec}"`, `id="sec-${sec}" style="display:none !important"`); } } continue; }
+            for(let k in state[s]){h=h.replaceAll(`{{${s}.${k}}}`,state[s][k]);}
+        }
         h=h.replaceAll('{{text.bio_short}}',state.text.bio.substring(0,50));
     }
     const d=frame.contentDocument;d.open();d.write(h);d.close();
 }
 function createControl(lbl,key,type='text'){
-    if(typeof state !== 'object') return; // Safety
+    if(typeof state !== 'object') return;
     const d=document.createElement('div');d.innerHTML=`<label style="font-size:10px;text-transform:uppercase;color:#888">${lbl}</label>`;const i=document.createElement(type==='textarea'?'textarea':'input');if(type==='color')i.type='color';const[s,k]=key.split('.');i.value=state[s][k];i.oninput=e=>{state[s][k]=e.target.value;render()};d.appendChild(i);controls.appendChild(d);
 }
-createControl('Primary','colors.primary','color');createControl('Background','colors.background','color');createControl('Name','text.name');createControl('Tagline','text.tagline');createControl('Bio','text.bio','textarea');
+// Minimal Controls for the offline editor
+if(typeof state === 'object') {
+    createControl('Name','text.name');createControl('Bio','text.bio','textarea');
+}
 render();
 function exportSite(){const b=new Blob([frame.contentDocument.documentElement.outerHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='index.html';a.click();}
 <\/script></body></html>
     </script>
 
     <script>
-        // --- MASTER LOGIC ---
+        // --- MASTER LOGIC V4.0 (COMPOSER) ---
 
         const defaults = {
             colors: { primary: "#d4af37", background: "#0a0a0a", text: "#f5f5f5" },
-            text: { name: "Alex Vayner", tagline: "Strategic Consultant", bio: "Helping businesses navigate complexity through data-driven strategies and intuitive design thinking.", bio_short: "Strategy Meets Design", cta: "Work With Me" },
+            text: { name: "Alex Vayner", tagline: "Strategic Consultant", bio: "Helping businesses navigate complexity.", bio_short: "Strategy Meets Design", cta: "Work With Me" },
             images: { profile: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=400&q=80" },
-            activeTemplate: "consultant"
+            // NEW: Section Toggles
+            sections: { about: false, services: true, gallery: false, testimonials: false, faq: false },
+            activeTemplate: "liquid-gold"
         };
 
         let currentState = JSON.parse(JSON.stringify(defaults));
@@ -401,7 +414,7 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
                 document.getElementById('template-selector').value = currentState.activeTemplate;
                 syncInputs();
                 loadTemplateSource(currentState.activeTemplate);
-            } else { loadTemplateSource('consultant'); }
+            } else { loadTemplateSource('liquid-gold'); }
 
             if (localStorage.getItem('southpaw') === 'true') toggleHandedness();
         };
@@ -409,22 +422,20 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
         async function loadTemplateSource(tplName) {
             currentState.activeTemplate = tplName;
 
-            // 1. Try Loading Embedded Fallback First (Immediate feedback)
-            const fallbackEl = document.getElementById(`tpl-${tplName}`) || document.getElementById('tpl-consultant');
-            currentTemplateHTML = fallbackEl.innerHTML;
-
-            // 2. Try Fetching External File (Progressive Enhancement)
-            // We use a try/catch block to safely handle local/blob errors without crashing
             if (window.location.protocol.startsWith('http') || window.location.protocol === 'file:') {
                 try {
-                    const response = await fetch(`../Weblings/${tplName}/index.html`);
+                    const response = await fetch(`./Weblings/${tplName}/index.html?t=${Date.now()}`);
                     if (response.ok) {
                         currentTemplateHTML = await response.text();
-                        console.log(`Loaded ${tplName} from external file.`);
+                        console.log(`Loaded ${tplName}`);
                     }
-                } catch (e) {
-                    console.warn(`Fetch unavailable for ${tplName}, staying on fallback.`);
-                }
+                } catch (e) { console.warn(`Fetch unavailable for ${tplName}`); }
+            }
+
+            // Fallback
+            if (!currentTemplateHTML || currentTemplateHTML.length < 100) {
+                const fallbackEl = document.getElementById(`tpl-${tplName}`) || document.getElementById('tpl-liquid-gold');
+                currentTemplateHTML = fallbackEl.innerHTML;
             }
 
             renderPreview();
@@ -433,8 +444,10 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
 
         function renderPreview() {
             let tpl = currentTemplateHTML;
+
+            // 1. Handle Text/Color Replacements
             for (const [section, data] of Object.entries(currentState)) {
-                if (typeof data === 'object') {
+                if (typeof data === 'object' && section !== 'sections') {
                     for (const [key, val] of Object.entries(data)) {
                         const regex = new RegExp(`{{${section}.${key}}}`, 'g');
                         tpl = tpl.replace(regex, val);
@@ -443,15 +456,35 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
             }
             tpl = tpl.replace(/{{text.bio_short}}/g, currentState.text.bio.substring(0, 50));
 
+            // 2. Handle Section Toggles (The Composer Logic)
+            // We look for ids like id="sec-about" and inject style="display:none" if state is false
+            for (const [secName, isVisible] of Object.entries(currentState.sections)) {
+                if (!isVisible) {
+                    // Regex to find the id and add display:none inline
+                    // Note: This assumes standard HTML formatting in templates
+                    tpl = tpl.replace(`id="sec-${secName}"`, `id="sec-${secName}" style="display:none !important"`);
+                }
+            }
+
             const frame = document.getElementById('preview-frame');
-            const doc = frame.contentDocument || frame.contentWindow.document;
-            doc.open(); doc.write(tpl); doc.close();
+            try {
+                const doc = frame.contentDocument || frame.contentWindow.document;
+                // Insert base tag to fix relative paths
+                tpl = tpl.replace(/<head[^>]*>/, `$&<base href="${window.location.href.split('?')[0].substring(0, window.location.href.lastIndexOf('/'))}/Weblings/${currentState.activeTemplate}/">`);
+                doc.open();
+                doc.write(tpl);
+                doc.close();
+            } catch (e) {
+                console.warn('Preview render error:', e);
+            }
 
             sessionStorage.setItem('axxilak_state', JSON.stringify(currentState));
+            updateStateSize();
+        }
 
-            const status = document.getElementById('save-status');
-            status.innerText = "Saving..."; status.classList.replace('text-green-500', 'text-yellow-500');
-            setTimeout(() => { status.innerText = "System Ready"; status.classList.replace('text-yellow-500', 'text-green-500'); updateStateSize(); }, 300);
+        function toggleSection(secName, isChecked) {
+            currentState.sections[secName] = isChecked;
+            renderPreview();
         }
 
         function updateState(path, value) {
@@ -463,10 +496,9 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
 
         async function handleSmartImageUpload(input) {
             if (input.files && input.files[0]) {
-                const file = input.files[0];
                 document.getElementById('compression-indicator').classList.remove('hidden');
                 const reader = new FileReader();
-                reader.readAsDataURL(file);
+                reader.readAsDataURL(input.files[0]);
                 reader.onload = (e) => {
                     const img = new Image(); img.src = e.target.result;
                     img.onload = () => {
@@ -493,6 +525,15 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
             document.getElementById('ctrl-name').value = currentState.text.name;
             document.getElementById('ctrl-tagline').value = currentState.text.tagline;
             document.getElementById('ctrl-bio').value = currentState.text.bio;
+
+            // Sync template selector dropdown
+            document.getElementById('template-selector').value = currentState.activeTemplate;
+
+            // Sync Toggles
+            for (const [key, val] of Object.entries(currentState.sections)) {
+                const el = document.getElementById(`tog-${key}`);
+                if (el) el.checked = val;
+            }
         }
 
         function updateStateSize() {
@@ -519,7 +560,6 @@ function exportSite(){const b=new Blob([frame.contentDocument.documentElement.ou
 
         function buyAndDownload() {
             const b64 = btoa(JSON.stringify(currentState));
-            // Redirect to Delivery Room
             window.location.href = `../download.html?custom=${b64}`;
         }
 
