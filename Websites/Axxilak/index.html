@@ -709,7 +709,9 @@
                 </button>
 
                 <p class="text-xs text-slate-500 text-center">Or email: <a href="mailto:contact@axxilak.com"
-                        class="text-amber-400 hover:underline">contact@axxilak.com</a></p>
+                        class="text-amber-400 hover:underline">contact@axxilak.com</a> <button id="copy-email" class="text-amber-400 hover:text-amber-300 transition ml-2" title="Copy email to clipboard" style="background: none; border: none; cursor: pointer; padding: 0; font-size: 0.75rem; vertical-align: baseline;">
+                        <i class="fas fa-copy"></i>
+                    </button></p>
             </form>
         </div>
     </section>
@@ -1102,6 +1104,24 @@
             animationsPaused = !animationsPaused;
             pauseBtn.textContent = animationsPaused ? 'Resume' : 'Pause';
             pauseBtn.classList.toggle('opacity-50', animationsPaused);
+        });
+
+        // === COPY EMAIL BUTTON ===
+        const copyEmailBtn = document.getElementById('copy-email');
+        copyEmailBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = 'contact@axxilak.com';
+            navigator.clipboard.writeText(email).then(() => {
+                const originalHTML = copyEmailBtn.innerHTML;
+                copyEmailBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyEmailBtn.title = 'Copied!';
+                setTimeout(() => {
+                    copyEmailBtn.innerHTML = originalHTML;
+                    copyEmailBtn.title = 'Copy email to clipboard';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy email:', err);
+            });
         });
 
         // === THEME TOGGLE ===
