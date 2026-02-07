@@ -791,9 +791,9 @@
             draw() {
                 const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
                 if (isDarkMode) {
-                    // Dark mode: particles blend into dark background
-                    ctx.fillStyle = '#1a1a1a';
-                    ctx.globalAlpha = 0.8;
+                    // Dark mode: original colors
+                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                    ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
                 } else {
                     // Light mode: particles blend into light background
                     ctx.fillStyle = '#e8e8e8';
@@ -1031,9 +1031,9 @@
                 draw() {
                     const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
                     if (isDarkMode) {
-                        // Dark mode: particles blend into dark background
-                        ctx.fillStyle = '#1a1a1a';
-                        ctx.globalAlpha = 0.7;
+                        // Dark mode: original colors
+                        ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                        ctx.globalAlpha = this.isGold ? 0.6 : 0.4;
                     } else {
                         // Light mode: particles blend into light background
                         ctx.fillStyle = '#e8e8e8';
