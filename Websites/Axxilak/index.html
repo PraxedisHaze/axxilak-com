@@ -347,89 +347,90 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
         }
 
-        /* Light Mode Theme */
+        /* Light Mode Theme - Warm, Sophisticated */
         [data-theme="light"] {
-            --bg: #aeaeae;
+            --bg: #faf8f5;
         }
 
         [data-theme="light"] body {
             background-color: var(--bg);
-            color: #1a1a1a;
+            color: #2a2420;
         }
 
         [data-theme="light"] h1,
         [data-theme="light"] h2,
         [data-theme="light"] h3,
         [data-theme="light"] .serif {
-            color: #1a1a1a;
+            color: #1a1410;
         }
 
         [data-theme="light"] .text-slate-300,
         [data-theme="light"] p {
-            color: #4b5563;
+            color: #5a5248;
         }
 
         [data-theme="light"] .text-slate-400 {
-            color: #6b7280;
+            color: #6b6158;
         }
 
         [data-theme="light"] .text-slate-500 {
-            color: #9ca3af;
+            color: #8a8078;
         }
 
         [data-theme="light"] .text-slate-600 {
-            color: #4b5563;
+            color: #5a5248;
         }
 
         [data-theme="light"] .text-white {
-            color: #1a1a1a;
+            color: #2a2420;
         }
 
         [data-theme="light"] .bg-slate-900\/50 {
-            background-color: rgba(241, 245, 249, 0.8);
-        }
-
-        [data-theme="light"] canvas {
-            opacity: 0.15;
+            background-color: rgba(212, 210, 205, 0.6);
         }
 
         [data-theme="light"] .glass-panel {
-            background: rgba(241, 245, 249, 0.7);
-            border-color: rgba(0, 0, 0, 0.1);
+            background: rgba(212, 210, 205, 0.5);
+            border-color: rgba(26, 20, 16, 0.12);
         }
 
         [data-theme="light"] .marquee {
-            background: rgba(212, 175, 55, 0.05);
-            border-color: rgba(0, 0, 0, 0.1);
+            background: rgba(212, 175, 55, 0.08);
+            border-color: rgba(26, 20, 16, 0.12);
         }
 
         [data-theme="light"] input,
         [data-theme="light"] textarea {
-            border-bottom-color: rgba(0, 0, 0, 0.2);
-            color: #1a1a1a;
+            background: transparent;
+            border-bottom-color: rgba(26, 20, 16, 0.2);
+            color: #2a2420;
         }
 
         [data-theme="light"] input::placeholder,
         [data-theme="light"] textarea::placeholder {
-            color: rgba(0, 0, 0, 0.3);
+            color: rgba(26, 20, 16, 0.4);
         }
 
         [data-theme="light"] .form-button {
-            background: #1a1a1a;
-            color: #f5f5f5;
+            background: #1a1410;
+            color: #faf8f5;
         }
 
         [data-theme="light"] .form-button:hover {
             background-color: var(--primary);
-            color: black;
+            color: #1a1410;
+        }
+
+        [data-theme="light"] a {
+            color: var(--primary);
         }
 
         [data-theme="light"] #theme-icon {
-            filter: invert(1);
+            filter: invert(1) hue-rotate(180deg);
         }
 
         [data-theme="light"] canvas {
-            opacity: 0.8;
+            opacity: 0.7;
         }
     </style>
 </head>
