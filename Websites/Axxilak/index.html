@@ -789,8 +789,15 @@
             }
 
             draw() {
-                ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                if (isDarkMode) {
+                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                    ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
+                } else {
+                    // Light mode: charcoal and deep plum
+                    ctx.fillStyle = this.isGold ? '#9b6ba8' : '#333333';
+                    ctx.globalAlpha = this.isGold ? 0.7 : 0.6;
+                }
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -1018,8 +1025,15 @@
                 }
 
                 draw() {
-                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                    ctx.globalAlpha = this.isGold ? 0.6 : 0.4;
+                    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                    if (isDarkMode) {
+                        ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                        ctx.globalAlpha = this.isGold ? 0.6 : 0.4;
+                    } else {
+                        // Light mode: charcoal and deep plum
+                        ctx.fillStyle = this.isGold ? '#9b6ba8' : '#333333';
+                        ctx.globalAlpha = this.isGold ? 0.6 : 0.5;
+                    }
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.fill();
