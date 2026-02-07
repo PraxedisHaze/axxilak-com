@@ -452,6 +452,9 @@
             </a>
             <div class="flex gap-8 items-center">
                 <a href="#contact" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
+                <button id="pause-animations" class="p-2 hover:text-amber-400 transition text-xs uppercase tracking-widest" title="Pause background animations">
+                    Pause
+                </button>
                 <button id="theme-toggle" class="p-2 hover:text-amber-400 transition" title="Toggle theme">
                     <img id="theme-icon" src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5' stroke='%23d4af37' opacity='0.8'/%3E%3Cline x1='12' y1='3' x2='12' y2='4.5' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='12' y1='19.5' x2='12' y2='21' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='3' y1='12' x2='4.5' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='19.5' y1='12' x2='21' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='4.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3Ccircle cx='19.5' cy='19.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3C/svg%3E" alt="Toggle theme" width="24" height="24">
                 </button>
@@ -748,6 +751,9 @@
     <script>
         // Cursor: Ownership restored to user
 
+        // === ANIMATION PAUSE CONTROL ===
+        let animationsPaused = false;
+
         // Particle Network
         const canvas = document.getElementById('particleCanvas');
         const ctx = canvas.getContext('2d');
@@ -814,12 +820,14 @@
             ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            particles.forEach((p) => {
-                p.update();
-                p.draw();
-            });
+            if (!animationsPaused) {
+                particles.forEach((p) => {
+                    p.update();
+                    p.draw();
+                });
 
-            drawLines();
+                drawLines();
+            }
             requestAnimationFrame(animate);
         }
 
@@ -1040,12 +1048,14 @@
                 ctx.fillStyle = 'rgba(3, 3, 3, 0.05)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                particles.forEach((p) => {
-                    p.update();
-                    p.draw();
-                });
+                if (!animationsPaused) {
+                    particles.forEach((p) => {
+                        p.update();
+                        p.draw();
+                    });
 
-                drawLines();
+                    drawLines();
+                }
                 requestAnimationFrame(animate);
             }
 
@@ -1056,6 +1066,14 @@
 
         // Initialize Flagship Particles
         initFlagshipParticles();
+
+        // === PAUSE ANIMATIONS BUTTON ===
+        const pauseBtn = document.getElementById('pause-animations');
+        pauseBtn.addEventListener('click', () => {
+            animationsPaused = !animationsPaused;
+            pauseBtn.textContent = animationsPaused ? 'Resume' : 'Pause';
+            pauseBtn.classList.toggle('opacity-50', animationsPaused);
+        });
 
         // === THEME TOGGLE ===
         const themeToggle = document.getElementById('theme-toggle');
