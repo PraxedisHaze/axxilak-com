@@ -821,7 +821,8 @@
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
+            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+            ctx.fillStyle = isDarkMode ? 'rgba(3, 3, 3, 0.1)' : 'rgba(240, 240, 240, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             if (!animationsPaused) {
@@ -1049,7 +1050,8 @@
             }
 
             function animate() {
-                ctx.fillStyle = 'rgba(3, 3, 3, 0.05)';
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                ctx.fillStyle = isDarkMode ? 'rgba(3, 3, 3, 0.05)' : 'rgba(240, 240, 240, 0.05)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
                 if (!animationsPaused) {
