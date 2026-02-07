@@ -791,12 +791,13 @@
             draw() {
                 const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
                 if (isDarkMode) {
-                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                    ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
+                    // Dark mode: particles blend into dark background
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.globalAlpha = 0.8;
                 } else {
-                    // Light mode: charcoal and deep plum
-                    ctx.fillStyle = this.isGold ? '#9b6ba8' : '#333333';
-                    ctx.globalAlpha = this.isGold ? 0.7 : 0.6;
+                    // Light mode: particles blend into light background
+                    ctx.fillStyle = '#e8e8e8';
+                    ctx.globalAlpha = 0.7;
                 }
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -1030,12 +1031,13 @@
                 draw() {
                     const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
                     if (isDarkMode) {
-                        ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                        ctx.globalAlpha = this.isGold ? 0.6 : 0.4;
+                        // Dark mode: particles blend into dark background
+                        ctx.fillStyle = '#1a1a1a';
+                        ctx.globalAlpha = 0.7;
                     } else {
-                        // Light mode: charcoal and deep plum
-                        ctx.fillStyle = this.isGold ? '#9b6ba8' : '#333333';
-                        ctx.globalAlpha = this.isGold ? 0.6 : 0.5;
+                        // Light mode: particles blend into light background
+                        ctx.fillStyle = '#e8e8e8';
+                        ctx.globalAlpha = 0.6;
                     }
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
