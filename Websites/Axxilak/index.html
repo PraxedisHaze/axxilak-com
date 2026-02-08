@@ -824,7 +824,7 @@
                     <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
                     <div class="flex items-center justify-between mt-auto">
                         <div class="serif text-xl text-white">$${w.price.toFixed(2)}</div>
-                        <button class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition webling-preview-btn" data-webling-id="${w.id}">Edit Now</button>
+                        <a href="Weblings/${w.id}/index.html" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition inline-block">Edit Now</a>
                     </div>
                 </div>
             `).join('');
@@ -1062,30 +1062,10 @@
             }
         });
 
-        // === CRACKING TRANSITION SYSTEM ===
-        // Attach click handlers to webling preview buttons
-        document.addEventListener('click', (e) => {
-            const btn = e.target.closest('.webling-preview-btn');
-            if (!btn) return;
-
-            e.preventDefault();
-            const weblingId = btn.dataset.weblingId;
-            const cardElement = btn.closest('.webling-card');
-
-            if (transitionEngine && transitionEngine.initiateTransition) {
-                transitionEngine.initiateTransition(weblingId, cardElement);
-            } else {
-                // Fallback if transition engine not loaded
-                window.location.href = `axxilak_forge_v3.2.html?template=${weblingId}`;
-            }
-        });
+        // Transition system removed for MVP. See _archive/transition-system/ to restore.
     </script>
 
-    <!-- Cracking Transition System -->
-    <link rel="stylesheet" href="css/transition-crack.css">
-    <script src="https://cdn.jsdelivr.net/npm/d3-delaunay@6"></script>
-    <script src="js/voronoi-generator.js"></script>
-    <script src="js/transition-crack.js"></script>
+    <!-- Transition system removed for MVP. Archived in _archive/transition-system/ -->
 </body>
 
 </html>
