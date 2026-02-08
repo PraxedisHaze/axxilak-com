@@ -1066,11 +1066,11 @@ export default class MagnifyingGlassInspector {
         const stack = this._getElementStack();
         const position = this._getLayerPosition(this.palette.currentElement);
 
-        const btnUp = document.getElementById('btn-layer-up');
-        const btnDown = document.getElementById('btn-layer-down');
+        const btnLeft = document.getElementById('btn-layer-left');
+        const btnRight = document.getElementById('btn-layer-right');
 
-        if (btnUp) btnUp.disabled = position >= stack.length - 1;
-        if (btnDown) btnDown.disabled = position <= 0;
+        if (btnLeft) btnLeft.disabled = position >= stack.length - 1;
+        if (btnRight) btnRight.disabled = position <= 0;
     }
 
     _refreshLayerView() {
