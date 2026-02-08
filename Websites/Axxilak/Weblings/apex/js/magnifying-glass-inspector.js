@@ -1057,14 +1057,23 @@ export default class MagnifyingGlassInspector {
         const scene = document.getElementById('apex-3d-scene');
         if (scene) {
             scene.style.transform = '';
+            scene.style.pointerEvents = 'auto'; // RESTORE pointer-events
             scene.querySelectorAll('[data-ax-id]').forEach(el => {
                 el.style.transform = '';
                 el.style.boxShadow = '';
+            });
+            // Restore all descendants' pointer-events
+            scene.querySelectorAll('*').forEach(el => {
+                el.style.pointerEvents = '';
             });
         }
 
         // Remove 3D mode marker (re-enables hover scaling)
         document.body.classList.remove('apex-3d-active');
+
+        // RESTORE nav pointer-events
+        const nav = document.querySelector('nav');
+        if (nav) nav.style.pointerEvents = 'auto';
 
         // Hide 3D control toolbar
         if (this.controlToolbar) {
@@ -1074,6 +1083,7 @@ export default class MagnifyingGlassInspector {
         // Restore reticle opacity
         if (this.lens && this.lens.lensContainer) {
             this.lens.lensContainer.style.opacity = '1';
+            this.lens.lensContainer.style.pointerEvents = 'auto'; // Restore lens pointer-events
         }
 
         // Reset UI layering (if any was applied)
