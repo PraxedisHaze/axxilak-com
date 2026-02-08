@@ -587,6 +587,10 @@ export default class MagnifyingGlassInspector {
             e.preventDefault();
             return false;
         };
+
+        // CRITICAL: Disable pointer-events on page content (stops all clicks, even inline onclick)
+        const scene = document.getElementById('apex-3d-scene');
+        if (scene) scene.style.pointerEvents = 'none';
     }
 
     highlightElement(el) {
@@ -799,8 +803,10 @@ export default class MagnifyingGlassInspector {
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
 
-        // UNLOCK PAGE - Remove the lockdown overlay
+        // UNLOCK PAGE - Remove the lockdown overlay and restore pointer-events
         this.lockdownOverlay.style.display = 'none';
+        const scene = document.getElementById('apex-3d-scene');
+        if (scene) scene.style.pointerEvents = 'auto';
     }
 
     _drawConnectionLine(el, contentBox) {
