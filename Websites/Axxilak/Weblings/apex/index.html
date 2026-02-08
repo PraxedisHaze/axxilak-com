@@ -661,20 +661,11 @@
             cursor: grab;
             user-select: none;
             color: #00ff00;
-            position: fixed !important;
             z-index: 99999 !important;
-            pointer-events: auto !important;
-            transform: none !important;
-            perspective: none !important;
         }
 
         #palette-container:active {
             cursor: grabbing;
-        }
-
-        /* Ensure palette stays on top during 3D mode */
-        #palette-container * {
-            pointer-events: auto !important;
         }
 
         /* Text in white/light boxes = black */
