@@ -1077,6 +1077,11 @@
     <!-- Component dependencies (ES modules loaded below) -->
 
     <!-- Apex-specific integration -->
+    <script>
+        // Set webling name before importing module (for dynamic storage keys)
+        window.WEBLING_NAME = 'apex';
+    </script>
+
     <script type="module">
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
 
@@ -1087,7 +1092,7 @@
             if (!inspector) {
                 inspector = new MagnifyingGlassInspector();
             }
-            
+
             if (isUserAction) {
                 // Instant-kill boot overlay if user starts editing manually
                 const overlay = document.getElementById('boot-overlay');
@@ -1123,25 +1128,32 @@
             // Remove inspector elements
             doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay').forEach(el => el.remove());
 
-            // Remove inspector scripts
-            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            // Remove inspector scripts (both module and non-module)
+            doc.querySelectorAll('script[type="module"], script:not([src])').forEach(script => {
+                if (script.textContent.includes('WEBLING_NAME') || script.textContent.includes('MagnifyingGlassInspector')) {
+                    script.remove();
+                }
+            });
 
             const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
             const blob = new Blob([cleanHTML], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'apex-customized.html';
+            const weblingName = window.WEBLING_NAME || 'apex';
+            link.download = `${weblingName}-customized.html`;
             link.click();
             URL.revokeObjectURL(url);
 
-            alert('Apex exported! Download started.');
+            const displayName = weblingName.charAt(0).toUpperCase() + weblingName.slice(1);
+            alert(`${displayName} exported! Download started.`);
         }
 
         window.resetApex = function() {
             if (confirm('Reset all customizations? This cannot be undone.')) {
-                localStorage.removeItem('apex-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const weblingName = window.WEBLING_NAME || 'apex';
+                localStorage.removeItem(`${weblingName}-edits-state`);
+                localStorage.removeItem(`${weblingName}-lens-state`);
                 location.reload();
             }
         }

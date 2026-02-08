@@ -3,9 +3,14 @@ import ElementDetector from './elementDetector.js';
 import { ToolPalette } from './tool-palette.js';
 
 export default class MagnifyingGlassInspector {
-    constructor() {
+    constructor(weblingName = null) {
         this.isActive = false;
-        this.editsKey = 'velvet-edits-state';
+
+        // Derive editsKey from webling name (passed in or from window.WEBLING_NAME)
+        const name = weblingName || window.WEBLING_NAME || 'apex';
+        this.editsKey = `${name}-edits-state`;
+        this.lensStateKey = `${name}-lens-state`;
+
         this.debug = false;
 
         // Drag state

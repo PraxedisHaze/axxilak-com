@@ -7,6 +7,8 @@
 - [ ] Copy `Weblings/apex/elementDetector.js` to target webling root
 - [ ] Verify relative paths in imports work (test with local server)
 
+**CRITICAL**: Each webling needs its own storage key. This is handled automatically via `window.WEBLING_NAME` (see Phase 4).
+
 ### Phase 2: HTML Integration
 
 #### Add Editor Containers (copy from Apex lines 654-675)
@@ -58,7 +60,16 @@ LIGHT THEME (data-theme="light"):
 
 ### Phase 4: JavaScript Integration
 
-#### Add module script (from Apex lines 995-1070):
+#### Set Webling Name (REQUIRED - do this BEFORE module import)
+```html
+<script>
+    // CRITICAL: Set webling name for dynamic storage keys
+    // Each webling must have its own unique name (lowercase, hyphenated)
+    window.WEBLING_NAME = 'webling-name-here'; // e.g., 'liquid-gold', 'neon-tokyo', etc.
+</script>
+```
+
+#### Add module script (from Apex, with correct method names):
 ```html
 <script type="module">
     import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
@@ -66,22 +77,28 @@ LIGHT THEME (data-theme="light"):
     let inspector = null;
     let editMode = false;
 
-    function initInspector() {
+    function initInspector(isUserAction = false) {
         if (!inspector) {
             inspector = new MagnifyingGlassInspector();
         }
+
+        if (isUserAction) {
+            // Instant-kill boot overlay if user starts editing manually
+            const overlay = document.getElementById('boot-overlay');
+            if (overlay) overlay.remove();
+        }
     }
 
-    function toggleEditMode() {
-        initInspector();
+    function toggleEditMode(e) {
+        initInspector(true);
         editMode = !editMode;
 
         if (editMode) {
             document.body.classList.add('edit-mode');
-            inspector.enable();
+            inspector.activate(e);
         } else {
             document.body.classList.remove('edit-mode');
-            inspector.disable();
+            inspector.deactivate();
         }
     }
 
@@ -93,28 +110,40 @@ LIGHT THEME (data-theme="light"):
         editBtn.addEventListener('click', toggleEditMode);
     }
 
+    window.resetApex = function() {
+        if (confirm('Reset all customizations? This cannot be undone.')) {
+            const weblingName = window.WEBLING_NAME || 'apex';
+            localStorage.removeItem(`${weblingName}-edits-state`);
+            localStorage.removeItem(`${weblingName}-lens-state`);
+            location.reload();
+        }
+    }
+
     window.exportApex = function() {
         const doc = document.documentElement.cloneNode(true);
+
+        // Remove inspector elements
         doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay').forEach(el => el.remove());
-        doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+
+        // Remove inspector scripts
+        doc.querySelectorAll('script[type="module"], script:not([src])').forEach(script => {
+            if (script.textContent.includes('WEBLING_NAME') || script.textContent.includes('MagnifyingGlassInspector')) {
+                script.remove();
+            }
+        });
 
         const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
         const blob = new Blob([cleanHTML], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'webling-customized.html';
+        const weblingName = window.WEBLING_NAME || 'apex';
+        link.download = `${weblingName}-customized.html`;
         link.click();
         URL.revokeObjectURL(url);
-        alert('Webling exported! Download started.');
-    }
 
-    window.resetApex = function() {
-        if (confirm('Reset all customizations? This cannot be undone.')) {
-            localStorage.removeItem('apex-edits-state');
-            localStorage.removeItem('apex-lens-state');
-            location.reload();
-        }
+        const displayName = weblingName.charAt(0).toUpperCase() + weblingName.slice(1);
+        alert(`${displayName} exported! Download started.`);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
