@@ -15,9 +15,9 @@ export class MagnifyingGlass {
             pointer-events: none;
         `;
 
-        // Crosshairs & Center Dot
-        const v = document.createElement('div'); v.style.cssText = 'position:absolute; top:0; bottom:0; left:50%; width:1px; background:rgba(0,255,0,0.5);';
-        const h = document.createElement('div'); h.style.cssText = 'position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,255,0,0.5);';
+        // Crosshairs & Center Dot (properly centered)
+        const v = document.createElement('div'); v.style.cssText = 'position:absolute; top:0; bottom:0; left:50%; width:1px; background:rgba(0,255,0,0.5); transform:translateX(-50%);';
+        const h = document.createElement('div'); h.style.cssText = 'position:absolute; left:0; right:0; top:50%; height:1px; background:rgba(0,255,0,0.5); transform:translateY(-50%);';
         this.centerDot = document.createElement('div');
         this.centerDot.id = 'lens-center-dot';
         this.centerDot.style.cssText = 'position:absolute; top:50%; left:50%; width:2px; height:2px; background:#ef4444; border-radius:50%; transform:translate(-50%,-50%); opacity:0; box-shadow:0 0 5px #ef4444; transition:opacity 0.2s;';
