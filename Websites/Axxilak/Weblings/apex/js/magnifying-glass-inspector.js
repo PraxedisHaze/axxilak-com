@@ -1140,19 +1140,7 @@ export default class MagnifyingGlassInspector {
         this.controlToolbar.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
                 <!-- Layer Control Buttons -->
-                <button id="toolbar-btn-left" title="Move to higher layer (WIN)" style="
-                    padding: 8px 12px;
-                    background: #00ff00;
-                    color: #000;
-                    border: none;
-                    border-radius: 4px;
-                    font-weight: bold;
-                    font-size: 12px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                ">← WIN</button>
-
-                <button id="toolbar-btn-right" title="Move to lower layer (LOSE)" style="
+                <button id="toolbar-btn-left" title="Move to lower layer (LOSE)" style="
                     padding: 8px 12px;
                     background: #333;
                     color: #00ff00;
@@ -1162,7 +1150,19 @@ export default class MagnifyingGlassInspector {
                     font-size: 12px;
                     cursor: pointer;
                     transition: all 0.2s;
-                ">LOSE →</button>
+                ">← LOSE</button>
+
+                <button id="toolbar-btn-right" title="Move to higher layer (WIN)" style="
+                    padding: 8px 12px;
+                    background: #00ff00;
+                    color: #000;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">WIN →</button>
 
                 <!-- Rotation Intensity Slider -->
                 <div style="display: flex; align-items: center; gap: 8px;">
