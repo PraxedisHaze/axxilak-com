@@ -13,7 +13,16 @@ export class MagnifyingGlass {
             transform: translate(-50%, -50%);
             left: -1000px; top: -1000px;
             pointer-events: none;
-            zoom: 1.15;
+            overflow: hidden;
+        `;
+
+        // Inner zoom wrapper (contains all visual elements, scales content while keeping container centered)
+        const zoomWrapper = document.createElement('div');
+        zoomWrapper.style.cssText = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            transform: scale(1.15) translate(-7.5%, -7.5%);
+            transform-origin: 50% 50%;
+            pointer-events: none;
         `;
 
         // Crosshairs & Center Dot
@@ -22,16 +31,17 @@ export class MagnifyingGlass {
         this.centerDot = document.createElement('div');
         this.centerDot.id = 'lens-center-dot';
         this.centerDot.style.cssText = 'position:absolute; top:50%; left:50%; width:2px; height:2px; background:#ef4444; border-radius:50%; transform:translate(-50%,-50%); opacity:0; box-shadow:0 0 5px #ef4444; transition:opacity 0.2s;';
-        
+
         // Depth Probe UI (Yellow Circle & Z-Label)
         this.probeDot = document.createElement('div');
         this.probeDot.style.cssText = 'position:absolute; top:50%; left:50%; width:12px; height:12px; border:2px solid #fbbf24; border-radius:50%; transform:translate(-50%,-50%); opacity:0; box-shadow:0 0 10px #fbbf24; transition:opacity 0.2s, width 0.1s, height 0.1s; pointer-events:none;';
-        
+
         this.zLabel = document.createElement('div');
         this.zLabel.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(10px, -20px); font-family:monospace; font-size:10px; font-weight:bold; color:#fbbf24; text-shadow:0 1px 2px black; opacity:0; transition:opacity 0.2s; white-space:nowrap; pointer-events:none;';
         this.zLabel.innerText = 'Z:0';
 
-        this.lensContainer.append(v, h, this.centerDot, this.probeDot, this.zLabel);
+        zoomWrapper.append(v, h, this.centerDot, this.probeDot, this.zLabel);
+        this.lensContainer.append(zoomWrapper);
         document.body.appendChild(this.lensContainer);
 
         this.isVisible = false;
