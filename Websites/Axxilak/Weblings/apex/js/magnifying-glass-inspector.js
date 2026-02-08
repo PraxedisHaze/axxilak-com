@@ -31,6 +31,23 @@ export default class MagnifyingGlassInspector {
             pendingChanges: {}       // Buffer of pending edits (for Save)
         };
 
+        // Create lockdown overlay (blocks all page interactions during edit)
+        this.lockdownOverlay = document.createElement('div');
+        this.lockdownOverlay.id = 'apex-lockdown-overlay';
+        this.lockdownOverlay.setAttribute('data-anothen-internal', '');
+        this.lockdownOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 19998;
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            pointer-events: auto;
+        `;
+        document.body.appendChild(this.lockdownOverlay);
+
         // Highlight state
         this.highlightedElement = null;
         this.contextBar = this._initContextBar();
@@ -502,6 +519,10 @@ export default class MagnifyingGlassInspector {
 
         // Show save/cancel buttons
         this.palette.showEditControls(true);
+
+        // LOCK DOWN PAGE - Nothing else can be clicked except the editor/palette
+        this.lockdownOverlay.style.display = 'block';
+        this.lockdownOverlay.onclick = (e) => e.stopPropagation();
     }
 
     highlightElement(el) {
@@ -713,6 +734,9 @@ export default class MagnifyingGlassInspector {
         this.editSession.element = null;
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
+
+        // UNLOCK PAGE - Remove the lockdown overlay
+        this.lockdownOverlay.style.display = 'none';
     }
 
     _drawConnectionLine(el, contentBox) {
