@@ -8,12 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,600;1,6..96,400&family=Manrope:wght@300;500&display=swap" rel="stylesheet">
+    
+    <!-- Editor Dependencies -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../engines/apex-editor/apex-editor.css">
+
     <style>
         :root {
-            --bg: #080808;
+            --bg: #000000;
             --text: #e5e5e5;
             --gold: #d4af37;
             --gold-dim: #8a7020;
+            --accent: var(--gold);
         }
 
         body {
@@ -33,15 +41,44 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
+            -webkit-text-stroke: 1px #ffffff;
+        }
+
+        /* Outlined Text Only */
+        .text-outline {
+            color: #e5e5e5;
+            -webkit-text-stroke: 1px #ffffff;
+        }
+
+        [data-theme="light"] .text-outline {
+            color: #1a1a1a;
+            -webkit-text-stroke: 1px #000000;
         }
 
         .border-gold {
             border-color: var(--gold-dim);
         }
 
-        /* Smooth Scroll */
+        /* Removed Smooth Scroll for Cinematic Transition */
         html {
-            scroll-behavior: smooth;
+            scroll-behavior: auto;
+        }
+
+        /* Transition Overlay */
+        #transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            z-index: 99999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #transition-overlay.active {
+            opacity: 1;
         }
 
         /* Reveal Animation */
@@ -84,107 +121,115 @@
 
         /* === THEME TOGGLE === */
         [data-theme="light"] {
-            --bg: #ffffff;
+            --bg: #f2f2f2; /* Parchment gray */
             --text: #1a1a1a;
-            --gold: #d4af37;
-            --gold-dim: #b8960e;
+            --gold: #a67c00; 
+            --gold-dim: #8a6500;
+        }
+
+        [data-theme="light"] .text-zinc-400,
+        [data-theme="light"] .text-zinc-500,
+        [data-theme="light"] .text-gray-400 {
+            color: #444444 !important;
+        }
+
+        [data-theme="light"] .text-zinc-300,
+        [data-theme="light"] .text-gray-300 {
+            color: #333333 !important;
+        }
+
+        [data-theme="light"] nav a, 
+        [data-theme="light"] #edit-mode-btn,
+        [data-theme="light"] footer a,
+        [data-theme="light"] .font-bold.tracking-widest {
+            color: #1a1a1a !important;
+            text-shadow: none !important;
+        }
+
+        [data-theme="light"] .border-zinc-800 {
+            border-color: #cccccc !important;
+        }
+
+        [data-theme="light"] .text-gold {
+            background: none;
+            -webkit-background-clip: initial;
+            background-clip: initial;
+            color: var(--gold);
         }
 
         body {
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .theme-toggle {
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-            font-size: 1.2rem;
+        /* Editor Overrides */
+        .apex-highlighted { 
+            outline: 3px solid #00ff00 !important; 
+            outline-offset: -3px !important; 
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.4) !important;
+            pointer-events: auto !important;
         }
-
-        .theme-toggle:hover {
-            opacity: 1;
-        }
+        body.edit-mode { cursor: none !important; }
     </style>
 </head>
-<body class="antialiased">
-    <!-- Hidden State Data Placeholders (for Forge state injection) -->
-    <div style="display:none; color:#000; background:#000; z-index:-9999;">
-        <span id="state-name">{{text.name}}</span>
-        <span id="state-tagline">{{text.tagline}}</span>
-        <span id="state-bio">{{text.bio}}</span>
-        <span id="state-cta">{{text.cta}}</span>
-        <img src="{{images.profile}}" alt="profile" style="display:none;">
-        <div style="color:{{colors.primary}}">primary</div>
-        <div style="background:{{colors.background}}">bg</div>
-    </div>
+    <body class="bg-black text-white">
 
-    <div id="cursor" class="hidden md:block cursor-follower"></div>
+    <!-- Theme Toggle -->
+    <button id="theme-toggle-btn"
+        class="fixed bottom-6 left-6 w-10 h-10 rounded-full border border-zinc-800 flex items-center justify-center bg-black/50 backdrop-blur-md z-[10000] hover:border-[var(--gold)] transition-colors" title="Cycle theme (Silk → Leather → Void)">
+        <img id="theme-icon" src="icons/silk-sun.svg" alt="Theme" width="20" height="20">
+    </button>
 
-    <!-- Nav -->
-    <nav class="fixed top-0 w-full p-8 md:p-12 flex justify-between items-center z-50 mix-blend-difference">
-        <div class="serif text-2xl tracking-widest uppercase">Velvet</div>
-        <div class="hidden md:flex gap-12 text-xs uppercase tracking-[0.2em] font-light items-center">
+    <!-- Custom Cursor -->    <div id="cursor" class="cursor-follower hidden md:block"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full p-8 flex justify-between items-center z-50 bg-gradient-to-b from-black/80 to-transparent">
+        <div class="serif text-2xl tracking-tighter italic">Velvet</div>
+        <div class="flex gap-12 text-[10px] uppercase tracking-[0.3em] font-medium items-center">
             <a href="#gallery" class="hover:text-[var(--gold)] transition-colors">Gallery</a>
             <a href="#about" class="hover:text-[var(--gold)] transition-colors">Atelier</a>
             <a href="#contact" class="hover:text-[var(--gold)] transition-colors">Inquire</a>
+            <button id="edit-mode-btn" class="px-4 py-2 border border-zinc-800 hover:border-[var(--gold)] transition-colors text-[var(--gold)]">Edit</button>
         </div>
-        <div class="md:hidden text-[var(--gold)]">MENU</div>
     </nav>
 
     <!-- Hero -->
-    <header class="min-h-screen flex flex-col items-center justify-center text-center px-6 relative">
-        <div class="absolute inset-0 z-0 opacity-20">
-            <!-- Placeholder for a dark, moody background video or image -->
-            <div class="w-full h-full bg-[url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale"></div>
-        </div>
-        
-        <div class="relative z-10 max-w-4xl reveal active">
-            <div class="text-xs uppercase tracking-[0.4em] mb-6 text-[var(--gold)]">Est. MMXXVI</div>
-            <h1 class="text-6xl md:text-9xl serif italic leading-tight mb-8">
-                Elegance is<br><span class="text-gold">Refusal.</span>
-            </h1>
-            <p class="text-sm md:text-base tracking-widest font-light max-w-lg mx-auto text-gray-400">
-                A digital atelier for the sovereign creative.<br>
-                Silence is the ultimate luxury.
-            </p>
+    <section class="h-screen flex flex-col items-center justify-center text-center px-6 relative overflow-hidden">
+        <div class="w-full h-full absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center grayscale z-0"></div>
+        <div class="reveal relative z-10">
+            <h1 class="serif text-7xl md:text-9xl mb-8 leading-none italic"><span class="text-outline">Eternal</span><br><span class="text-gold">Elegance</span></h1>
+            <p class="max-w-xl text-white text-sm uppercase tracking-[0.5em] font-light" style="text-shadow: 1px 0px 3px rgba(0,0,0,0.9), -1px 0px 3px rgba(0,0,0,0.9), 0px 1px 3px rgba(0,0,0,0.9), 0px -1px 3px rgba(0,0,0,0.9), 1px 1px 3px rgba(0,0,0,0.9), -1px 1px 3px rgba(0,0,0,0.9), 1px -1px 3px rgba(0,0,0,0.9), -1px -1px 3px rgba(0,0,0,0.9);">The Bespoke Digital Experience</p>
         </div>
 
-        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 text-[var(--gold)] animate-bounce">
-            ↓
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 reveal z-10" style="transition-delay: 0.5s">
+            <div class="w-px h-16 bg-gradient-to-b from-[var(--gold)] to-transparent"></div>
+            <span class="text-[8px] uppercase tracking-[0.4em] text-[var(--gold)]">Scroll</span>
         </div>
-    </header>
+    </section>
 
-    <!-- Gallery Section -->
-    <section id="sec-gallery" class="py-32 px-6 md:px-12 bg-[#0a0a0a]">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-7xl mx-auto">
-            
+    <!-- Gallery -->
+    <section id="gallery" class="py-32 px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-24 max-w-7xl mx-auto">
             <!-- Item 1 -->
-            <div class="reveal mt-0 md:mt-20">
-                <div class="img-container aspect-[3/4] mb-6">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1964&auto=format&fit=crop" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="Portrait">
-                </div>
-                <div class="flex justify-between items-baseline border-b border-[var(--gold-dim)] pb-4">
-                    <h3 class="serif text-2xl italic">The Obsidian Series</h3>
-                    <span class="text-xs tracking-widest">01</span>
-                </div>
-            </div>
-
-            <!-- Item 2 -->
             <div class="reveal">
-                <div class="img-container aspect-[3/4] mb-6">
-                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1920&auto=format&fit=crop" class="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt="Fashion">
+                <div class="img-container aspect-[4/5] bg-zinc-900 mb-8 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80" alt="Fashion 1" class="w-full h-full object-cover grayscale hover:grayscale-0">
                 </div>
-                <div class="flex justify-between items-baseline border-b border-[var(--gold-dim)] pb-4">
-                    <h3 class="serif text-2xl italic">Silk & Shadow</h3>
-                    <span class="text-xs tracking-widest">02</span>
-                </div>
+                <h3 class="serif text-3xl mb-2">The Drape</h3>
+                <p class="text-xs uppercase tracking-widest text-zinc-500 italic">Spring Collection MMXXVI</p>
             </div>
-
+            <!-- Item 2 -->
+            <div class="reveal" style="transition-delay: 0.2s">
+                <div class="img-container aspect-[4/5] bg-zinc-900 mb-8 md:mt-24 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80" alt="Fashion 2" class="w-full h-full object-cover grayscale hover:grayscale-0">
+                </div>
+                <h3 class="serif text-3xl mb-2">Shadow Work</h3>
+                <p class="text-xs uppercase tracking-widest text-zinc-500 italic">Couture Edition</p>
+            </div>
         </div>
     </section>
 
     <!-- About / Text -->
-    <section id="sec-about" class="py-32 flex items-center justify-center bg-black border-y border-[var(--gold-dim)]">
+    <section id="about" class="py-32 flex items-center justify-center bg-black border-y border-[var(--gold-dim)]">
         <div class="max-w-2xl text-center px-6 reveal">
             <h2 class="text-4xl md:text-5xl serif italic mb-12">The Philosophy</h2>
             <p class="text-lg md:text-xl font-light leading-relaxed text-gray-300">
@@ -197,28 +242,12 @@
     </section>
 
     <!-- Contact -->
-    <section id="sec-contact" class="py-32 px-6 text-center">
+    <section id="contact" class="py-32 px-6 text-center">
         <div class="reveal">
             <h2 class="text-xs uppercase tracking-[0.4em] mb-8 text-[var(--gold)]">Inquiries</h2>
-            <form action="mailto:velvet@axxilak.com" method="POST" enctype="text/plain" class="max-w-md mx-auto mb-12">
-                <div class="mb-4">
-                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Name</label>
-                    <input type="text" name="name" required class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Email</label>
-                    <input type="email" name="email" required class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-xs uppercase tracking-[0.2em] font-light text-[var(--gold)] mb-2">Message (Optional)</label>
-                    <textarea name="message" rows="3" placeholder="Share your vision..." class="w-full bg-transparent border-b border-[var(--gold-dim)] py-2 outline-none focus:border-[var(--gold)] transition-colors text-sm resize-none"></textarea>
-                </div>
-                <button type="submit" onclick="showThanks(event)" class="px-8 py-3 border border-[var(--gold-dim)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors uppercase tracking-widest text-xs font-light">Start Conversation</button>
-                <div id="form-success" class="hidden mt-4 text-center p-4 border border-[var(--gold)]/40 text-[var(--gold)] bg-[var(--gold)]/5">
-                    <p class="text-sm font-bold">Inquiry Received</p>
-                    <p class="text-xs opacity-80">The conversation has begun.</p>
-                </div>
-            </form>
+            <a href="mailto:concierge@axxilak.com" class="serif text-5xl md:text-7xl hover:text-[var(--gold)] transition-colors italic">
+                Start the Conversation
+            </a>
         </div>
     </section>
 
@@ -232,38 +261,36 @@
         </div>
     </footer>
 
+    <!-- Transition Overlay -->
+    <div id="transition-overlay" data-anothen-internal></div>
+
     <script>
-        // Theme Toggle
-        function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
-
-            if (body.getAttribute('data-theme') === 'light') {
-                body.removeAttribute('data-theme');
-                icon.innerText = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '🌙';
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        // Check saved preference on load
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.setAttribute('data-theme', 'light');
-            document.getElementById('theme-icon').innerText = '🌙';
-        }
-
-        // Form Success Feedback
-        function showThanks(e) {
-            setTimeout(() => {
-                const form = e.target.closest('form');
-                const success = form.querySelector('#form-success');
-                if (success) success.classList.remove('hidden');
-                form.reset();
-            }, 500);
-        }
+        // Cinematic Transitions
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    const overlay = document.getElementById('transition-overlay');
+                    
+                    // 1. Fade Out
+                    overlay.classList.add('active');
+                    
+                    setTimeout(() => {
+                        // 2. Jump to target
+                        window.scrollTo(0, targetElement.offsetTop);
+                        
+                        // 3. Fade In
+                        setTimeout(() => {
+                            overlay.classList.remove('active');
+                        }, 100);
+                    }, 400);
+                }
+            });
+        });
 
         // Cursor
         const cursor = document.getElementById('cursor');
@@ -283,6 +310,109 @@
 
         document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
     </script>
+
+    
+    <script src="../engines/transitions/silk-sweep.js"></script>
+    <script type="module">
+        // Multi-Theme Cycling
+        const themes = ['silk', 'leather', 'void'];
+        let currentThemeIndex = 0;
+        let isDarkMode = true;
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('theme-icon');
+            const themeName = themes[currentThemeIndex];
+            const modeIcon = isDarkMode ? 'sun' : 'moon';
+            icon.src = `icons/${themeName}-${modeIcon}.svg`;
+        }
+
+        window.toggleTheme = function() {
+            currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+            localStorage.setItem('current-aesthetic', themes[currentThemeIndex]);
+            updateThemeIcon();
+
+            if (window.AxxilakTransition) {
+                window.AxxilakTransition.trigger(() => {
+                    const body = document.body;
+                    isDarkMode = !isDarkMode;
+                    if (isDarkMode) {
+                        body.removeAttribute('data-theme');
+                    } else {
+                        body.setAttribute('data-theme', 'light');
+                    }
+                    updateThemeIcon();
+                    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                });
+            } else {
+                const body = document.body;
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    body.removeAttribute('data-theme');
+                } else {
+                    body.setAttribute('data-theme', 'light');
+                }
+                updateThemeIcon();
+            }
+        };
+
+        // Ensure button handler is set after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                const btn = document.getElementById('theme-toggle-btn');
+                if (btn) btn.onclick = window.toggleTheme;
+            });
+        } else {
+            const btn = document.getElementById('theme-toggle-btn');
+            if (btn) btn.onclick = window.toggleTheme;
+        }
+
+        // Initial Preferences
+        const savedAesthetic = localStorage.getItem('current-aesthetic') || 'silk';
+        currentThemeIndex = themes.indexOf(savedAesthetic);
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+            isDarkMode = false;
+        }
+        updateThemeIcon();
+
+        import MagnifyingGlassInspector from '../engines/apex-editor/magnifying-glass-inspector.js';
+        let inspector = null;
+        let editMode = false;
+        function initInspector() {
+            if (!inspector) { inspector = new MagnifyingGlassInspector(); }
+        }
+        window.toggleEditMode = function(e) {
+            initInspector();
+            editMode = !editMode;
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                inspector.activate(e);
+            } else {
+                document.body.classList.remove('edit-mode');
+                inspector.deactivate();
+            }
+        };
+        const editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) { editBtn.addEventListener('click', window.toggleEditMode); }
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
+            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = 'velvet-customized.html'; link.click();
+            URL.revokeObjectURL(url);
+        };
+        window.resetApex = function() {
+            if (confirm('Reset all customizations?')) {
+                localStorage.removeItem('velvet-edits-state');
+                localStorage.removeItem('apex-lens-state');
+                location.reload();
+            }
+        };
+        window.addEventListener('DOMContentLoaded', () => { initInspector(); });
+    </script>
 </body>
 </html>
-

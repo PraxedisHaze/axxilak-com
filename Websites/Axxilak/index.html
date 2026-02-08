@@ -347,91 +347,6 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
         }
 
-        /* Light Mode Theme - Clean Minimal */
-        [data-theme="light"] {
-            --bg: #aaaaaa;
-        }
-
-        [data-theme="light"] body {
-            background-color: var(--bg);
-            color: #1a1a1a;
-        }
-
-        [data-theme="light"] h1,
-        [data-theme="light"] h2,
-        [data-theme="light"] h3,
-        [data-theme="light"] .serif {
-            color: #000000;
-        }
-
-        [data-theme="light"] .text-slate-300,
-        [data-theme="light"] p {
-            color: #3a3a3a;
-        }
-
-        [data-theme="light"] .text-slate-400 {
-            color: #555555;
-        }
-
-        [data-theme="light"] .text-slate-500 {
-            color: #777777;
-        }
-
-        [data-theme="light"] .text-slate-600 {
-            color: #3a3a3a;
-        }
-
-        [data-theme="light"] .text-white {
-            color: #1a1a1a;
-        }
-
-        [data-theme="light"] .bg-slate-900\/50 {
-            background-color: rgba(240, 240, 240, 0.8);
-        }
-
-        [data-theme="light"] .glass-panel {
-            background: rgba(250, 250, 250, 0.9);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="light"] .marquee {
-            background: rgba(212, 175, 55, 0.06);
-            border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        [data-theme="light"] input,
-        [data-theme="light"] textarea {
-            background: transparent;
-            border-bottom-color: rgba(0, 0, 0, 0.15);
-            color: #1a1a1a;
-        }
-
-        [data-theme="light"] input::placeholder,
-        [data-theme="light"] textarea::placeholder {
-            color: rgba(0, 0, 0, 0.3);
-        }
-
-        [data-theme="light"] .form-button {
-            background: #000000;
-            color: #ffffff;
-        }
-
-        [data-theme="light"] .form-button:hover {
-            background-color: var(--primary);
-            color: #000000;
-        }
-
-        [data-theme="light"] a {
-            color: var(--primary);
-        }
-
-        [data-theme="light"] #theme-icon {
-            /* Icon stays gold in both modes */
-        }
-
-        [data-theme="light"] canvas {
-            opacity: 0.6;
-        }
     </style>
 </head>
 
@@ -456,16 +371,11 @@
                 </div>
             </a>
             <div class="flex gap-8 items-center">
-                <a href="#contact" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
-                <button id="pause-animations" class="p-2 hover:text-amber-400 transition text-xs uppercase tracking-widest" title="Pause background animations">
+                <button id="pause-animations" class="text-sm uppercase tracking-widest hover:text-amber-400 transition" style="background: none; border: none; padding: 0; cursor: pointer;" title="Pause background animations">
                     Pause
                 </button>
-                <button id="theme-toggle" class="p-2 hover:text-amber-400 transition" title="Toggle theme">
-                    <img id="theme-icon" src="data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5' stroke='%23d4af37' opacity='0.8'/%3E%3Cline x1='12' y1='3' x2='12' y2='4.5' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='12' y1='19.5' x2='12' y2='21' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='3' y1='12' x2='4.5' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='19.5' y1='12' x2='21' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='4.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3Ccircle cx='19.5' cy='19.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3C/svg%3E" alt="Toggle theme" width="24" height="24">
-                </button>
-                <a href="axxilak_portfolio/index.html"
-                    class="px-4 py-2 border border-white/20 hover:border-amber-400 rounded-sm text-sm transition">About
-                    Me</a>
+                <a href="#contact" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
+                <a href="axxilak_portfolio/index.html" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">About Me</a>
             </div>
         </nav>
     </header>
@@ -791,16 +701,8 @@
             }
 
             draw() {
-                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-                if (isDarkMode) {
-                    // Dark mode: original colors
-                    ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                    ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
-                } else {
-                    // Light mode: particles blend into light background
-                    ctx.fillStyle = '#e8e8e8';
-                    ctx.globalAlpha = 0.7;
-                }
+                ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                ctx.globalAlpha = this.isGold ? 0.7 : 0.5;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -813,9 +715,6 @@
         }
 
         function drawLines() {
-            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-            const lineColor = isDarkMode ? 'rgba(212, 175, 55,' : 'rgba(255, 255, 255,';
-
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
@@ -823,7 +722,7 @@
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
                     if (distance < 150) {
-                        ctx.strokeStyle = `${lineColor} ${0.1 * (1 - distance / 150)})`;
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${0.1 * (1 - distance / 150)})`;
                         ctx.lineWidth = 0.5;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
@@ -835,8 +734,7 @@
         }
 
         function animate() {
-            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-            ctx.fillStyle = isDarkMode ? 'rgba(3, 3, 3, 0.1)' : 'rgba(240, 240, 240, 0.1)';
+            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             if (!animationsPaused) {
@@ -1124,35 +1022,6 @@
             });
         });
 
-        // === THEME TOGGLE ===
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const root = document.documentElement;
-
-        // Load theme preference from localStorage
-        const savedTheme = localStorage.getItem('axxilak-theme') || 'dark';
-        root.setAttribute('data-theme', savedTheme);
-
-        // Sun icon (dark mode)
-        const sunIcon = `data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='5' stroke='%23d4af37' opacity='0.8'/%3E%3Cline x1='12' y1='3' x2='12' y2='4.5' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='12' y1='19.5' x2='12' y2='21' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='3' y1='12' x2='4.5' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Cline x1='19.5' y1='12' x2='21' y2='12' stroke='%23d4af37' opacity='0.6'/%3E%3Ccircle cx='4.5' cy='4.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3Ccircle cx='19.5' cy='19.5' r='0.7' fill='%23d4af37' opacity='0.4'/%3E%3C/svg%3E`;
-
-        // Moon icon (light mode)
-        const moonIcon = `data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79' stroke='%23d4af37' opacity='0.8'/%3E%3C/svg%3E`;
-
-        function updateThemeIcon() {
-            const currentTheme = root.getAttribute('data-theme');
-            themeIcon.src = currentTheme === 'dark' ? sunIcon : moonIcon;
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = root.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            root.setAttribute('data-theme', newTheme);
-            localStorage.setItem('axxilak-theme', newTheme);
-            updateThemeIcon();
-        });
-
-        updateThemeIcon();
 
         // Demo Edit Button: Enable inline editing on hero section
         const demoEditBtn = document.getElementById('demoEditBtn');
