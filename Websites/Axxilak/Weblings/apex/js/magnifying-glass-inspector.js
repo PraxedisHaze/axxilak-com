@@ -1278,7 +1278,13 @@ export default class MagnifyingGlassInspector {
 
         try {
             stack.forEach((item, index) => {
-                item.element.style.transform = `translateZ(${index * fixedSpacing}px)`;
+                // Distribute elements asymmetrically:
+                // - translateZ spreads layers along depth (center point)
+                // - translateX pushes progressively leftward, leaving right side empty
+                const translateZ = index * fixedSpacing;
+                const translateX = -(index * fixedSpacing * 0.6); // Push left, leaves right unpopulated
+
+                item.element.style.transform = `translateZ(${translateZ}px) translateX(${translateX}px)`;
                 if (index > 0) {
                     item.element.style.boxShadow = `0 15px 40px rgba(0,0,0,0.6)`;
                 }
