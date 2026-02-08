@@ -40,23 +40,32 @@ class CrackingTransition {
 
     /**
      * Detect system capability based on device info
-     * Returns optimal shard count: 750 (fast), 500 (medium), 300 (slow)
+     * Returns optimal shard count based on hardware or user preference
      */
     _detectSystemCapability() {
-        // Check for low-power device indicators
+        // 1. Check for user override (Stability Setting)
+        const userOverride = localStorage.getItem('axxilak_shard_density');
+        if (userOverride) {
+            const count = parseInt(userOverride);
+            console.log(`[Performance] User override detected → ${count} shards`);
+            return count;
+        }
+
+        // 2. Hardware Detection
         const isLowPowerDevice = /iPhone|iPad|Android|Mobile/i.test(navigator.userAgent);
         const cpuCores = navigator.hardwareConcurrency || 4;
         const memory = navigator.deviceMemory || 8;
 
+        // Optimized defaults: 150 (Low), 300 (Med), 500 (High)
         if (isLowPowerDevice || cpuCores <= 2 || memory <= 2) {
-            console.log(`[Performance] Low-power device detected → 300 shards`);
-            return 300;
+            console.log(`[Performance] Low-power device detected → 150 shards`);
+            return 150;
         } else if (cpuCores <= 4 || memory <= 4) {
-            console.log(`[Performance] Medium device detected → 500 shards`);
-            return 500;
+            console.log(`[Performance] Medium device detected → 300 shards`);
+            return 300;
         } else {
-            console.log(`[Performance] High-end device detected → 750 shards`);
-            return 750;
+            console.log(`[Performance] High-end device detected → 500 shards`);
+            return 500;
         }
     }
 

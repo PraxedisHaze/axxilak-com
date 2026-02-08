@@ -13,6 +13,11 @@
         href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Outfit:wght@200;400;600&display=swap"
         rel="stylesheet">
 
+
+    <!-- Editor Dependencies -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --primary: #d4af37;
@@ -165,7 +170,12 @@
             z-index: 100;
         }
 
+    
+        /* Editor Overrides */
+        .apex-highlighted { outline: 3px solid #00ff00 !important; outline-offset: -3px !important; box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.4) !important; pointer-events: auto !important; }
+        body.edit-mode { cursor: none !important; }
     </style>
+    
 </head>
 
 <body class="selection:bg-amber-900 selection:text-white">
@@ -186,15 +196,23 @@
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 top-0 left-0 p-6 flex justify-between items-center mix-blend-difference">
-        <div class="text-2xl font-bold tracking-widest serif text-white">AXXILAK</div>
+        <a href="../../index.html" class="text-2xl font-bold tracking-widest serif text-white hover:text-amber-400 transition-colors">AXXILAK</a>
         <div class="flex gap-6 items-center">
+            <a href="../../index.html"
+                class="hover-trigger group flex items-center gap-2 text-sm uppercase tracking-widest text-white hover:text-amber-400 transition-colors">
+                <span class="block w-8 h-[1px] bg-white group-hover:bg-amber-400 transition-all"></span>
+                Back to Gallery
+            </a>
             <a href="#contact"
                 class="hover-trigger group flex items-center gap-2 text-sm uppercase tracking-widest text-white hover:text-amber-400 transition-colors">
                 Start a Project
                 <span class="block w-8 h-[1px] bg-white group-hover:bg-amber-400 transition-all"></span>
             </a>
+            <button id="edit-mode-btn" class="hover-trigger group flex items-center gap-2 text-sm uppercase tracking-widest text-white hover:text-amber-400 transition-colors">
+                Edit
+            </button>
             <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
-                <span id="theme-icon">☀️</span>
+                <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
             </button>
         </div>
     </nav>
@@ -426,27 +444,43 @@
         &copy; 2026 Axxilak Studios. All Rights Reserved.
     </footer>
 
+    <script src="../engines/transitions/molten-pour.js"></script>
     <script>
         // Theme Toggle
         function toggleTheme() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
 
-            if (body.getAttribute('data-theme') === 'light') {
-                body.removeAttribute('data-theme');
-                icon.innerText = '☀️';
-                localStorage.setItem('theme', 'dark');
+            if (window.AxxilakTransition) {
+                window.AxxilakTransition.trigger(() => {
+                    if (body.getAttribute('data-theme') === 'light') {
+                        body.removeAttribute('data-theme');
+                        icon.src = 'icons/sun.svg';
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        body.setAttribute('data-theme', 'light');
+                        icon.src = 'icons/moon.svg';
+                        localStorage.setItem('theme', 'light');
+                    }
+                });
             } else {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '🌙';
-                localStorage.setItem('theme', 'light');
+                // Fallback
+                if (body.getAttribute('data-theme') === 'light') {
+                    body.removeAttribute('data-theme');
+                    icon.src = 'icons/sun.svg';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    body.setAttribute('data-theme', 'light');
+                    icon.src = 'icons/moon.svg';
+                    localStorage.setItem('theme', 'light');
+                }
             }
         }
 
         // Check saved preference on load
         if (localStorage.getItem('theme') === 'light') {
             document.body.setAttribute('data-theme', 'light');
-            document.getElementById('theme-icon').innerText = '🌙';
+            document.getElementById('theme-icon').src = 'icons/moon.svg';
         }
 
         // Form Success Feedback
@@ -649,7 +683,51 @@
         });
 
     </script>
+
+    
+
+    
     <script src="../../coherence_engine.js"></script>
+    <script type="module">
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        let inspector = null;
+        let editMode = false;
+        function initInspector() {
+            if (!inspector) { inspector = new MagnifyingGlassInspector(); }
+        }
+        window.toggleEditMode = function(e) {
+            initInspector();
+            editMode = !editMode;
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                inspector.activate(e);
+            } else {
+                document.body.classList.remove('edit-mode');
+                inspector.deactivate();
+            }
+        };
+        const editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) { editBtn.addEventListener('click', window.toggleEditMode); }
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
+            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = 'liquid-gold-customized.html'; link.click();
+            URL.revokeObjectURL(url);
+        };
+        window.resetApex = function() {
+            if (confirm('Reset all customizations?')) {
+                localStorage.removeItem('liquid-gold-edits-state');
+                localStorage.removeItem('apex-lens-state');
+                location.reload();
+            }
+        };
+        window.addEventListener('DOMContentLoaded', () => { initInspector(); });
+    </script>
 </body>
 
 </html>

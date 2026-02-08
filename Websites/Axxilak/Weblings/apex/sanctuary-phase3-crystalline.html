@@ -1,738 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="axxilak-version" content="1.0.6-phase3-crystalline">
-    <meta name="axxilak-project-id" content="">
-    <title>AXXILAK | Sanctuary of Echoes - Crystalline Edition</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
-
-    <style id="axxilak-lux-aeterna-phase3">
+    <title>AXXILAK | Sanctuary of Echoes - Crystalline</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Space+Grotesk:wght@300;500&family=JetBrains+Mono:wght@400&display=swap"
+        rel="stylesheet">
+    <style>
         :root {
             --void: #050505;
             --lux-gold: #FFD700;
             --lux-cyan: #00FFFF;
-            --lux-purple: #9D00FF;
-            --lux-red: #FF4500;
-            --lux-green: #32CD32;
-            --z-ui: 10000;
-            --z-palette: 20000;
-            --divider-width: 4px;
-            --divider-color: #1a1a1a;
-            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        * { box-sizing: border-box; }
 
         body {
-            margin: 0; padding: 0; overflow: hidden;
+            margin: 0;
+            overflow: hidden;
             background-color: var(--void);
-            color: #A0A0A0;
             font-family: 'Space Grotesk', sans-serif;
-            font-weight: 300;
-            letter-spacing: 0.5px;
         }
 
-        /* === STRATEGIC AMBIGUITY: THE HUNCH === */
-        body.the-hunch {
-            filter: saturate(0.3) brightness(0.9);
+        #split-view-wrapper {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
         }
-        body.the-hunch [data-uuid] {
-            filter: saturate(1.2) brightness(1.1) !important;
-            outline: 2px solid var(--lux-cyan) !important;
-            outline-offset: 2px;
-        }
-        body.the-hunch .editor-header,
-        body.the-hunch .tool-palette {
-            filter: saturate(0) brightness(0.6);
-        }
-
-        #split-view-wrapper { display: flex; height: 100vh; width: 100vw; }
 
         .pane-wrapper {
-            flex: 1; height: 100%; overflow-y: auto;
-            position: relative; background: var(--pane-bg); color: var(--pane-text);
-            transition: background var(--transition-smooth), color var(--transition-smooth);
-        }
-
-        [data-mode="light"] {
-            --pane-bg: #FFFFFF;
-            --pane-text: #050505;
-        }
-        [data-mode="dark"] {
-            --pane-bg: #0A0A0A;
-            --pane-text: #E0E0E0;
-        }
-
-        #divider-handle {
-            width: var(--divider-width); background: var(--divider-color);
-            cursor: col-resize; z-index: var(--z-ui); position: relative;
-            transition: background var(--transition-smooth), box-shadow var(--transition-smooth);
-        }
-        #divider-handle:hover, #divider-handle.active {
-            background: var(--lux-gold);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
-        }
-
-        .editor-header {
-            position: fixed; top: 0; width: 100%; height: 60px;
-            background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-            display: flex; align-items: center; padding: 0 20px;
-            z-index: var(--z-ui); gap: 15px;
-        }
-
-        .header-title {
-            font-family: 'Cinzel', serif;
-            letter-spacing: 0.3em;
-            color: white; font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .header-title span {
-            color: var(--lux-gold);
-            font-weight: 900;
-        }
-
-        button {
-            background: transparent;
-            border: 1px solid rgba(160, 160, 160, 0.3);
-            color: #A0A0A0;
-            padding: 8px 14px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            cursor: pointer;
-            transition: all var(--transition-smooth);
-            border-radius: 2px;
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
             position: relative;
-            overflow: hidden;
-        }
-
-        button:hover {
-            border-color: var(--lux-gold);
-            color: var(--lux-gold);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-        }
-
-        button.active {
-            border-color: var(--lux-cyan);
-            color: var(--lux-cyan);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-            background: rgba(0, 255, 255, 0.05);
-        }
-
-        button.hunch-toggle.active {
-            border-color: var(--lux-purple);
-            color: var(--lux-purple);
-            box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+            border: 1px solid #1a1a1a;
         }
 
         .tool-palette {
             position: fixed;
-            top: 80px; right: 20px;
+            top: 80px;
+            right: 20px;
             width: 320px;
-            background: rgba(26, 26, 26, 0.92);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 215, 0, 0.15);
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--lux-gold);
             border-radius: 6px;
-            padding: 0;
-            color: white;
-            z-index: var(--z-palette);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            cursor: move;
-            user-select: none;
+            z-index: 20000;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
         }
 
         .palette-header {
-            padding: 16px 20px;
+            padding: 16px;
             border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-            cursor: grab;
+            color: var(--lux-gold);
             font-family: 'Cinzel', serif;
             font-size: 12px;
             letter-spacing: 0.2em;
-            color: var(--lux-gold);
-            font-weight: 700;
         }
 
-        .palette-header:active { cursor: grabbing; }
-
-        .palette-content {
-            padding: 16px;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-
-        .palette-section {
-            margin-bottom: 18px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.08);
-            padding-bottom: 14px;
-        }
-
-        .palette-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .label-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .inheritance-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            transition: all var(--transition-smooth);
-            cursor: help;
-        }
-
-        .inheritance-dot:hover {
-            filter: brightness(1.3);
-            box-shadow: 0 0 8px currentColor;
-        }
-
-        .dot-inherited {
-            background: #ff8c00;
-            box-shadow: 0 0 6px rgba(255, 140, 0, 0.4);
-        }
-
-        .dot-overridden {
-            background: #007bff;
-            box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
-        }
-
-        .label-group label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #A0A0A0;
-            font-weight: 500;
-            flex-grow: 1;
-        }
-
-        .inheritance-hint {
-            font-size: 8px;
-            color: #666;
-            margin-top: 3px;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 0.05em;
-        }
-
-        input[type="color"] {
-            width: 100%;
-            height: 36px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            background: transparent;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: #888;
-            border-radius: 3px;
-            transition: border-color var(--transition-smooth);
-        }
-
-        input[type="color"]:hover,
-        input[type="color"]:focus {
-            border-color: var(--lux-gold);
-            outline: none;
-        }
-
-        input[type="file"] {
-            width: 100%;
-            height: 36px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            background: transparent;
-            cursor: pointer;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: #888;
-            padding: 8px;
-            border-radius: 3px;
-            transition: border-color var(--transition-smooth);
-        }
-
-        input[type="file"]:hover {
-            border-color: var(--lux-gold);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .button-row button {
-            flex: 1;
-        }
-
-        .status-bar {
-            margin-top: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 9px;
-            color: #666;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-top: 1px solid rgba(255, 215, 0, 0.08);
-            padding-top: 12px;
-        }
-
-        .status-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .status-label {
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .status-value {
-            color: var(--lux-cyan);
-            font-weight: 600;
-        }
-
-        .progress-track {
-            width: 100%;
-            height: 3px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            transition: width var(--transition-smooth);
-            border-radius: 2px;
-        }
-
-        [contenteditable]:hover {
-            outline: 2px dashed var(--lux-gold);
-            outline-offset: 1px;
-        }
-
-        [contenteditable]:focus {
-            outline: 2px solid var(--lux-cyan);
-            outline-offset: 1px;
-        }
-
-        /* Typography Hierarchy */
-        h1, h2, h3 { font-family: 'Cinzel', serif; letter-spacing: 0.1em; }
-        h1 { font-size: 3.5rem; font-weight: 700; color: inherit; }
-        p { font-family: 'Space Grotesk', sans-serif; line-height: 1.6; }
-
-        /* Tooltip System */
-        [data-tooltip] {
-            position: relative;
-        }
-
-        [data-tooltip]:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 120%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(26, 26, 26, 0.95);
-            color: var(--lux-gold);
-            padding: 8px 12px;
-            border-radius: 3px;
-            font-size: 9px;
-            white-space: nowrap;
-            z-index: 10000;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            font-family: 'JetBrains Mono', monospace;
+        /* Sanctuary Boundary Marker */
+        [data-anothen-internal] {
+            pointer-events: auto !important;
         }
     </style>
 </head>
+
 <body>
-
-    <header class="editor-header editor-only">
-        <div class="header-title">ALETHÉARI <span>GUILD</span></div>
-        <div style="flex-grow: 1; display: flex; gap: 8px; align-items: center;">
-            <button class="active" id="btn-light" onclick="transitionToMode('left', 'light')" data-tooltip="Light variant">L: Light</button>
-            <button id="btn-dark" onclick="transitionToMode('left', 'dark')" data-tooltip="Dark variant">L: Dark</button>
-            <span style="color: #333;">|</span>
-            <button onclick="toggleSplit()" data-tooltip="Compare two modes side-by-side">Handshake</button>
-            <button class="hunch-toggle" onclick="toggleHunch()" data-tooltip="Focus mode: see only editable elements">Hunch</button>
-            <button onclick="ExportEngine.bake(PolymorphState.currentModes.left)" style="margin-left: auto; border-color: var(--lux-green); color: var(--lux-green);" data-tooltip="Export this variant">Crystallize</button>
-        </div>
-    </header>
-
     <div id="split-view-wrapper">
-        <div id="pane-left" class="pane-wrapper" data-pane="left" data-mode="light">
-             <main style="padding: 100px 3rem; max-width: 800px; margin: 0 auto;">
+        <div id="pane-left" class="pane-wrapper" data-mode="light">
+            <main style="padding: 100px 3rem; color: #000; background: #fff;">
                 <h1 data-uuid="h1-title" contenteditable="true">The Sanctuary</h1>
-                <p data-uuid="p-desc" style="font-size: 1.2rem; line-height: 1.8;" contenteditable="true">Every edit is crystallized. Every variant is sovereign. The Memory Braid holds all.</p>
-
-                <div data-uuid="box-1" style="padding: 40px; border: 2px solid rgba(255,215,0,0.2); margin-top: 40px; min-height: 200px; background-size: cover; background-position: center; border-radius: 4px; transition: all 0.3s ease;">
-                    Upload artifacts here.
-                </div>
-
-                <div data-uuid="box-2" style="padding: 30px; margin-top: 30px; border-left: 3px solid rgba(0,255,255,0.3); font-size: 0.95rem; line-height: 1.7;">
-                    <strong>The Mirror reflects what you choose to change.</strong> Orange dots show inherited state. Blue dots show your sovereign choice. Edit freely—each mode preserves its own truth.
-                </div>
-             </main>
+                <p data-uuid="p-desc" contenteditable="true">Edit freely—each mode preserves its own truth.</p>
+            </main>
         </div>
-
-        <div id="divider-handle"></div>
-
-        <div id="pane-right" class="pane-wrapper" data-pane="right" data-mode="dark" style="display: none;"></div>
-    </div>
-
-    <!-- THE MIRROR PALETTE -->
-    <div id="palette-ui" class="tool-palette" style="display: none;">
-        <div class="palette-header">
-            >>> TARGET_LATTICE
-        </div>
-
-        <div class="palette-content">
-            <div class="palette-section">
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--lux-cyan); margin-bottom: 6px; letter-spacing: 0.05em;">NODE_ID</div>
-                <div id="target-uuid" style="font-size: 12px; color: var(--lux-gold); font-weight: 600; word-break: break-all;">None</div>
-            </div>
-
-            <div class="palette-section">
-                <div class="label-group">
-                    <div id="dot-color" class="inheritance-dot dot-inherited" data-tooltip="Orange=inherited, Blue=overridden"></div>
-                    <label>Aura (Color)</label>
-                </div>
-                <input type="color" id="input-color">
-                <div class="inheritance-hint" id="hint-color">Inherited from base layer</div>
-            </div>
-
-            <div class="palette-section">
-                <div class="label-group">
-                    <div id="dot-bg" class="inheritance-dot dot-inherited" data-tooltip="Orange=inherited, Blue=overridden"></div>
-                    <label>Substrate (Background)</label>
-                </div>
-                <input type="color" id="input-bg">
-                <div class="inheritance-hint" id="hint-bg">Inherited from base layer</div>
-            </div>
-
-            <div class="palette-section">
-                <div class="label-group">
-                    <div id="dot-img" class="inheritance-dot dot-inherited" data-tooltip="Orange=inherited, Blue=overridden"></div>
-                    <label>Artifact (Image)</label>
-                </div>
-                <input type="file" id="input-file" accept="image/*">
-                <div class="inheritance-hint" id="hint-img">No artifact attached</div>
-            </div>
-
-            <div class="button-row">
-                <button onclick="History.undo()" data-tooltip="Reverse last change">⟲ Undo</button>
-                <button onclick="History.redo()" data-tooltip="Restore last change">⟳ Redo</button>
-            </div>
-
-            <div class="status-bar">
-                <div class="status-row">
-                    <span class="status-label">Coherence</span>
-                    <span class="status-value" id="coherence-val">99%</span>
-                </div>
-                <div class="progress-track"><div id="coherence-fill" class="progress-fill" style="width: 99%; background: var(--lux-cyan);"></div></div>
-
-                <div class="status-row">
-                    <span class="status-label">Braid Stability</span>
-                    <span class="status-value" id="storage-val">0.2KB</span>
-                </div>
-                <div class="progress-track"><div id="storage-fill" class="progress-fill" style="width: 5%; background: var(--lux-gold);"></div></div>
-            </div>
+        <div id="pane-right" class="pane-wrapper" data-mode="dark" style="background: #0a0a0a; color: #fff;">
+            <main style="padding: 100px 3rem;">
+                <h1 data-uuid="h1-title" contenteditable="true">The Sanctuary</h1>
+                <p data-uuid="p-desc" contenteditable="true">Dark mode variant logic active.</p>
+            </main>
         </div>
     </div>
 
-    <script src="https://unpkg.com/morphdom@2.7.0/dist/morphdom-umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <div id="palette-ui" class="tool-palette" data-anothen-internal>
+        <div class="palette-header">>>> TARGET_LATTICE</div>
+        <div style="padding: 20px; color: #fff; font-size: 11px;">
+            <div style="margin-bottom: 15px;">
+                <label style="color: #888; text-transform: uppercase;">Element ID</label>
+                <div id="target-uuid" style="color: var(--lux-gold);">None</div>
+            </div>
+            <button onclick="document.body.classList.toggle('the-hunch')"
+                style="width:100%; padding:10px; background:transparent; border:1px solid var(--lux-cyan); color:var(--lux-cyan); cursor:pointer;">TOGGLE
+                HUNCH</button>
+        </div>
+    </div>
 
     <script>
-        /** AXXILAK MASTER ENGINE - PHASE 3: CRYSTALLINE POLISH **/
-
-        const AssetEngine = {
-            dbName: 'axxilak-warehouse', dbVersion: 1, db: null,
-            init() {
-                return new Promise((resolve) => {
-                    const req = indexedDB.open(this.dbName, this.dbVersion);
-                    req.onupgradeneeded = (e) => e.target.result.createObjectStore('assets');
-                    req.onsuccess = (e) => { this.db = e.target.result; resolve(); };
-                });
-            },
-            async store(file) {
-                const id = `artifact-${crypto.randomUUID()}`;
-                const tx = this.db.transaction('assets', 'readwrite');
-                tx.objectStore('assets').put(file, id);
-                return id;
-            },
-            async get(id) {
-                if (!id) return null;
-                const tx = this.db.transaction('assets', 'readonly');
-                const req = tx.objectStore('assets').get(id);
-                const file = await new Promise(r => req.onsuccess = () => r(req.result));
-                return file ? URL.createObjectURL(file) : null;
-            }
-        };
-
-        const AxxilakIdentity = {
-            init() {
-                let meta = document.querySelector('meta[name="axxilak-project-id"]');
-                if (!meta) {
-                    const id = `ax-${Date.now().toString(36)}-${crypto.randomUUID().slice(0,8)}`;
-                    meta = document.createElement('meta'); meta.name = 'axxilak-project-id'; meta.content = id;
-                    document.head.appendChild(meta);
-                }
-                this.id = meta.content;
-                this.storageKey = `axxilak-state-${this.id}`;
-            }
-        };
-
-        const PolymorphState = {
-            themeMap: { light: {}, dark: {} },
-            currentModes: { left: 'light', right: 'dark' },
-            load() {
-                const data = localStorage.getItem(AxxilakIdentity.storageKey);
-                if (data) this.themeMap = JSON.parse(data);
-                this.updateMetrics();
-            },
-            save() {
-                localStorage.setItem(AxxilakIdentity.storageKey, JSON.stringify(this.themeMap));
-                this.updateMetrics();
-            },
-            setProperty(mode, uuid, prop, value) {
-                if (!this.themeMap[mode]) this.themeMap[mode] = {};
-                if (!this.themeMap[mode][uuid]) this.themeMap[mode][uuid] = {};
-                const finalValue = (prop === 'text') ? DOMPurify.sanitize(value) : value;
-                this.themeMap[mode][uuid][prop] = finalValue;
-                this.save();
-            },
-            updateMetrics() {
-                const bytes = new Blob([JSON.stringify(this.themeMap)]).size;
-                const kb = (bytes/1024).toFixed(1);
-                document.getElementById('storage-val').innerText = `${kb}KB`;
-                document.getElementById('storage-fill').style.width = `${Math.min(kb/51.2, 100)}%`;
-            }
-        };
-
-        class Command {
-            constructor(uuid, prop, oldVal, newVal, modeId) {
-                this.uuid = uuid; this.prop = prop;
-                this.oldVal = oldVal; this.newVal = newVal;
-                this.modeId = modeId;
-            }
-            apply(val) {
-                PolymorphState.setProperty(this.modeId, this.uuid, this.prop, val);
-                SyncEngine.broadcast(this.uuid, this.prop, val, this.modeId);
-            }
-        }
-
-        const History = {
-            undoStack: [], redoStack: [],
-            push(cmd) {
-                this.undoStack.push(cmd);
-                this.redoStack = [];
-                if(this.undoStack.length > 50) this.undoStack.shift();
-            },
-            undo() {
-                const cmd = this.undoStack.pop();
-                if(cmd) { cmd.apply(cmd.oldVal); this.redoStack.push(cmd); }
-            },
-            redo() {
-                const cmd = this.redoStack.pop();
-                if(cmd) { cmd.apply(cmd.newVal); this.undoStack.push(cmd); }
-            }
-        };
-
-        const SyncEngine = {
-            isInternal: false,
-            async broadcast(uuid, prop, value, mode) {
-                this.isInternal = true;
-                const elements = document.querySelectorAll(`[data-uuid="${uuid}"]`);
-                for (const el of elements) {
-                    const pane = el.closest('.pane-wrapper');
-                    if (pane && pane.dataset.mode === mode) {
-                        if (prop === 'text') el.innerText = value;
-                        else if (prop === 'color') el.style.color = value;
-                        else if (prop === 'backgroundColor') el.style.backgroundColor = value;
-                        else if (prop === 'assetId') {
-                            const url = await AssetEngine.get(value);
-                            el.style.backgroundImage = `url(${url})`;
-                        }
-                    }
-                }
-                requestAnimationFrame(() => this.isInternal = false);
-            }
-        };
-
-        const SplitView = {
-            init() {
-                const handle = document.getElementById('divider-handle'), left = document.getElementById('pane-left'), right = document.getElementById('pane-right');
-                let dragging = false;
-                handle.addEventListener('mousedown', () => { dragging = true; handle.classList.add('active'); });
-                window.addEventListener('mouseup', () => { dragging = false; handle.classList.remove('active'); });
-                window.addEventListener('mousemove', (e) => {
-                    if (!dragging) return;
-                    const p = (e.clientX / window.innerWidth) * 100;
-                    if (p > 10 && p < 90) { left.style.flex = p; right.style.flex = 100 - p; }
-                });
-            }
-        };
-
-        async function transitionToMode(paneId, modeId) {
-            SyncEngine.isInternal = true;
-            const pane = document.getElementById(`pane-${paneId}`);
-            pane.dataset.mode = modeId;
-            PolymorphState.currentModes[paneId] = modeId;
-
-            const elements = pane.querySelectorAll('[data-uuid]');
-            for (const el of elements) {
-                const uuid = el.dataset.uuid, data = PolymorphState.themeMap[modeId]?.[uuid] || {};
-                el.innerText = data.text || el.innerText;
-                el.style.color = data.color || '';
-                el.style.backgroundColor = data.backgroundColor || '';
-                if (data.assetId) el.style.backgroundImage = `url(${await AssetEngine.get(data.assetId)})`;
-                else el.style.backgroundImage = '';
-            }
-
-            document.querySelectorAll(`[id^="btn-"]`).forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${modeId}`).classList.add('active');
-            requestAnimationFrame(() => { SyncEngine.isInternal = false; });
-        }
-
-        function toggleSplit() {
-            const r = document.getElementById('pane-right'), l = document.getElementById('pane-left');
-            if (r.style.display === 'none') { r.style.display = 'block'; r.innerHTML = l.innerHTML; transitionToMode('right', 'dark'); }
-            else r.style.display = 'none';
-        }
-
-        function toggleHunch() {
-            document.body.classList.toggle('the-hunch');
-            document.querySelector('.hunch-toggle').classList.toggle('active');
-        }
-
+        // SANCTUARY STABILITY ENGINE
         const Palette = {
-            target: null,
-            isDragging: false,
-            dragOffsetX: 0,
-            dragOffsetY: 0,
-
             init() {
-                const p = document.getElementById('palette-ui');
-                const header = document.querySelector('.palette-header');
-
-                header.addEventListener('mousedown', (e) => {
-                    this.isDragging = true;
-                    this.dragOffsetX = e.clientX - p.offsetLeft;
-                    this.dragOffsetY = e.clientY - p.offsetTop;
-                    header.style.cursor = 'grabbing';
-                });
-
-                window.addEventListener('mousemove', (e) => {
-                    if (!this.isDragging) return;
-                    p.style.left = (e.clientX - this.dragOffsetX) + 'px';
-                    p.style.top = (e.clientY - this.dragOffsetY) + 'px';
-                    p.style.right = 'auto';
-                });
-
-                window.addEventListener('mouseup', () => {
-                    this.isDragging = false;
-                    header.style.cursor = 'grab';
-                });
-
                 document.addEventListener('click', (e) => {
+                    // THE SANCTUARY BOUNDARY: Ignore clicks on internal UI to stop blinking
+                    if (e.target.closest('[data-anothen-internal]')) return;
+
                     const el = e.target.closest('[data-uuid]');
                     if (el) {
-                        this.target = el;
-                        p.style.display = 'block';
+                        // THE UNDEFINED SHIELD: Guard against null focus "Obliteration"
+                        if (el.innerText.trim() === 'undefined') {
+                            console.warn("[Axxilak] Blocked 'undefined' lattice leak.");
+                            return;
+                        }
+
+                        document.getElementById('palette-ui').style.display = 'block';
                         document.getElementById('target-uuid').innerText = el.dataset.uuid;
-                        this.updateInputs();
                     }
                 });
-
-                document.getElementById('input-color').addEventListener('input', (e) => this.apply('color', e.target.value));
-                document.getElementById('input-bg').addEventListener('input', (e) => this.apply('backgroundColor', e.target.value));
-                document.getElementById('input-file').addEventListener('change', async (e) => {
-                    if (e.target.files?.[0]) { const id = await AssetEngine.store(e.target.files[0]); this.apply('assetId', id); }
-                });
-            },
-
-            apply(prop, val) {
-                if (!this.target) return;
-                const mode = this.target.closest('.pane-wrapper').dataset.mode;
-                const uuid = this.target.dataset.uuid;
-                const oldVal = PolymorphState.themeMap[mode]?.[uuid]?.[prop] || '';
-
-                History.push(new Command(uuid, prop, oldVal, val, mode));
-                PolymorphState.setProperty(mode, uuid, prop, val);
-                SyncEngine.broadcast(uuid, prop, val, mode);
-                this.updateInputs();
-            },
-
-            updateInputs() {
-                if (!this.target) return;
-                const mode = this.target.closest('.pane-wrapper').dataset.mode, uuid = this.target.dataset.uuid;
-                const data = PolymorphState.themeMap[mode]?.[uuid] || {};
-
-                document.getElementById('input-color').value = data.color || '#000000';
-                document.getElementById('input-bg').value = data.backgroundColor || '#000000';
-
-                const colorDot = document.getElementById('dot-color');
-                const bgDot = document.getElementById('dot-bg');
-                const imgDot = document.getElementById('dot-img');
-
-                colorDot.className = `inheritance-dot ${data.color ? 'dot-overridden' : 'dot-inherited'}`;
-                bgDot.className = `inheritance-dot ${data.backgroundColor ? 'dot-overridden' : 'dot-inherited'}`;
-                imgDot.className = `inheritance-dot ${data.assetId ? 'dot-overridden' : 'dot-inherited'}`;
-
-                document.getElementById('hint-color').innerText = data.color
-                    ? `Overridden in ${mode} mode`
-                    : 'Inherited from base layer';
-                document.getElementById('hint-bg').innerText = data.backgroundColor
-                    ? `Overridden in ${mode} mode`
-                    : 'Inherited from base layer';
-                document.getElementById('hint-img').innerText = data.assetId
-                    ? `Artifact attached in ${mode} mode`
-                    : 'No artifact attached';
             }
         };
-
-        const ExportEngine = {
-            bake(modeId) {
-                const clone = document.documentElement.cloneNode(true);
-                clone.querySelectorAll('.editor-only, .tool-palette, script').forEach(el => el.remove());
-                clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
-
-                const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">`;
-                const finalHTML = `<!DOCTYPE html><html>${clone.innerHTML}</html>`.replace('<head>', `<head>${csp}`);
-
-                const blob = new Blob([finalHTML], { type: 'text/html' });
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `sanctuary-${modeId}-${Date.now()}.html`; a.click();
-            }
-        };
-
-        window.addEventListener('load', async () => {
-            await AssetEngine.init();
-            AxxilakIdentity.init();
-            PolymorphState.load();
-            SplitView.init();
-            Palette.init();
-
-            const obs = new MutationObserver((mutations) => {
-                if (SyncEngine.isInternal) return;
-                mutations.forEach(m => {
-                    const el = m.target.closest('[data-uuid]');
-                    if (el) PolymorphState.setProperty(el.closest('.pane-wrapper').dataset.mode, el.dataset.uuid, 'text', el.innerText);
-                });
-            });
-
-            obs.observe(document.body, { subtree: true, characterData: true, childList: true });
-            transitionToMode('left', 'light');
-        });
+        Palette.init();
     </script>
 </body>
+
 </html>

@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&family=Archivo+Black&display=swap" rel="stylesheet">
+
+    <!-- Editor Dependencies -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --bg: #e5e5e5;
@@ -86,10 +91,21 @@
         }
 
         /* === THEME TOGGLE === */
-        [data-theme="light"] {
-            --bg: #ffffff;
-            --text: #050505;
+        [data-theme="dark"] {
+            --bg: #1a1a1a;
+            --text: #e5e5e5;
             --accent: #ff3300;
+        }
+
+        [data-theme="dark"] .message-box, 
+        [data-theme="dark"] .message-box textarea {
+            background: #2a2a2a;
+            color: #e5e5e5;
+        }
+
+        [data-theme="dark"] .btn-brutal {
+            background: #e5e5e5;
+            color: #1a1a1a;
         }
 
         body {
@@ -145,28 +161,46 @@
             resize: vertical;
             min-height: 120px;
         }
+    
+        /* Editor Overrides */
+        .apex-highlighted { outline: 3px solid #00ff00 !important; outline-offset: -3px !important; box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.4) !important; pointer-events: auto !important; }
+        body.edit-mode { cursor: none !important; }
     </style>
+    
 </head>
 <body class="p-4 md:p-8">
     <div class="grid-lines"></div>
 
     <!-- Header -->
     <header class="flex justify-between items-start mb-20 border-b-2 border-black pb-4">
-        <div>
+        <a href="../../index.html" class="hover:opacity-70 transition-opacity">
             <h1 class="text-xs font-bold uppercase tracking-tighter">FIG. 002 — ARCHIVE</h1>
             <div class="text-4xl md:text-6xl font-black tracking-tighter mt-2 display-font">
                 IRON<span class="text-[var(--accent)]">&</span>INK
             </div>
-        </div>
+        </a>
         <div class="flex flex-col items-end gap-4">
-            <div class="hidden md:block text-right">
-                <p class="text-xs uppercase">Lat: 40.7128° N</p>
-                <p class="text-xs uppercase">Lon: 74.0060° W</p>
-                <p class="text-xs uppercase mt-2 font-bold">STATUS: DEPLOYED</p>
+            <div class="hidden md:flex flex-col items-end gap-4">
+                <div class="text-right">
+                    <p class="text-xs uppercase">Lat: 40.7128° N</p>
+                    <p class="text-xs uppercase">Lon: 74.0060° W</p>
+                    <p class="text-xs uppercase mt-2 font-bold">STATUS: DEPLOYED</p>
+                </div>
+                <a href="../../index.html" class="text-xs uppercase font-bold hover:text-[var(--accent)] transition-colors flex items-center gap-2">
+                    <span class="block w-4 h-[1px] bg-black"></span>
+                    Back to Gallery
+                </a>
+            </div>
+            <div class="md:hidden">
+                <a href="../../index.html" class="text-xs uppercase font-bold hover:text-[var(--accent)] transition-colors flex items-center gap-2 mb-2">
+                    <span class="block w-4 h-[1px] bg-black"></span>
+                    Back
+                </a>
             </div>
             <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
-                <span id="theme-icon">☀️</span>
+                <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
             </button>
+            <button id="edit-mode-btn" class="text-xs uppercase font-bold hover:text-[var(--accent)] transition-colors mt-2">Edit</button>
         </div>
     </header>
 
@@ -266,27 +300,45 @@
             </div>
         </form>
     </footer>
+    <script src="../engines/transitions/titanium-hydraulics.js"></script>
     <script>
         // Theme Toggle
         function toggleTheme() {
-            const body = document.body;
-            const icon = document.getElementById('theme-icon');
+            if (window.AxxilakTransition) {
+                window.AxxilakTransition.trigger(() => {
+                    const body = document.body;
+                    const icon = document.getElementById('theme-icon');
 
-            if (body.getAttribute('data-theme') === 'light') {
-                body.removeAttribute('data-theme');
-                icon.innerText = '☀️';
-                localStorage.setItem('theme', 'dark');
+                    if (body.getAttribute('data-theme') === 'dark') {
+                        body.removeAttribute('data-theme');
+                        icon.src = 'icons/sun.svg';
+                        localStorage.setItem('theme', 'light');
+                    } else {
+                        body.setAttribute('data-theme', 'dark');
+                        icon.src = 'icons/moon.svg';
+                        localStorage.setItem('theme', 'dark');
+                    }
+                });
             } else {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '🌙';
-                localStorage.setItem('theme', 'light');
+                const body = document.body;
+                const icon = document.getElementById('theme-icon');
+                if (body.getAttribute('data-theme') === 'dark') {
+                    body.removeAttribute('data-theme');
+                    icon.src = 'icons/sun.svg';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    icon.src = 'icons/moon.svg';
+                    localStorage.setItem('theme', 'dark');
+                }
             }
         }
 
         // Check saved preference on load
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.setAttribute('data-theme', 'light');
-            document.getElementById('theme-icon').innerText = '🌙';
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.innerText = '🌙';
         }
 
         // Form Success Feedback
@@ -353,6 +405,50 @@
         document.addEventListener('touchend', () => {
             isDragging = false;
         });
+    </script>
+
+    
+
+    
+    <script type="module">
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        let inspector = null;
+        let editMode = false;
+        function initInspector() {
+            if (!inspector) { inspector = new MagnifyingGlassInspector(); }
+        }
+        window.toggleEditMode = function(e) {
+            initInspector();
+            editMode = !editMode;
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                inspector.activate(e);
+            } else {
+                document.body.classList.remove('edit-mode');
+                inspector.deactivate();
+            }
+        };
+        const editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) { editBtn.addEventListener('click', window.toggleEditMode); }
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
+            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = 'iron-ink-customized.html'; link.click();
+            URL.revokeObjectURL(url);
+        };
+        window.resetApex = function() {
+            if (confirm('Reset all customizations?')) {
+                localStorage.removeItem('iron-ink-edits-state');
+                localStorage.removeItem('apex-lens-state');
+                location.reload();
+            }
+        };
+        window.addEventListener('DOMContentLoaded', () => { initInspector(); });
     </script>
 </body>
 </html>

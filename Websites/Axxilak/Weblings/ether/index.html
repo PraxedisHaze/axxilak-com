@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+    <!-- Editor Dependencies -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         :root {
             --bg: #fafafa;
@@ -25,24 +30,6 @@
         }
 
         .serif { font-family: 'Playfair Display', serif; }
-
-        /* The Breathing Animation */
-        .breathing-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 50% 50%, rgba(165, 180, 252, 0.05), transparent 70%);
-            animation: breathe 10s ease-in-out infinite;
-            will-change: transform, opacity;
-            z-index: -1;
-        }
-
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
 
         .glass-card {
             background: var(--mist);
@@ -87,41 +74,57 @@
             width: 100%;
         }
 
+        /* === APEX EDITOR STYLES === */
+        .edit-mode .section-drag-handle { display: block !important; }
+        #lens-container { cursor: grab; user-select: none; }
+        #lens-container:active { cursor: grabbing; }
+        #palette-container { cursor: grab; user-select: none; color: #003366; }
+        #palette-container:active { cursor: grabbing; }
+        #palette-container .palette-input, #palette-container input, #palette-container textarea, #palette-container select { color: #1a1a1a !important; }
+        #palette-container .palette-label, #palette-container .palette-title, #palette-container .palette-header, #palette-container button { color: #d4af37 !important; }
+        .tool-palette { font-family: Inter, sans-serif; font-size: 14px; }
+        .palette-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb; }
+        .palette-title { font-weight: 600; font-size: 16px; color: #1f2937; }
+        .palette-control { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+        .palette-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #6b7280; letter-spacing: 0.5px; }
+        .palette-input { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 4px; font-family: inherit; font-size: 13px; transition: border-color 0.2s; }
+        .palette-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1); }
+        .palette-input--color { width: 50px; height: 40px; border: 1px solid #d1d5db; border-radius: 0px; cursor: pointer; }
+        .palette-input--hex { flex: 1; }
+        .palette-input--select { width: 100%; }
+        .apex-highlighted { outline: 4px solid #00ff00 !important; outline-offset: 2px !important; box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.2) !important; position: relative !important; z-index: 9999 !important; animation: apex-pulse 1.5s ease-in-out infinite; }
+        @keyframes apex-pulse { 0%, 100% { box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.2); } 50% { box-shadow: 0 0 50px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.4); } }
+        body.apex-grayscale-mode { filter: grayscale(85%); }
+        body.apex-grayscale-mode .apex-highlighted { filter: grayscale(0%) !important; }
+        .apex-highlighted.apex-danger-target { outline: 4px solid #ef4444 !important; box-shadow: 0 0 40px #ef4444, inset 0 0 30px rgba(239, 68, 68, 0.3) !important; animation: apex-danger-pulse 1s ease-in-out infinite !important; }
+        @keyframes apex-danger-pulse { 0%, 100% { box-shadow: 0 0 40px #ef4444, inset 0 0-40px rgba(239, 68, 68, 0.5); } 50% { box-shadow: 0 0 60px #ef4444, inset 0 0-40px rgba(239, 68, 68, 0.5); } }
+        #apex-context-bar { position: fixed; pointer-events: auto; z-index: 10000; display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: #00ff00; color: #000; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: bold; border-radius: 2px 2px 0 0; box-shadow: 0 -4px 15px rgba(0, 255, 0, 0.3); transition: opacity 0.2s, transform 0.2s; transform: translateY(0); }
+        #apex-context-bar.hidden { display: none; opacity: 0; pointer-events: none; }
+        .context-tag { background: rgba(0, 0, 0, 0.1); padding: 2px 4px; border-radius: 1px; text-transform: uppercase; }
+
         /* === THEME TOGGLE === */
-        [data-theme="light"] {
-            --bg: #fafafa;
-            --text: #1a1a1a;
-            --accent: #6366f1;
-            --mist: rgba(0, 0, 0, 0.05);
+        [data-theme="dark"] {
+            --bg: #050505;
+            --text: #f0f0f0;
+            --accent: #818cf8;
+            --mist: rgba(255, 255, 255, 0.05);
         }
 
         body {
             transition: background-color 0.3s ease, color 0.3s ease;
         }
-
-        .theme-toggle {
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-            font-size: 1.2rem;
-        }
-
-        .theme-toggle:hover {
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
-    <div class="breathing-bg"></div>
-
     <nav class="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference">
         <div class="serif italic text-2xl tracking-tight">Ether.</div>
         <div class="flex gap-12 text-xs uppercase tracking-widest font-light items-center">
             <a href="#about" class="nav-link">About</a>
             <a href="#work" class="nav-link">Work</a>
             <a href="#connect" class="nav-link">Connect</a>
-            <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
-                <span id="theme-icon">☀️</span>
+            <button id="edit-mode-btn" class="nav-link text-xs uppercase tracking-widest font-light">Edit</button>
+            <button onclick="window.toggleTheme()" class="theme-toggle" title="Toggle Light/Dark Mode">
+                <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
             </button>
         </div>
     </nav>
@@ -172,27 +175,29 @@
             &copy; 2026 ETHER ARCHITECTURE / AXXILAK
         </div>
     </footer>
+    <script src="js/sanctuary-engine.js"></script>
     <script>
         // Theme Toggle
-        function toggleTheme() {
+        window.toggleTheme = function() {
             const body = document.body;
             const icon = document.getElementById('theme-icon');
 
-            if (body.getAttribute('data-theme') === 'light') {
+            if (body.getAttribute('data-theme') === 'dark') {
                 body.removeAttribute('data-theme');
-                icon.innerText = '☀️';
-                localStorage.setItem('theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-                icon.innerText = '🌙';
+                icon.src = 'icons/sun.svg';
                 localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.src = 'icons/moon.svg';
+                localStorage.setItem('theme', 'dark');
             }
-        }
+        };
 
         // Check saved preference on load
-        if (localStorage.getItem('theme') === 'light') {
-            document.body.setAttribute('data-theme', 'light');
-            document.getElementById('theme-icon').innerText = '🌙';
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.innerText = '🌙';
         }
 
         // Form Success Feedback
@@ -204,6 +209,66 @@
                 form.reset();
             }, 500);
         }
+    </script>
+
+    <!-- APEX EDITOR UI -->
+    <div id="lens-container" class="hidden z-[5000]"></div>
+    <div id="palette-container" data-anothen-internal
+        class="fixed bottom-6 right-6 w-96 bg-zinc-900 border-2 border-[var(--accent)] rounded-sm shadow-2xl z-[20000] hidden max-h-[600px] overflow-y-auto text-white">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-[var(--accent)]">APEX EDITOR</h3>
+                <button onclick="window.toggleEditMode()" class="text-zinc-500 hover:text-white">✕</button>
+            </div>
+            <div id="palette-content"></div>
+            <div class="flex gap-3 mt-6 pt-6 border-t border-zinc-800">
+                <button id="btn-preview-mode" class="flex-1 p-2 bg-zinc-700 text-white text-[10px] font-bold rounded hover:bg-zinc-600 transition uppercase tracking-widest">PREVIEW</button>
+                <button onclick="window.exportApex()" class="flex-1 p-2 bg-green-600 text-white text-[10px] font-bold rounded hover:bg-green-700 transition uppercase tracking-widest">EXPORT</button>
+                <button onclick="window.resetApex()" class="flex-1 p-2 bg-red-600 text-white text-[10px] font-bold rounded hover:bg-red-700 transition uppercase tracking-widest">RESET</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <script type="module">
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        let inspector = null;
+        let editMode = false;
+        function initInspector() {
+            if (!inspector) { inspector = new MagnifyingGlassInspector(); }
+        }
+        window.toggleEditMode = function(e) {
+            initInspector();
+            editMode = !editMode;
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                inspector.activate(e);
+            } else {
+                document.body.classList.remove('edit-mode');
+                inspector.deactivate();
+            }
+        };
+        const editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) { editBtn.addEventListener('click', window.toggleEditMode); }
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
+            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url; link.download = 'ether-customized.html'; link.click();
+            URL.revokeObjectURL(url);
+        };
+        window.resetApex = function() {
+            if (confirm('Reset all customizations?')) {
+                localStorage.removeItem('ether-edits-state');
+                localStorage.removeItem('apex-lens-state');
+                location.reload();
+            }
+        };
+        window.addEventListener('DOMContentLoaded', () => { initInspector(); });
     </script>
 </body>
 </html>
