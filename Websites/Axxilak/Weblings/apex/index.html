@@ -1179,9 +1179,9 @@
             }
 
             if (isUserAction) {
-                // Instant-kill boot overlay if user starts editing manually
+                // Hide boot overlay if user starts editing manually (use CSS hide, not DOM removal - prevents reflow)
                 const overlay = document.getElementById('boot-overlay');
-                if (overlay) overlay.remove();
+                if (overlay) overlay.style.display = 'none';
             }
         }
 
