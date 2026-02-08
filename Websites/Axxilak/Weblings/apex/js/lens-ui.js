@@ -30,12 +30,7 @@ export class MagnifyingGlass {
         this.zLabel.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(10px, -20px); font-family:monospace; font-size:10px; font-weight:bold; color:#fbbf24; text-shadow:0 1px 2px black; opacity:0; transition:opacity 0.2s; white-space:nowrap; pointer-events:none;';
         this.zLabel.innerText = 'Z:0';
 
-        // Interaction Tooltip
-        this.hintLabel = document.createElement('div');
-        this.hintLabel.style.cssText = 'position:absolute; bottom:-40px; left:50%; transform:translateX(-50%); font-family:sans-serif; font-size:9px; font-weight:bold; color:#00ff00; text-transform:uppercase; letter-spacing:0.1em; white-space:nowrap; opacity:0; transition:opacity 0.3s; pointer-events:none; text-shadow:0 0 10px rgba(0,255,0,0.5);';
-        this.hintLabel.innerText = 'Hold SHIFT to unlock interactions';
-
-        this.lensContainer.append(v, h, this.centerDot, this.probeDot, this.zLabel, this.hintLabel);
+        this.lensContainer.append(v, h, this.centerDot, this.probeDot, this.zLabel);
         document.body.appendChild(this.lensContainer);
 
         this.isVisible = false;
@@ -67,11 +62,10 @@ export class MagnifyingGlass {
         this.lensContainer.style.top = `${y}px`;
     }
 
-    show() { 
-        this.lensContainer.style.display = 'block'; 
-        this.isVisible = true; 
+    show() {
+        this.lensContainer.style.display = 'block';
+        this.isVisible = true;
         document.body.style.cursor = 'none'; // Hide default cursor
-        if (this.hintLabel) this.hintLabel.style.opacity = '1';
     }
 
     hide() { 
