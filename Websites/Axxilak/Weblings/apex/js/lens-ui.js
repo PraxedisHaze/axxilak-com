@@ -13,16 +13,6 @@ export class MagnifyingGlass {
             transform: translate(-50%, -50%);
             left: -1000px; top: -1000px;
             pointer-events: none;
-            overflow: hidden;
-        `;
-
-        // Inner zoom wrapper (contains all visual elements, scales content while keeping container centered)
-        const zoomWrapper = document.createElement('div');
-        zoomWrapper.style.cssText = `
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            transform: scale(1.15) translate(-7.5%, -7.5%);
-            transform-origin: 50% 50%;
-            pointer-events: none;
         `;
 
         // Crosshairs & Center Dot
@@ -40,8 +30,7 @@ export class MagnifyingGlass {
         this.zLabel.style.cssText = 'position:absolute; top:50%; left:50%; transform:translate(10px, -20px); font-family:monospace; font-size:10px; font-weight:bold; color:#fbbf24; text-shadow:0 1px 2px black; opacity:0; transition:opacity 0.2s; white-space:nowrap; pointer-events:none;';
         this.zLabel.innerText = 'Z:0';
 
-        zoomWrapper.append(v, h, this.centerDot, this.probeDot, this.zLabel);
-        this.lensContainer.append(zoomWrapper);
+        this.lensContainer.append(v, h, this.centerDot, this.probeDot, this.zLabel);
         document.body.appendChild(this.lensContainer);
 
         this.isVisible = false;
