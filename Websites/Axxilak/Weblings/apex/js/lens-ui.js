@@ -13,6 +13,7 @@ export class MagnifyingGlass {
             transform: translate(-50%, -50%);
             left: -1000px; top: -1000px;
             pointer-events: none;
+            zoom: 1.15;
         `;
 
         // Crosshairs & Center Dot
