@@ -953,13 +953,8 @@ export default class MagnifyingGlassInspector {
         }
 
         scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
-        scene.style.perspective = '2500px';
         scene.style.transform = 'rotateX(35deg) rotateY(-25deg) scale(0.8)';
         scene.style.transformStyle = 'preserve-3d';
-
-        // Counter-rotate palette to stay upright (inverse of scene rotation)
-        this.palette.container.style.transform = 'rotateX(-35deg) rotateY(25deg)';
-        this.palette.container.style.transformStyle = 'preserve-3d';
 
         // UI stays outside the scene, so no extra translation needed
 
