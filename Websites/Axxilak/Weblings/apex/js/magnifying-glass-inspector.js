@@ -984,6 +984,9 @@ export default class MagnifyingGlassInspector {
         scene.style.transform = `rotateX(${initialRotX}deg) rotateY(${initialRotY}deg) scale(${initialScale})`;
         scene.style.transformStyle = 'preserve-3d';
 
+        // Mark 3D mode active (disables hover scaling in transition zones)
+        document.body.classList.add('apex-3d-active');
+
         // Show 3D control toolbar
         this._show3DToolbar();
 
@@ -1020,6 +1023,9 @@ export default class MagnifyingGlassInspector {
                 el.style.boxShadow = '';
             });
         }
+
+        // Remove 3D mode marker (re-enables hover scaling)
+        document.body.classList.remove('apex-3d-active');
 
         // Hide 3D control toolbar
         if (this.controlToolbar) {

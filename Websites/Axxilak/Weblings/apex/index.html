@@ -867,6 +867,11 @@
             filter: grayscale(85%);
         }
 
+        /* 3D MODE: Disable hover scaling to prevent header jump in transition zones */
+        body.apex-3d-active .group-hover\:scale-110:hover {
+            transform: none !important;
+        }
+
         /* Cursor Logic: Gold Standard */
         /* Cursor now visible during edit mode - reticle + palette glow provide visual feedback */
 
