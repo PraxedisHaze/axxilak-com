@@ -684,8 +684,8 @@
         canvas.height = window.innerHeight;
 
         const particles = [];
-        // Smooth default shard count (~300 particles on 1920x1080)
-        const particleCount = Math.max(20, Math.floor((canvas.width * canvas.height) / 6912));
+        // Optimized particle count (~120 particles on 1920x1080) for smooth animation
+        const particleCount = Math.max(15, Math.floor((canvas.width * canvas.height) / 16000));
 
         class Particle {
             constructor() {
@@ -721,14 +721,20 @@
         }
 
         function drawLines() {
+            const connectionDistance = 100;
+            const maxConnections = 4; // Limit connections per particle
+
             for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
+                let connectionsDrawn = 0;
+
+                for (let j = i + 1; j < particles.length && connectionsDrawn < maxConnections; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const distSq = dx * dx + dy * dy;
+                    const distance = Math.sqrt(distSq);
 
-                    if (distance < 150) {
-                        const baseOpacity = 0.1 * (1 - distance / 150);
+                    if (distance < connectionDistance) {
+                        const baseOpacity = 0.1 * (1 - distance / connectionDistance);
                         const alpha = baseOpacity * particleOpacity;
                         ctx.strokeStyle = `rgba(212, 175, 55, ${alpha})`;
                         ctx.lineWidth = 0.5;
@@ -736,6 +742,7 @@
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
                         ctx.stroke();
+                        connectionsDrawn++;
                     }
                 }
             }
