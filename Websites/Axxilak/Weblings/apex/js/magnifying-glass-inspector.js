@@ -103,7 +103,15 @@ export default class MagnifyingGlassInspector {
                 return;
             }
             if (property === 'view3D') {
-                value ? this.activate3DView() : this.deactivate3DView();
+                if (value) {
+                    // End any active edit session before entering 3D view
+                    if (this.editSession.active) {
+                        this._endEditSession();
+                    }
+                    this.activate3DView();
+                } else {
+                    this.deactivate3DView();
+                }
                 return;
             }
             if (property === 'toggleLabels') {
