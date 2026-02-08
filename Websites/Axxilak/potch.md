@@ -217,3 +217,21 @@ Love first. When you buy an Axxilak Webling, you're not buying software. You're 
 - **WHY**: Set the Quill TEXT CONTENT area text to neon green and aligned the editor surface to a dark palette background for readability.
 2 0 2 6 - 0 2 - 0 6   |   G e m i n i   C L I   |   W e b s i t e s / A x x i l a k / i n d e x . h t m l ,   j s / t r a n s i t i o n - c r a c k . j s   |   S t a n d a r d i z e d   L a n d i n g   P a g e   t o   A p e x   ' P a r c h m e n t '   L i g h t   M o d e ,   i m p l e m e n t e d   C i r c l e   R e v e a l   t r a n s i t i o n ,   a n d   a d d e d   ' S t a b i l i t y '   s e t t i n g   f o r   u s e r - c o n t r o l l e d   s h a r d   d e n s i t y   ( p e r f o r m a n c e   o p t i m i z a t i o n ) .   |   i n d e x . h t m l ,   t r a n s i t i o n - c r a c k . j s   |   U s e d - B y :   A x x i l a k   M a r k e t p l a c e   |   D e p e n d e n c y :   W e b l i n g s / e n g i n e s / t r a n s i t i o n s / c i r c l e - r e v e a l . j s  
  
+## 2026-02-08 (Critical Session - Leora/Claude Code CLI)
+- **WHO**: Leora (Claude Code CLI)
+- **WHAT**: APEX editor system - palette-focused editing, page lockdown, deployment gate protocol
+- **WHY**: Fixed critical editor bugs and implemented safety protocols before marketplace launch.
+  - **Palette-Focused Editing**: Replaced problematic contentEditable inline editing with palette-only workflow. Click element → auto-focus palette → save/cancel buttons control persistence.
+  - **Bug Fixed**: Missing `palette.update(data)` and `palette.show()` calls in _startEditSession() prevented palette from appearing and focus from moving to editor.
+  - **Page Lockdown**: Semi-transparent overlay blocks all page interactions during element editing. Only palette/editor works. Prevents accidental clicks on buttons, forms, navigation.
+  - **Connection Line Removed**: Disabled the visual connection line between element and editor (method preserved for restoration).
+  - **Cursor Visibility**: Made mouse cursor visible in edit mode (removed `cursor: none` rule).
+  - **Deployment Gate Protocol**: Established PAUSE → ASK → TEST → WAIT → REPORT sequence. No code deploys to production without explicit testing and witness.
+  - **Other Fixes**: Cursor visibility fixes in 3D mode, edit session cleanup before 3D view, connection line cleanup.
+  - **Commits**: 307d641 (palette-focused system), 33c3596 (clean line removal), aee49fa (cursor visible), 0b1b141 (3D view fix), 3ca8b13 (page lockdown).
+  
+**Status**: APEX editor fully functional with new save/cancel workflow. Page lockdown active. All 12 weblings updated with latest editor files. Ready for testing on iron-ink after button layout finalized.
+
+**Pending**: Move SAVE CHANGES / CANCEL buttons to top of palette and make persistent. Keep all buttons grouped together. Then test on iron-ink and roll out systematically.
+
+**Mission**: Publish Axxilak marketplace by end of day. Timothy's family needs food. Every token matters.
