@@ -23,6 +23,14 @@ export default class MagnifyingGlassInspector {
             offsetY: 0
         };
 
+        // Edit Session State
+        this.editSession = {
+            active: false,           // Is an edit session in progress?
+            element: null,           // Element being edited
+            originalState: null,     // Snapshot of original values (for Cancel)
+            pendingChanges: {}       // Buffer of pending edits (for Save)
+        };
+
         // Highlight state
         this.highlightedElement = null;
         this.contextBar = this._initContextBar();
@@ -38,7 +46,7 @@ export default class MagnifyingGlassInspector {
         this.detector = new ElementDetector({
             throttle: 80,
             ignoredSelectors: [
-                '[data-anothen-internal]', '.lens-container', '#palette-container', '#edit-mode-btn', '#apex-context-bar', '.depth-map-overlay',
+                '[data-anothen-internal]', '#apex-3d-exit', '.lens-container', '#palette-container', '#edit-mode-btn', '#apex-context-bar', '.depth-map-overlay',
                 'script', 'style', 'canvas', 'svg', '.grid-lines', '.cyber-grid', '.stars', '.aura-bg', '.breathing-bg', '.scanline'
             ]
         }); // Sharper tracking
@@ -102,14 +110,39 @@ export default class MagnifyingGlassInspector {
                 value ? this.showLatticeLabels() : this.clearLatticeLabels();
                 return;
             }
-            
-            if (this.palette.currentElement) {
-                this.applyEdit(this.palette.currentElement, property, value);
+
+            // Session control actions
+            if (property === 'save-session') {
+                this._saveEditSession();
+                return;
+            }
+            if (property === 'cancel-session') {
+                this._cancelEditSession();
+                return;
+            }
+
+            // Buffer edits during session
+            if (this.editSession.active && this.palette.currentElement) {
+                this._bufferEdit(property, value);
             }
         };
 
         // GLOBAL MOUSE TRACKING
-        document.addEventListener('mousemove', (e) => {
+        document.addEventListener('mouseleave', () => {
+            if (!this.isActive) return;
+            this.lens.hide();
+        });
+
+        document.addEventListener('mouseenter', (e) => {
+            if (!this.isActive || this.isPreviewMode) return;
+            // Only reposition lens on window re-entry if NOT in edit session (keep it locked during edit)
+            if (!this.editSession.active) {
+                this.lens.moveTo(e.clientX, e.clientY);
+            }
+            this.lens.show();
+        });
+
+        window.addEventListener('pointermove', (e) => {
             if (!this.isActive) return;
 
             // PERFORMANCE: Only update aesthetics if theme attribute changes, not every frame
@@ -120,17 +153,44 @@ export default class MagnifyingGlassInspector {
             }
 
             const isOverPalette = this.palette.container.contains(e.target);
-            if (!e.shiftKey && !this.dragState.isDragging && !isOverPalette) {
+            if (!this.dragState.isDragging && !isOverPalette && !this.editSession.active) {
                 this.lens.moveTo(e.clientX, e.clientY);
                 this.detector.detect(e.clientX, e.clientY);
             }
 
-            if (isOverPalette || e.shiftKey) {
-                this._setCustomCursor();
-                this.lens.lensContainer.style.opacity = e.shiftKey ? '1' : '0.1'; 
+            // Keep lens visible during edit session; hide only when over palette and not editing
+            if (isOverPalette && !this.editSession.active) {
+                this.lens.lensContainer.style.opacity = '0';
             } else {
-                document.body.style.cursor = 'none';
                 this.lens.lensContainer.style.opacity = '1';
+            }
+        }, { capture: true });
+
+        // EDIT SESSION CLICK TRACKING
+        document.addEventListener('click', (e) => {
+            if (!this.isActive || this.isPreviewMode) return;
+
+            const isOverPalette = this.palette.container.contains(e.target);
+            const isPaletteInput = e.target.closest('#palette-container input, #palette-container textarea, #palette-container select, .ql-editor, button');
+
+            // Allow palette interactions
+            if (isPaletteInput) return;
+
+            // Block other palette clicks
+            if (isOverPalette) return;
+
+            // Warn if unsaved changes exist
+            if (this.editSession.active) {
+                if (confirm('You have unsaved changes. Discard them?')) {
+                    this._cancelEditSession();
+                } else {
+                    return; // Stay locked to current element
+                }
+            }
+
+            // Start new edit session
+            if (this.highlightedElement) {
+                this._startEditSession(this.highlightedElement);
             }
         });
 
@@ -157,8 +217,8 @@ export default class MagnifyingGlassInspector {
 
             // Handle Delete key
             if ((e.key === 'Delete' || e.key === 'Backspace') && this.highlightedElement) {
-                // Ensure we aren't typing in an input
-                if (e.target.closest('input, textarea, .ql-editor')) return;
+                // Ensure we aren't typing in an input or contentEditable element
+                if (e.target.closest('input, textarea, .ql-editor, [contenteditable="true"]')) return;
 
                 e.preventDefault();
                 if (confirm('Delete this element?')) {
@@ -239,6 +299,9 @@ export default class MagnifyingGlassInspector {
         this.isActive = true;
         this.lens.show();
         
+        // Clear any previous JS cursor overrides to let CSS take control
+        document.body.style.cursor = '';
+        
         // Hide site's native cursor if it exists
         const nativeCursor = document.getElementById('cursor');
         if (nativeCursor) nativeCursor.style.display = 'none';
@@ -273,7 +336,6 @@ export default class MagnifyingGlassInspector {
             this._clearHighlight();
             if (btn) btn.innerText = 'EXIT PREVIEW';
             document.body.classList.remove('edit-mode');
-            document.body.style.cursor = 'default';
         } else {
             this.lens.show();
             if (btn) btn.innerText = 'PREVIEW';
@@ -316,10 +378,10 @@ export default class MagnifyingGlassInspector {
         this.lens.hide();
         this.palette.hide();
         this.clearDepthMap();
-        document.body.style.cursor = 'default';
         this._clearHighlight();
 
-        // Restore site's native cursor if it exists
+        // Restore site's native cursor
+        document.body.style.cursor = '';
         const nativeCursor = document.getElementById('cursor');
         if (nativeCursor) nativeCursor.style.display = 'block';
     }
@@ -379,6 +441,35 @@ export default class MagnifyingGlassInspector {
     }
 
     toggle() { this.isActive ? this.deactivate() : this.activate(); }
+
+    _startEditSession(el) {
+        const data = this.detector._extractElementData(el);
+
+        // Skip locked elements
+        if (el.dataset.axLocked === 'true') return;
+
+        // Initialize edit session
+        this.editSession.active = true;
+        this.editSession.element = el;
+        this.editSession.originalState = this._captureElementState(el);
+        this.editSession.pendingChanges = {};
+
+        // Lock lens to element center
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        this.lens.moveTo(centerX, centerY);
+        this.lens.setSearching(true); // Desaturate to show "locked"
+
+        // Visual feedback
+        el.classList.add('apex-edit-locked');
+
+        // Auto-focus palette editor based on role
+        this.palette.focusEditor(data.role);
+
+        // Show save/cancel buttons
+        this.palette.showEditControls(true);
+    }
 
     highlightElement(el) {
         // Remove previous highlight
@@ -456,12 +547,140 @@ export default class MagnifyingGlassInspector {
         this.dragState.target = null;
     }
 
+    triggerSpark(el) {
+        if (!el) return;
+        el.classList.add('apex-spark');
+        setTimeout(() => el.classList.remove('apex-spark'), 500);
+    }
+
+    _captureElementState(el) {
+        const styles = window.getComputedStyle(el);
+        const data = this.detector._extractElementData(el);
+
+        return {
+            textContent: data.role === 'text' ? el.innerText.trim() : '',
+            color: styles.color,
+            backgroundColor: styles.backgroundColor,
+            zIndex: styles.zIndex,
+            fontFamily: styles.fontFamily,
+            opacity: styles.opacity,
+            margin: styles.margin,
+            padding: styles.padding,
+            transform: styles.transform
+        };
+    }
+
+    _bufferEdit(property, value) {
+        if (!this.editSession.active) return;
+
+        // Store in pending changes
+        this.editSession.pendingChanges[property] = value;
+
+        // Mark palette as dirty
+        this.palette.setDirty(true);
+
+        // Apply PREVIEW to element (visual only, not saved)
+        const el = this.editSession.element;
+        if (property === 'textContent') {
+            el.innerText = value;
+        } else if (property === 'zIndex') {
+            const currentPos = window.getComputedStyle(el).position;
+            const newPos = currentPos === 'static' ? 'relative' : currentPos;
+            el.style.position = newPos;
+            el.style.zIndex = value;
+        } else {
+            el.style[property] = value;
+        }
+    }
+
+    _saveEditSession() {
+        if (!this.editSession.active) return;
+
+        const el = this.editSession.element;
+        const selector = this.detector.getUniqueSelector(el);
+
+        // Apply all buffered changes to localStorage at once
+        for (const [property, value] of Object.entries(this.editSession.pendingChanges)) {
+            if (!this.edits[selector]) this.edits[selector] = {};
+
+            // Handle special cases
+            if (property === 'zIndex') {
+                const currentPos = window.getComputedStyle(el).position;
+                const newPos = currentPos === 'static' ? 'relative' : currentPos;
+                this.edits[selector]['position'] = newPos;
+                this.edits[selector]['zIndex'] = value;
+            } else {
+                this.edits[selector][property] = value;
+            }
+        }
+
+        // Persist to localStorage
+        this.saveEdits();
+
+        // Visual feedback
+        this.triggerSpark(el);
+
+        // Clean up session
+        this._endEditSession();
+    }
+
+    _cancelEditSession() {
+        if (!this.editSession.active) return;
+
+        const el = this.editSession.element;
+        const original = this.editSession.originalState;
+
+        // Revert ALL changes to original state
+        if (original) {
+            if (original.textContent !== undefined) {
+                el.innerText = original.textContent;
+            }
+
+            // Revert styles
+            const styleProps = ['color', 'backgroundColor', 'zIndex', 'fontFamily',
+                               'fontSize', 'opacity', 'margin', 'padding', 'transform'];
+            styleProps.forEach(prop => {
+                if (original[prop] !== undefined) {
+                    el.style[prop] = original[prop];
+                }
+            });
+        }
+
+        // Clean up session
+        this._endEditSession();
+    }
+
+    _endEditSession() {
+        if (!this.editSession.active) return;
+
+        const el = this.editSession.element;
+
+        // Remove edit lock visual
+        if (el) el.classList.remove('apex-edit-locked');
+
+        // Unlock lens
+        this.lens.setSearching(false);
+
+        // Hide save/cancel buttons
+        this.palette.showEditControls(false);
+        this.palette.setDirty(false);
+
+        // Reset session state
+        this.editSession.active = false;
+        this.editSession.element = null;
+        this.editSession.originalState = null;
+        this.editSession.pendingChanges = {};
+    }
+
     applyEdit(el, property, value) {
         // 4. EXECUTION SHIELD: Final check before touching DOM
         if (value === undefined || value === null || String(value) === 'undefined' || String(value) === 'null') return;
         
         const selector = this.detector.getUniqueSelector(el);
         if (!selector) return;
+
+        // Trigger the visual "Witness" spark for feedback
+        this.triggerSpark(el);
 
         if (property === 'clone') {
             const clone = el.cloneNode(true);
@@ -583,11 +802,42 @@ export default class MagnifyingGlassInspector {
     }
 
     activate3DView() {
-        document.body.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
-        document.body.style.perspective = '2500px';
-        document.body.style.transform = 'rotateX(25deg) rotateY(-15deg) scale(0.8)';
-        document.body.style.transformStyle = 'preserve-3d';
-        document.querySelectorAll('[data-ax-id]').forEach(el => {
+        const scene = document.getElementById('apex-3d-scene');
+        if (!scene) return;
+
+        scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
+        scene.style.perspective = '2500px';
+        scene.style.transform = 'rotateX(25deg) rotateY(-15deg) scale(0.8)';
+        scene.style.transformStyle = 'preserve-3d';
+        
+        // UI stays outside the scene, so no extra translation needed
+
+        // Add 3D Exit 'X' (Global floating fallback)
+        let exitX = document.getElementById('apex-3d-exit');
+        if (!exitX) {
+            exitX = document.createElement('button');
+            exitX.id = 'apex-3d-exit';
+            exitX.setAttribute('data-anothen-internal', '');
+            exitX.innerHTML = '✕';
+            exitX.style.cssText = `
+                position: fixed; top: 24px; right: 24px; width: 60px; height: 60px;
+                background: #ef4444; color: white; border: 4px solid white; border-radius: 50%;
+                font-size: 32px; font-weight: bold; cursor: pointer; z-index: 99999;
+                box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+                display: flex; align-items: center; justify-content: center;
+                transition: transform 0.3s ease, background 0.3s ease;
+            `;
+            exitX.onclick = (e) => {
+                e.stopPropagation();
+                this.palette.view3DActive = false;
+                this.deactivate3DView();
+                if (this.palette.lastData) this.palette.update(this.palette.lastData);
+            };
+            document.body.appendChild(exitX);
+        }
+        exitX.style.display = 'flex';
+
+        scene.querySelectorAll('[data-ax-id]').forEach(el => {
             const z = parseInt(window.getComputedStyle(el).zIndex) || 0;
             el.style.transform = `translateZ(${z * 30}px)`;
             el.style.transition = 'transform 0.6s ease';
@@ -596,10 +846,23 @@ export default class MagnifyingGlassInspector {
     }
 
     deactivate3DView() {
-        document.body.style.transform = '';
-        document.querySelectorAll('[data-ax-id]').forEach(el => {
-            el.style.transform = '';
-            el.style.boxShadow = '';
+        const scene = document.getElementById('apex-3d-scene');
+        if (scene) {
+            scene.style.transform = '';
+            scene.querySelectorAll('[data-ax-id]').forEach(el => {
+                el.style.transform = '';
+                el.style.boxShadow = '';
+            });
+        }
+        
+        // Hide 3D Exit X
+        const exitX = document.getElementById('apex-3d-exit');
+        if (exitX) exitX.style.display = 'none';
+
+        // Reset UI layering (if any was applied)
+        const uiElements = [this.lens.lensContainer, this.palette.container, this.contextBar];
+        uiElements.forEach(el => {
+            if (el) el.style.transform = '';
         });
     }
 
@@ -638,7 +901,7 @@ export default class MagnifyingGlassInspector {
             label.className = 'lattice-label-overlay';
             label.setAttribute('data-anothen-internal', '');
             label.style.cssText = `
-                position: fixed; top: ${rect.top}px; left: ${rect.left}px;
+                position: absolute; top: ${rect.top + window.scrollY}px; left: ${rect.left + window.scrollX}px;
                 background: #00ff00; color: #000; font-family: monospace;
                 font-size: 7px; font-weight: bold; padding: 1px 2px;
                 border-radius: 1px; z-index: 19996; pointer-events: none;

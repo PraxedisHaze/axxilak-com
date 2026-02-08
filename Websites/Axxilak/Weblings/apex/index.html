@@ -84,6 +84,9 @@
             color: var(--text);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            overflow-y: auto;
+            margin: 0;
+            padding: 0;
         }
 
         .font-mono {
@@ -290,10 +293,11 @@
 </head>
 
 <body class="antialiased">
-    <!-- Boot Overlay -->
-    <div id="boot-overlay">
-        <div class="boot-text" id="boot-log"></div>
-    </div>
+    <div id="apex-3d-scene">
+        <!-- Boot Overlay -->
+        <div id="boot-overlay">
+            <div class="boot-text" id="boot-log"></div>
+        </div>
 
     <!-- Cyber Grid Background (Fixed) -->
     <div id="global-grid" class="fixed inset-0 cyber-grid z-0 pointer-events-none" style="height: 120vh; top: -10vh;">
@@ -352,7 +356,7 @@
                 SYSTEM ONLINE v2.0
             </div>
             <h1 class="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.1]">
-                Scale Your <br>
+                <span>Scale Your</span> <br>
                 <span class="text-[var(--accent)]">Digital Authority.</span>
             </h1>
             <p class="text-lg md:text-xl text-zinc-500 mb-12 max-w-2xl mx-auto font-light">
@@ -776,9 +780,20 @@
         .palette-input--color {
             width: 50px;
             height: 40px;
-            border: 1px solid #d1d5db;
-            border-radius: 0px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: none;
+            padding: 0;
             cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .palette-input--color::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        .palette-input--color::-webkit-color-swatch {
+            border: none;
         }
 
         .palette-input--hex {
@@ -812,6 +827,25 @@
             text-align: center;
         }
 
+        /* === THE SPARK: Visual Feedback === */
+        .apex-spark {
+            animation: apex-spark-glow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        @keyframes apex-spark-glow {
+            0% { box-shadow: 0 0 0px var(--accent); outline: 2px solid transparent; }
+            50% { box-shadow: 0 0 30px var(--accent), inset 0 0 15px var(--accent); outline: 2px solid var(--accent); }
+            100% { box-shadow: 0 0 0px var(--accent); outline: 2px solid transparent; }
+        }
+
+        /* 3D Scene Wrapper Stability */
+        #apex-3d-scene {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
         /* ===== HIGHLIGHT AND GRAYSCALE EFFECTS ===== */
         .apex-highlighted {
             outline: 4px solid #00ff00 !important;
@@ -832,6 +866,22 @@
             filter: grayscale(85%);
         }
 
+        /* Cursor Logic: Gold Standard */
+        body.edit-mode #apex-3d-scene, 
+        body.edit-mode #apex-3d-scene * {
+            cursor: none !important;
+        }
+
+        /* Ensure UI elements always show a cursor */
+        [data-anothen-internal],
+        [data-anothen-internal] *,
+        #palette-container,
+        #palette-container *,
+        #apex-context-bar,
+        #apex-3d-exit {
+            cursor: auto !important;
+        }
+
         body.apex-grayscale-mode .apex-highlighted {
             filter: grayscale(0%) !important;
         }
@@ -846,6 +896,17 @@
         @keyframes apex-danger-pulse {
             0%, 100% { box-shadow: 0 0 40px #ef4444, inset 0 0 30px rgba(239, 68, 68, 0.3); }
             50% { box-shadow: 0 0 60px #ef4444, inset 0 0-40px rgba(239, 68, 68, 0.5); }
+        }
+
+        .apex-edit-locked {
+            outline: 3px solid #00ff00 !important;
+            outline-offset: 4px !important;
+            animation: apex-edit-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes apex-edit-pulse {
+            0%, 100% { outline-color: #00ff00; }
+            50% { outline-color: #00ffff; }
         }
 
         /* === CONTEXTUAL ACTION BAR === */
@@ -1070,6 +1131,8 @@
     </script>
 
     <!-- OLD EDITOR SYSTEM REMOVED - Replaced by new lens/detector/palette integration -->
+
+    </div><!-- END apex-3d-scene -->
 
     <script src="../../coherence_engine.js"></script>
 

@@ -41,6 +41,10 @@ export class ToolPalette {
         }
         
         if (this.currentElement && this.currentElement.dataset.axId === element.dataset.axId) {
+            // SYNC ONLY: If it's the same element, just update the text content in Quill
+            if (this.quill && textContent !== this.quill.getText().trim()) {
+                this.quill.root.innerText = textContent || '';
+            }
             return;
         }
 
@@ -73,6 +77,25 @@ export class ToolPalette {
                     </button>
                 </div>
 
+                <!-- LATTICE VISUALIZERS (Flagship Controls) -->
+                <div class="mb-6 flex items-center justify-between bg-zinc-800/30 p-2 rounded-sm border border-zinc-800/50">
+                    <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">Flagship Visualizer</span>
+                    <div class="flex gap-2 w-full">
+                        <button id="toggle-3d-view" class="flex-1 py-3 ${this.view3DActive ? 'bg-indigo-600 shadow-[0_0_30px_rgba(99,102,241,0.8)]' : 'bg-indigo-900/40'} text-white rounded-sm transition-all border ${this.view3DActive ? 'border-indigo-200' : 'border-indigo-500/40'} hover:bg-indigo-600 group">
+                            <div class="flex items-center justify-center gap-4">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
+                                    <path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                    <path d="M12 22V12M12 12L2 7M12 12L22 7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity="0.5"/>
+                                </svg>
+                                <div class="flex flex-col items-start leading-none">
+                                    <span class="text-[18px] font-black tracking-tighter italic text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">3D</span>
+                                    <span class="text-[7px] font-bold text-indigo-300 tracking-[0.3em] uppercase opacity-70 group-hover:opacity-100 transition-opacity">Matrix View</span>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- 3D EXIT BUTTON (Global ritualistic exit) -->
                 ${this.view3DActive ? `
                 <button id="btn-exit-3d" class="w-full mb-4 py-3 bg-red-600 text-white text-[10px] font-bold rounded-sm animate-pulse hover:bg-red-500 transition-all uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(220,38,38,0.5)]">
@@ -82,6 +105,16 @@ export class ToolPalette {
 
                 <!-- ADVANCED PANEL (Hidden by default) -->
                 <div id="advanced-panel" class="hidden mb-4 p-3 bg-black/40 border border-zinc-800 rounded-sm">
+                    <div class="palette-control mb-4 border-b border-zinc-800 pb-3">
+                        <label class="palette-label text-[9px] mb-2 flex justify-between">
+                            <span>Dev Visualizers</span>
+                            <span class="text-[7px] opacity-40 italic">Helicopter View</span>
+                        </label>
+                        <button id="toggle-labels" class="w-full py-1.5 ${this.labelsActive ? 'bg-green-600' : 'bg-zinc-800'} text-white text-[9px] font-bold rounded-sm transition-all uppercase border border-white/5 hover:border-white/20">
+                            TOGGLE LATTICE LABELS
+                        </button>
+                    </div>
+                    
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="palette-control">
                             <label class="palette-label text-[9px]">Lattice ID</label>
@@ -127,18 +160,17 @@ export class ToolPalette {
                     <div id="quill-editor" class="bg-zinc-900 text-white" style="height: 100px;"></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
-                    <div class="palette-control">
-                        <label class="palette-label">Color</label>
-                        <div class="palette-color-group">
-                            <input type="color" id="input-color" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
-                            <input type="text" id="hex-color" class="palette-input palette-input--hex font-mono text-[11px]" value="${this.rgbToHex(styles.color)}">
-                        </div>
+                <div class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
+                    <label class="palette-label">Color</label>
+                    <div class="palette-color-group">
+                        <input type="color" id="input-color" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
+                        <input type="text" id="hex-color" class="palette-input palette-input--hex font-mono text-[11px]" value="${this.rgbToHex(styles.color)}">
                     </div>
-                    <div class="palette-control">
-                        <label class="palette-label">Depth (Z)</label>
-                        <input type="number" id="input-zindex" class="palette-input" value="${styles.zIndex || 0}">
-                    </div>
+                </div>
+
+                <div class="palette-control ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
+                    <label class="palette-label">LAYER DEPTH (Z)</label>
+                    <input type="number" id="input-zindex" class="palette-input" value="${styles.zIndex || 0}">
                 </div>
 
                 <div class="palette-control mt-4">
@@ -148,21 +180,6 @@ export class ToolPalette {
                         <option value="JetBrains Mono" ${styles.fontFamily.includes('Mono') ? 'selected' : ''}>JetBrains Mono</option>
                         <option value="serif" ${styles.fontFamily.includes('serif') ? 'selected' : ''}>Serif</option>
                     </select>
-                </div>
-
-                <div class="mt-4 flex items-center justify-between bg-zinc-800/50 p-3 rounded-sm border border-zinc-700/50">
-                    <span class="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Visualizers</span>
-                    <div class="flex gap-2">
-                        <button id="toggle-labels" class="px-2 py-1 ${this.labelsActive ? 'bg-green-600' : 'bg-zinc-700'} text-white text-[9px] font-bold rounded-sm transition-colors uppercase">
-                            Labels
-                        </button>
-                        <button id="toggle-depth-map" class="px-2 py-1 ${this.depthMapActive ? 'bg-blue-600' : 'bg-zinc-700'} text-white text-[9px] font-bold rounded-sm transition-colors uppercase">
-                            Map
-                        </button>
-                        <button id="toggle-3d-view" class="px-2 py-1 ${this.view3DActive ? 'bg-indigo-600' : 'bg-zinc-700'} text-white text-[9px] font-bold rounded-sm transition-colors uppercase">
-                            3D
-                        </button>
-                    </div>
                 </div>
 
                 <div class="palette-control mt-6 pt-4 border-t border-zinc-800">
@@ -186,6 +203,21 @@ export class ToolPalette {
                         <button id="btn-delete" title="Delete Element" class="flex items-center justify-center p-2 bg-red-900/20 text-red-500/70 rounded hover:bg-red-900/40 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''}>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
+                    </div>
+                </div>
+
+                <!-- SAVE/CANCEL CONTROLS -->
+                <div id="edit-controls" class="hidden mt-6 pt-4 border-t-2 border-[var(--accent)]/20">
+                    <div class="flex gap-3">
+                        <button id="btn-save-changes" class="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-[11px] uppercase tracking-[0.15em] rounded-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]">
+                            ✓ SAVE CHANGES
+                        </button>
+                        <button id="btn-cancel-changes" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-[11px] uppercase tracking-[0.15em] rounded-sm transition-all">
+                            ✕ CANCEL
+                        </button>
+                    </div>
+                    <div id="dirty-indicator" class="hidden mt-2 text-center text-[9px] text-yellow-400 font-mono animate-pulse">
+                        • Unsaved changes •
                     </div>
                 </div>
             </div>
@@ -226,7 +258,6 @@ export class ToolPalette {
         const hexInput = document.getElementById('hex-color');
         const zInput = document.getElementById('input-zindex');
         const fontSelect = document.getElementById('input-font');
-        const depthToggle = document.getElementById('toggle-depth-map');
         const view3DToggle = document.getElementById('toggle-3d-view');
         const labelsToggle = document.getElementById('toggle-labels');
         const advancedToggle = document.getElementById('btn-advanced-toggle');
@@ -315,14 +346,6 @@ export class ToolPalette {
             };
         }
 
-        if (depthToggle) {
-            depthToggle.onclick = () => {
-                this.depthMapActive = !this.depthMapActive;
-                if (this.onEdit) this.onEdit('depthMap', this.depthMapActive);
-                if (this.lastData) this.update(this.lastData);
-            };
-        }
-
         if (view3DToggle) {
             view3DToggle.onclick = () => {
                 this.view3DActive = !this.view3DActive;
@@ -340,6 +363,22 @@ export class ToolPalette {
                     if (this.onEdit) this.onEdit('delete', this.currentElement);
                     this.hide();
                 }
+            };
+        }
+
+        // Save/Cancel buttons
+        const saveBtn = document.getElementById('btn-save-changes');
+        const cancelBtn = document.getElementById('btn-cancel-changes');
+
+        if (saveBtn) {
+            saveBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('save-session', true);
+            };
+        }
+
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('cancel-session', true);
             };
         }
     }
@@ -366,4 +405,30 @@ export class ToolPalette {
 
     show() { this.container.classList.remove('hidden'); }
     hide() { this.container.classList.add('hidden'); }
+
+    showEditControls(visible) {
+        const controls = document.getElementById('edit-controls');
+        if (controls) {
+            controls.classList.toggle('hidden', !visible);
+        }
+    }
+
+    setDirty(isDirty) {
+        const indicator = document.getElementById('dirty-indicator');
+        if (indicator) {
+            indicator.classList.toggle('hidden', !isDirty);
+        }
+    }
+
+    focusEditor(role) {
+        setTimeout(() => {
+            if (role === 'text') {
+                const quillEditor = document.querySelector('.ql-editor');
+                if (quillEditor) quillEditor.focus();
+            } else {
+                const colorInput = document.getElementById('input-color');
+                if (colorInput) colorInput.focus();
+            }
+        }, 100);
+    }
 }
