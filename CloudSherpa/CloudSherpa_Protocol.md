@@ -7,17 +7,17 @@
 
 ## I. MISSION STATEMENT
 
-CloudSherpa organizes the web that flows through your browser into a classified collection. As you browse, CloudSherpa silently catalogs websites—capturing URL, title, rating, category, and metadata. A floating sidebar provides instant access to your collection: search, filter by category, sort by rating/recency, and re-visit any site instantly. CloudSherpa turns scattered browsing into structured intelligence.
+CloudSherpa saves websites you want to remember into an organized, searchable collection. As you browse, CloudSherpa provides a toggle button to capture the current page with one click. You name it, categorize it, rate it, add notes. Your collection lives in the sidebar: always accessible, instantly searchable, categorized your way.
 
-**The Promise**: No more lost websites. No more "where was that site I liked?" One keypress opens your organized, searchable web collection.
+**The Promise**: Never lose a useful website again. One click saves it. One search finds it.
 
 **User Journey**:
 1. Install CloudSherpa extension
-2. Browse normally - CloudSherpa observes silently
-3. Click "Add to Collection" on any site (or auto-capture)
-4. Click sidebar toggle to view your classified websites
-5. Search, filter, rate, categorize your collection
-6. Your data persists across browser sessions in local storage
+2. Browse normally
+3. When you find a page worth keeping, click "Add Current"
+4. Edit title, add category/rating/notes
+5. Save - it's now in your collection
+6. Toggle sidebar anytime to search, filter, sort, revisit
 
 ---
 
@@ -91,12 +91,11 @@ Data persists across sessions, restores on browser open
 ## III. KEY FEATURES & BEHAVIORS
 
 ### A. Website Capture System
-- **Manual Capture**: User clicks "Add to CloudSherpa" context menu option
-- **Auto-Detection**: Optional auto-capture when user visits categorized sites
-- **URL Normalization**: Handles variants (www/non-www, https/http, trailing slash)
-- **Duplicate Prevention**: Checks normalized URL before adding - prevents duplicates
-- **Favicon Extraction**: Captures browser favicon automatically for visual recognition
-- **Search Engine Exclusion**: Never catalogs Google, DuckDuckGo, Bing, StartPage, Brave search results
+- **Manual Capture**: User clicks "Add Current" button in sidebar to save page they're viewing
+- **URL Normalization**: Handles variants (www/non-www, https/http, trailing slash) to detect duplicates
+- **Duplicate Prevention**: Checks normalized URL before adding - warns if site already in collection
+- **Form Pre-fill**: Auto-fills title from page title tag; user can edit before saving
+- **Search Engine Exclusion**: Does not save pages from Google, DuckDuckGo, Bing, StartPage, Brave search
 
 ### B. Organization System
 - **Categories**: User-created or predefined (reference, research, projects, tools, portfolio, etc.)
@@ -176,12 +175,12 @@ Data persists across sessions, restores on browser open
 
 ### Installation & First-Run
 1. User installs extension from Chrome Web Store
-2. First time: extension initializes empty collection
-3. User configures:
+2. First time: extension initializes empty collection, displays sidebar with toggle button
+3. User configures (optional):
    - Sidebar position (left/right)
-   - Default view mode
-   - Auto-capture preference
-4. User starts visiting websites and adding them
+   - Default view mode (list/grid/category)
+   - Sort preference (rating/date/title/category)
+4. User browses normally - toggle button always available to save pages
 
 ### Configuration Persistence
 ```javascript
