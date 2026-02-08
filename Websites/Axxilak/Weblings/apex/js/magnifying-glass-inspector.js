@@ -590,11 +590,19 @@ export default class MagnifyingGlassInspector {
 
         // CRITICAL: Disable pointer-events on ALL page content (stops all clicks, even inline onclick)
         const scene = document.getElementById('apex-3d-scene');
-        if (scene) scene.style.pointerEvents = 'none';
+        if (scene) {
+            scene.style.pointerEvents = 'none !important';
+            // Also disable on all descendants to be sure
+            scene.querySelectorAll('*').forEach(el => {
+                if (!el.classList.contains('lens-container') && !el.closest('#palette-container')) {
+                    el.style.pointerEvents = 'none';
+                }
+            });
+        }
 
         // ALSO lock nav (it's OUTSIDE the scene)
         const nav = document.querySelector('nav');
-        if (nav) nav.style.pointerEvents = 'none';
+        if (nav) nav.style.pointerEvents = 'none !important';
     }
 
     highlightElement(el) {
@@ -810,7 +818,13 @@ export default class MagnifyingGlassInspector {
         // UNLOCK PAGE - Remove the lockdown overlay and restore pointer-events
         this.lockdownOverlay.style.display = 'none';
         const scene = document.getElementById('apex-3d-scene');
-        if (scene) scene.style.pointerEvents = 'auto';
+        if (scene) {
+            scene.style.pointerEvents = 'auto';
+            // Restore all descendants
+            scene.querySelectorAll('*').forEach(el => {
+                el.style.pointerEvents = '';
+            });
+        }
 
         // Restore nav
         const nav = document.querySelector('nav');
