@@ -28,7 +28,8 @@ export default class MagnifyingGlassInspector {
             active: false,           // Is an edit session in progress?
             element: null,           // Element being edited
             originalState: null,     // Snapshot of original values (for Cancel)
-            pendingChanges: {}       // Buffer of pending edits (for Save)
+            pendingChanges: {},      // Buffer of pending edits (for Save)
+            disabledButtons: []      // Store buttons disabled during edit mode (for recovery)
         };
 
         // Create lockdown overlay (blocks all page interactions during edit)
@@ -603,6 +604,92 @@ export default class MagnifyingGlassInspector {
         // ALSO lock nav (it's OUTSIDE the scene)
         const nav = document.querySelector('nav');
         if (nav) nav.style.pointerEvents = 'none !important';
+
+        // DISABLE button handlers in nav (pointer-events alone doesn't stop inline onclick)
+        try {
+            this._disableNavButtons();
+        } catch (err) {
+            console.error('[APEX] Failed to disable nav buttons:', err);
+        }
+    }
+
+    _disableNavButtons() {
+        const nav = document.querySelector('nav');
+        if (!nav) return;
+
+        // Find all buttons and links in nav
+        const interactiveElements = nav.querySelectorAll('button, a[href], [onclick]');
+        this.editSession.disabledButtons = [];
+
+        interactiveElements.forEach(el => {
+            try {
+                // Store original handler for restoration
+                const handler = {
+                    element: el,
+                    originalOnclick: el.onclick,
+                    originalHref: el.href,
+                    hasDataHandler: false
+                };
+
+                // Check if element has data-* handlers
+                Array.from(el.attributes).forEach(attr => {
+                    if (attr.name.startsWith('on')) {
+                        handler[attr.name] = el.getAttribute(attr.name);
+                        handler.hasDataHandler = true;
+                    }
+                });
+
+                // Disable the element
+                el.onclick = (e) => {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    return false;
+                };
+
+                if (el.tagName === 'A') {
+                    el.href = 'javascript:void(0)';
+                }
+
+                // Store for recovery
+                this.editSession.disabledButtons.push(handler);
+            } catch (err) {
+                console.warn('[APEX] Could not disable button:', el, err);
+            }
+        });
+    }
+
+    _restoreNavButtons() {
+        try {
+            this.editSession.disabledButtons.forEach(handler => {
+                try {
+                    // Restore onclick
+                    if (handler.originalOnclick !== null) {
+                        handler.element.onclick = handler.originalOnclick;
+                    } else {
+                        handler.element.onclick = null;
+                    }
+
+                    // Restore href
+                    if (handler.element.tagName === 'A' && handler.originalHref) {
+                        handler.element.href = handler.originalHref;
+                    }
+
+                    // Restore data attributes
+                    if (handler.hasDataHandler) {
+                        Object.keys(handler).forEach(key => {
+                            if (key.startsWith('on') && key !== 'originalOnclick') {
+                                handler.element.setAttribute(key, handler[key]);
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.warn('[APEX] Could not restore button:', handler.element, err);
+                }
+            });
+            this.editSession.disabledButtons = [];
+        } catch (err) {
+            console.error('[APEX] Failed to restore nav buttons:', err);
+        }
     }
 
     highlightElement(el) {
@@ -829,6 +916,13 @@ export default class MagnifyingGlassInspector {
         // Restore nav
         const nav = document.querySelector('nav');
         if (nav) nav.style.pointerEvents = 'auto';
+
+        // RESTORE button handlers in nav
+        try {
+            this._restoreNavButtons();
+        } catch (err) {
+            console.error('[APEX] Failed to restore nav buttons:', err);
+        }
     }
 
     _drawConnectionLine(el, contentBox) {
