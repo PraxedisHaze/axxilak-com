@@ -500,9 +500,6 @@ export default class MagnifyingGlassInspector {
             }
         }
 
-        // DRAW CONNECTING LINE from element to content box
-        this._drawConnectionLine(el, quillContainer);
-
         // Show save/cancel buttons
         this.palette.showEditControls(true);
     }
