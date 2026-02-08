@@ -588,9 +588,13 @@ export default class MagnifyingGlassInspector {
             return false;
         };
 
-        // CRITICAL: Disable pointer-events on page content (stops all clicks, even inline onclick)
+        // CRITICAL: Disable pointer-events on ALL page content (stops all clicks, even inline onclick)
         const scene = document.getElementById('apex-3d-scene');
         if (scene) scene.style.pointerEvents = 'none';
+
+        // ALSO lock nav (it's OUTSIDE the scene)
+        const nav = document.querySelector('nav');
+        if (nav) nav.style.pointerEvents = 'none';
     }
 
     highlightElement(el) {
@@ -807,6 +811,10 @@ export default class MagnifyingGlassInspector {
         this.lockdownOverlay.style.display = 'none';
         const scene = document.getElementById('apex-3d-scene');
         if (scene) scene.style.pointerEvents = 'auto';
+
+        // Restore nav
+        const nav = document.querySelector('nav');
+        if (nav) nav.style.pointerEvents = 'auto';
     }
 
     _drawConnectionLine(el, contentBox) {
