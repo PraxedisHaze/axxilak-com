@@ -989,30 +989,22 @@ export default class MagnifyingGlassInspector {
 
         // UI stays outside the scene, so no extra translation needed
 
-        // Add 3D Exit 'X' (Global floating fallback)
-        let exitX = document.getElementById('apex-3d-exit');
-        if (!exitX) {
-            exitX = document.createElement('button');
-            exitX.id = 'apex-3d-exit';
-            exitX.setAttribute('data-anothen-internal', '');
-            exitX.innerHTML = '✕';
-            exitX.style.cssText = `
-                position: fixed; top: 24px; right: 24px; width: 60px; height: 60px;
-                background: #ef4444; color: white; border: 4px solid white; border-radius: 50%;
-                font-size: 32px; font-weight: bold; cursor: pointer; z-index: 99999;
-                box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
-                display: flex; align-items: center; justify-content: center;
-                transition: transform 0.3s ease, background 0.3s ease;
-            `;
-            exitX.onclick = (e) => {
-                e.stopPropagation();
-                this.palette.view3DActive = false;
-                this.deactivate3DView();
-                if (this.palette.lastData) this.palette.update(this.palette.lastData);
-            };
-            document.body.appendChild(exitX);
-        }
-        exitX.style.display = 'flex';
+        // Hide reticle when over toolbar
+        this.lens.lensContainer.style.pointerEvents = 'none';
+        this.controlToolbar.style.cursor = 'auto';
+
+        // Track mouse over toolbar to hide/show reticle
+        this.controlToolbar.addEventListener('mouseenter', () => {
+            if (this.lens && this.lens.lensContainer) {
+                this.lens.lensContainer.style.opacity = '0';
+            }
+        });
+
+        this.controlToolbar.addEventListener('mouseleave', () => {
+            if (this.lens && this.lens.lensContainer) {
+                this.lens.lensContainer.style.opacity = '1';
+            }
+        });
 
         // Show evenly-spaced layers (not scaled by z-index value)
         this._refreshLayerView();
@@ -1034,9 +1026,10 @@ export default class MagnifyingGlassInspector {
             this.controlToolbar.style.display = 'none';
         }
 
-        // Hide 3D Exit X
-        const exitX = document.getElementById('apex-3d-exit');
-        if (exitX) exitX.style.display = 'none';
+        // Restore reticle opacity
+        if (this.lens && this.lens.lensContainer) {
+            this.lens.lensContainer.style.opacity = '1';
+        }
 
         // Reset UI layering (if any was applied)
         const uiElements = [this.lens.lensContainer, this.palette.container, this.contextBar];
