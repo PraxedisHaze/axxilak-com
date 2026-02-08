@@ -950,6 +950,96 @@ Every AI reads this P&P (and specifically this section) as part of the mandatory
 
 ---
 
+## VII. UNIVERSAL CUSTOMIZATION ARCHITECTURE: THE APEX PROTOCOL
+
+**Status:** Proven in Apex webling (2026-02-06 production). Deployable to all Stars and constellation apps.
+
+**Problem Solved:** Reliable, persistent user customization without fragile CSS selectors or data corruption. Enables "buy once, own forever" model.
+
+### A. Core Architecture (Three Components)
+
+**1. The Lens Interface — Visual Targeting System**
+- Circular reticle following mouse (300px diameter, theme-aware color)
+- Crosshairs, center dot, depth probe, interaction hints
+- Draggable by border; Shift-key unlocks interactions
+- Responsive to theme (neon green in dark mode, gold in light mode)
+- Zero learning curve: point → target → edit
+
+**2. The Lattice System — Persistent Data Layer (THE INNOVATION)**
+- Every editable element assigned stable `data-ax-id="ax-N"` on page load
+- Edits stored by lattice ID, NOT fragile CSS selectors
+- Survives DOM changes, theme switches, variant creation, page reloads
+- localStorage key: `${appName}-edits-state`
+- Makes persistent customization technically possible across sessions
+
+**3. The Tool Palette — Editing Interface**
+- Rich text editing (Quill editor for content)
+- Style property editing (colors, sizing, spacing)
+- Metadata display (lattice ID, stable selector, element role, child count)
+- Advanced panel with technical diagnostics
+- Special modes: 3D perspective visualization, depth maps (Z-index), lattice labels
+- Responsive to element type (text, media, structure, interactive)
+
+### B. Safety Architecture (Three-Layer Guard System)
+
+**Layer 1: HARD PURGE** (Initialization)
+- On app load, scan localStorage for corrupted entries (undefined strings, null values)
+- Remove any poisoned edits immediately
+- Prevents cascading data corruption
+
+**Layer 2: DETECTOR SHIELD** (Element Detection)
+- Uses `elementsFromPoint()` to find elements under cursor
+- Filters out internal UI marked with `data-anothen-internal`
+- Skips uneditable elements (scripts, styles, canvas, etc.)
+- Allows media and structural elements even if empty (they have semantic role)
+- Throttled (default 80ms) to prevent performance degradation
+
+**Layer 3: PALETTE SHIELD** (Persistence)
+- Refuses to save undefined/null/empty values to localStorage
+- Validates data type before accepting edit
+- Logs any blocked attempts for debugging
+- Prevents invalid state from ever entering the lattice
+
+### C. Deployment Pattern
+
+Every Star implementing APEX follows this pattern:
+
+1. **Mark internal UI** with `data-anothen-internal` attribute
+2. **Initialize detector** with app-specific ignored selectors
+3. **Configure colors** via CSS custom properties (--primary, --accent, --bg, --text)
+4. **Attach to Edit button** and call inspector.activate()
+5. **Use app name** for localStorage key: `${appName}-edits-state`
+
+### D. Why This Works
+
+| Concern | Solution | Benefit |
+|---------|----------|---------|
+| Edits Lost on Reload | Lattice IDs persist across sessions | Reliable customization |
+| Broken Selectors | IDs don't depend on HTML structure | Survives DOM changes |
+| Performance Drag | Throttled detection (80ms default) | Smooth interaction at 60fps |
+| Data Corruption | Three-layer guard system | Invalid data never reaches storage |
+| Theme Switching | CSS variables + data attributes | Same code works light/dark |
+| Variant Creation | Lattice IDs are immutable | Edits travel with variants |
+| Learning Curve | Visual targeting (point → target) | Intuitive for non-technical users |
+
+### E. Applies To
+
+- **All current weblings** (Apex, Velvet, Liquid Gold, Neon Tokyo, Summit, Scholar, Oracle, Canvas, Cipher, Ether, Gaia, Iron-Ink, Aura)
+- **Future Keystone Stars** (Lenny, CodeGnosis, Cici, Hub, Explorer Frame)
+- **Any product requiring user customization** with persistence guarantee
+- **Cross-platform:** Browser-based (weblings), desktop (Tauri apps), eventually mobile
+
+### F. Known Limitations & Mitigations
+
+| Limitation | Mitigation |
+|-----------|-----------|
+| localStorage limited to ~5MB | Archive service for large datasets |
+| No server-side sync | Optional cloud sync layer (future) |
+| Client-side only | Can be extended with optional backend |
+| No version control | Edits are immutable; new versions fork lattice |
+
+---
+
 IX. CURRENT PRIORITIES (Saturday Deadline)
 Primary Objective
 Get Explorer Frame to MARKETABLE state:
