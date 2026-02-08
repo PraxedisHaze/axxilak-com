@@ -1287,31 +1287,31 @@ export default class MagnifyingGlassInspector {
         if (!this.controlToolbar) return;
 
         this.controlToolbar.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
-                <!-- Layer Control Buttons -->
-                <button id="toolbar-btn-left" title="View-only: Z-order visualization (modification disabled)" style="
-                    padding: 8px 12px;
-                    background: #333;
-                    color: #00ff00;
-                    border: 2px solid #00ff00;
-                    border-radius: 4px;
-                    font-weight: bold;
-                    font-size: 12px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                ">← LOSE</button>
-
-                <button id="toolbar-btn-right" title="View-only: Z-order visualization (modification disabled)" style="
-                    padding: 8px 12px;
-                    background: #00ff00;
+            <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center; padding: 20px 24px;">
+                <!-- Save/Cancel Buttons -->
+                <button id="toolbar-btn-save" title="Save changes" style="
+                    padding: 12px 20px;
+                    background: #22c55e;
                     color: #000;
                     border: none;
                     border-radius: 4px;
                     font-weight: bold;
-                    font-size: 12px;
+                    font-size: 13px;
                     cursor: pointer;
                     transition: all 0.2s;
-                ">WIN →</button>
+                ">✓ SAVE</button>
+
+                <button id="toolbar-btn-cancel" title="Discard changes" style="
+                    padding: 12px 20px;
+                    background: #333;
+                    color: #ef4444;
+                    border: 2px solid #ef4444;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 13px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">✕ CANCEL</button>
 
                 <!-- Rotation Intensity Slider -->
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -1349,27 +1349,29 @@ export default class MagnifyingGlassInspector {
         `;
 
         // Wire up button handlers
-        const btnLeft = this.controlToolbar.querySelector('#toolbar-btn-left');
-        const btnRight = this.controlToolbar.querySelector('#toolbar-btn-right');
+        const btnSave = this.controlToolbar.querySelector('#toolbar-btn-save');
+        const btnCancel = this.controlToolbar.querySelector('#toolbar-btn-cancel');
         const rotationSlider = this.controlToolbar.querySelector('#toolbar-rotation');
         const rotationValue = this.controlToolbar.querySelector('#toolbar-rotation-value');
         const spacingSlider = this.controlToolbar.querySelector('#toolbar-spacing');
         const spacingValue = this.controlToolbar.querySelector('#toolbar-spacing-value');
         const exitBtn = this.controlToolbar.querySelector('#toolbar-exit');
 
-        if (btnLeft) {
-            btnLeft.onclick = () => {
-                // Z-index modification disabled (v2: view-only mode)
-                // Users can see z-order in 3D visualization but cannot modify
-                console.log('[APEX] Z-index modification disabled - view-only mode');
+        if (btnSave) {
+            btnSave.onclick = (e) => {
+                e.stopPropagation();
+                if (this.palette && this.palette.onEdit) {
+                    this.palette.onEdit('save-session', true);
+                }
             };
         }
 
-        if (btnRight) {
-            btnRight.onclick = () => {
-                // Z-index modification disabled (v2: view-only mode)
-                // Users can see z-order in 3D visualization but cannot modify
-                console.log('[APEX] Z-index modification disabled - view-only mode');
+        if (btnCancel) {
+            btnCancel.onclick = (e) => {
+                e.stopPropagation();
+                if (this.palette && this.palette.onEdit) {
+                    this.palette.onEdit('cancel-session', true);
+                }
             };
         }
 
