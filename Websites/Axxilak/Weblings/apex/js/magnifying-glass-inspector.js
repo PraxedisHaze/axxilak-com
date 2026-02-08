@@ -976,7 +976,12 @@ export default class MagnifyingGlassInspector {
         }
 
         scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
-        scene.style.transform = 'rotateX(35deg) rotateY(-25deg) scale(0.8)';
+        // Initial rotation at 100% intensity (35deg, -25deg)
+        const initialIntensity = 1.0;
+        const initialRotX = 35 * initialIntensity;
+        const initialRotY = -25 * initialIntensity;
+        const initialScale = 0.8 + (0.2 * (1 - initialIntensity));
+        scene.style.transform = `rotateX(${initialRotX}deg) rotateY(${initialRotY}deg) scale(${initialScale})`;
         scene.style.transformStyle = 'preserve-3d';
 
         // Show 3D control toolbar
@@ -1166,13 +1171,24 @@ export default class MagnifyingGlassInspector {
                     transition: all 0.2s;
                 ">LOSE →</button>
 
+                <!-- Rotation Intensity Slider -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 10px; white-space: nowrap;">Angle:</label>
+                    <input type="range" id="toolbar-rotation" min="0" max="100" step="5" value="100" style="
+                        width: 60px;
+                        cursor: pointer;
+                    ">
+                    <span id="toolbar-rotation-value" style="font-size: 9px; min-width: 20px;">100%</span>
+                </div>
+
                 <!-- Layer Spacing Slider -->
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-size: 10px; white-space: nowrap;">Spacing:</label>
                     <input type="range" id="toolbar-spacing" min="10" max="150" step="10" value="50" style="
-                        width: 80px;
+                        width: 60px;
                         cursor: pointer;
                     ">
+                    <span id="toolbar-spacing-value" style="font-size: 9px; min-width: 25px;">50px</span>
                 </div>
 
                 <!-- Exit Button -->
@@ -1193,7 +1209,10 @@ export default class MagnifyingGlassInspector {
         // Wire up button handlers
         const btnLeft = this.controlToolbar.querySelector('#toolbar-btn-left');
         const btnRight = this.controlToolbar.querySelector('#toolbar-btn-right');
+        const rotationSlider = this.controlToolbar.querySelector('#toolbar-rotation');
+        const rotationValue = this.controlToolbar.querySelector('#toolbar-rotation-value');
         const spacingSlider = this.controlToolbar.querySelector('#toolbar-spacing');
+        const spacingValue = this.controlToolbar.querySelector('#toolbar-spacing-value');
         const exitBtn = this.controlToolbar.querySelector('#toolbar-exit');
 
         if (btnLeft) {
@@ -1212,9 +1231,27 @@ export default class MagnifyingGlassInspector {
             };
         }
 
+        if (rotationSlider) {
+            rotationSlider.oninput = (e) => {
+                const intensity = parseInt(e.target.value) / 100;
+                rotationValue.textContent = e.target.value + '%';
+
+                // Scale rotation: 0% = flat, 100% = 35deg/-25deg
+                const rotX = 35 * intensity;
+                const rotY = -25 * intensity;
+                const scale = 0.8 + (0.2 * (1 - intensity)); // Scale from 1.0 (flat) to 0.8 (full 3D)
+
+                const scene = document.getElementById('apex-3d-scene');
+                if (scene) {
+                    scene.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg) scale(${scale})`;
+                }
+            };
+        }
+
         if (spacingSlider) {
             spacingSlider.oninput = (e) => {
                 this.view3DLayerSpacing = parseInt(e.target.value);
+                spacingValue.textContent = e.target.value + 'px';
                 this._refreshLayerView();
             };
         }
