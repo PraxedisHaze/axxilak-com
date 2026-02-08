@@ -464,7 +464,13 @@ export default class MagnifyingGlassInspector {
         // Visual feedback
         el.classList.add('apex-edit-locked');
 
-        // Auto-focus palette editor based on role
+        // SHOW PALETTE FIRST (make it visible and laid out before Quill initializes)
+        this.palette.show();
+
+        // THEN update with data (initializes Quill with proper layout)
+        this.palette.update(data);
+
+        // THEN auto-focus palette editor based on role
         this.palette.focusEditor(data.role);
 
         // Show save/cancel buttons
