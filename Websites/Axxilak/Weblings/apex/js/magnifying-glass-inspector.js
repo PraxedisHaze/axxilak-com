@@ -45,6 +45,7 @@ export default class MagnifyingGlassInspector {
             background: rgba(0, 0, 0, 0.3);
             display: none;
             pointer-events: auto;
+            cursor: not-allowed;
         `;
         document.body.appendChild(this.lockdownOverlay);
 
@@ -575,7 +576,17 @@ export default class MagnifyingGlassInspector {
 
         // LOCK DOWN PAGE - Nothing else can be clicked except the editor/palette
         this.lockdownOverlay.style.display = 'block';
-        this.lockdownOverlay.onclick = (e) => e.stopPropagation();
+        this.lockdownOverlay.onclick = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        };
+        // Block all non-palette clicks during edit
+        this.lockdownOverlay.onmousedown = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        };
     }
 
     highlightElement(el) {
