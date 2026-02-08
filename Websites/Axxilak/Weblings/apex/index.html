@@ -909,6 +909,24 @@
             50% { outline-color: #00ffff; }
         }
 
+        /* Content field highlight when element is locked */
+        #quill-editor.apex-editor-active {
+            border: 2px solid #00ff00 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.2) !important;
+            animation: apex-content-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes apex-content-pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.2);
+                border-color: #00ff00;
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 255, 0, 0.9), inset 0 0 15px rgba(0, 255, 0, 0.4);
+                border-color: #00ffff;
+            }
+        }
+
         /* === CONTEXTUAL ACTION BAR === */
         #apex-context-bar {
             position: fixed;

@@ -470,6 +470,12 @@ export default class MagnifyingGlassInspector {
         // THEN update with data (initializes Quill with proper layout)
         this.palette.update(data);
 
+        // ACTIVATE CONTENT FIELD GLOW
+        const quillContainer = document.getElementById('quill-editor');
+        if (quillContainer) {
+            quillContainer.classList.add('apex-editor-active');
+        }
+
         // PREVENT INLINE EDITING: Blur the element so cursor doesn't appear inline
         el.blur();
 
@@ -485,6 +491,9 @@ export default class MagnifyingGlassInspector {
                 colorInput.focus();
             }
         }
+
+        // DRAW CONNECTING LINE from element to content box
+        this._drawConnectionLine(el, quillContainer);
 
         // Show save/cancel buttons
         this.palette.showEditControls(true);
@@ -677,6 +686,16 @@ export default class MagnifyingGlassInspector {
         // Remove edit lock visual
         if (el) el.classList.remove('apex-edit-locked');
 
+        // Remove content field glow
+        const quillContainer = document.getElementById('quill-editor');
+        if (quillContainer) {
+            quillContainer.classList.remove('apex-editor-active');
+        }
+
+        // Remove connection line
+        const connectionLine = document.getElementById('apex-connection-line');
+        if (connectionLine) connectionLine.remove();
+
         // Unlock lens
         this.lens.setSearching(false);
 
@@ -689,6 +708,51 @@ export default class MagnifyingGlassInspector {
         this.editSession.element = null;
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
+    }
+
+    _drawConnectionLine(el, contentBox) {
+        // Remove any existing connection line
+        const existing = document.getElementById('apex-connection-line');
+        if (existing) existing.remove();
+
+        if (!el || !contentBox) return;
+
+        // Create SVG for the line
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.id = 'apex-connection-line';
+        svg.setAttribute('data-anothen-internal', '');
+        svg.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 19997;
+            pointer-events: none;
+        `;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('stroke', '#00ff00');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('opacity', '0.7');
+        line.setAttribute('stroke-dasharray', '5,5');
+
+        // Get positions
+        const elRect = el.getBoundingClientRect();
+        const contentRect = contentBox.getBoundingClientRect();
+
+        const x1 = elRect.left + elRect.width / 2;
+        const y1 = elRect.top + elRect.height / 2;
+        const x2 = contentRect.left + contentRect.width / 2;
+        const y2 = contentRect.top;
+
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+
+        svg.appendChild(line);
+        document.body.appendChild(svg);
     }
 
     applyEdit(el, property, value) {
