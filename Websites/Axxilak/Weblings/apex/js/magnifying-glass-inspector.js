@@ -229,6 +229,7 @@ export default class MagnifyingGlassInspector {
             // 3D MODE: Just select the element (no edit session, no lockdown)
             if (this.palette.view3DActive) {
                 const data = this.detector._extractElementData(this.highlightedElement);
+                this.palette.show(); // Make sure palette is visible
                 this.palette.update(data);
                 this._updateLayerButtons(); // Update layer button states
                 return;
