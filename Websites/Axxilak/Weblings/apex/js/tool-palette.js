@@ -103,6 +103,19 @@ export class ToolPalette {
                 </button>
                 ` : ''}
 
+                <!-- 3D VIEW CONTROLS (Only visible in 3D mode) -->
+                ${this.view3DActive ? `
+                <div class="mb-4 p-3 bg-indigo-900/30 border border-indigo-700/50 rounded-sm">
+                    <div class="palette-control">
+                        <label class="palette-label text-[9px] mb-2 flex justify-between">
+                            <span>Layer Spacing</span>
+                            <span class="text-[7px] text-indigo-300" id="spacing-value">50px</span>
+                        </label>
+                        <input type="range" id="slider-spacing" min="10" max="150" step="10" value="50" class="w-full accent-indigo-500 cursor-pointer">
+                    </div>
+                </div>
+                ` : ''}
+
                 <!-- ADVANCED PANEL (Hidden by default) -->
                 <div id="advanced-panel" class="hidden mb-4 p-3 bg-black/40 border border-zinc-800 rounded-sm">
                     <div class="palette-control mb-4 border-b border-zinc-800 pb-3">
@@ -152,6 +165,16 @@ export class ToolPalette {
                             <input type="text" id="input-padding" class="palette-input text-[10px]" value="${styles.padding}" placeholder="e.g. 10px">
                         </div>
                     </div>
+                </div>
+
+                <!-- LAYER CONTROL BUTTONS (Z-INDEX SWAP) -->
+                <div class="mb-4 flex gap-2">
+                    <button id="btn-layer-left" title="Move to higher layer (more priority)" class="flex-1 py-3 bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        ← WIN
+                    </button>
+                    <button id="btn-layer-right" title="Move to lower layer (less priority)" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-zinc-600/50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        LOSE →
+                    </button>
                 </div>
 
                 <!-- MAIN CONTROLS -->
@@ -379,6 +402,42 @@ export class ToolPalette {
         if (cancelBtn) {
             cancelBtn.onclick = () => {
                 if (this.onEdit) this.onEdit('cancel-session', true);
+            };
+        }
+
+        // Layer control buttons (Z-index swap)
+        const btnLayerLeft = document.getElementById('btn-layer-left');
+        const btnLayerRight = document.getElementById('btn-layer-right');
+
+        if (btnLayerLeft) {
+            btnLayerLeft.onclick = () => {
+                if (this.onEdit) this.onEdit('layer-swap', 'left');
+            };
+        }
+
+        if (btnLayerRight) {
+            btnLayerRight.onclick = () => {
+                if (this.onEdit) this.onEdit('layer-swap', 'right');
+            };
+        }
+
+        // 3D View Control Sliders
+        const rotationSlider = document.getElementById('slider-rotation');
+        const spacingSlider = document.getElementById('slider-spacing');
+
+        if (rotationSlider) {
+            rotationSlider.oninput = (e) => {
+                const value = parseInt(e.target.value);
+                document.getElementById('rotation-value').textContent = value + '%';
+                if (this.onEdit) this.onEdit('3d-rotation-intensity', value);
+            };
+        }
+
+        if (spacingSlider) {
+            spacingSlider.oninput = (e) => {
+                const value = parseInt(e.target.value);
+                document.getElementById('spacing-value').textContent = value + 'px';
+                if (this.onEdit) this.onEdit('3d-layer-spacing', value);
             };
         }
     }

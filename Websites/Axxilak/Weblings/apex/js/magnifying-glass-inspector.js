@@ -55,6 +55,10 @@ export default class MagnifyingGlassInspector {
         this.isPreviewMode = false;
         this.reticleZ = 0; // Depth Probe Value
 
+        // 3D View Controls
+        this.view3DRotationIntensity = 50; // 1-100 scale
+        this.view3DLayerSpacing = 50; // pixels between layers
+
         // 1. HARD PURGE: Clear any 'undefined' strings from the lattice immediately
         this._purgePoisonedEdits();
         this.edits = this.loadEdits();
@@ -103,6 +107,7 @@ export default class MagnifyingGlassInspector {
             this.highlightElement(data.element);
             this.palette.update(data);
             this.palette.show();
+            this._updateLayerButtons();
             if (this.palette.depthMapActive) {
                 this.visualizeDepth(data.element, this.reticleZ);
             }
@@ -143,6 +148,21 @@ export default class MagnifyingGlassInspector {
             }
             if (property === 'cancel-session') {
                 this._cancelEditSession();
+                return;
+            }
+
+            // Layer swap (Z-index manipulation)
+            if (property === 'layer-swap') {
+                this._swapZIndex(this.palette.currentElement, value);
+                return;
+            }
+
+            // 3D view controls
+            if (property === '3d-layer-spacing') {
+                this.view3DLayerSpacing = Math.max(10, Math.min(150, value));
+                if (this.palette.view3DActive) {
+                    this._refreshLayerView(); // Update layers with new spacing
+                }
                 return;
             }
 
@@ -919,9 +939,9 @@ export default class MagnifyingGlassInspector {
 
         scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
         scene.style.perspective = '2500px';
-        scene.style.transform = 'rotateX(25deg) rotateY(-15deg) scale(0.8)';
+        scene.style.transform = 'rotateX(35deg) rotateY(-25deg) scale(0.8)';
         scene.style.transformStyle = 'preserve-3d';
-        
+
         // UI stays outside the scene, so no extra translation needed
 
         // Add 3D Exit 'X' (Global floating fallback)
@@ -949,12 +969,9 @@ export default class MagnifyingGlassInspector {
         }
         exitX.style.display = 'flex';
 
-        scene.querySelectorAll('[data-ax-id]').forEach(el => {
-            const z = parseInt(window.getComputedStyle(el).zIndex) || 0;
-            el.style.transform = `translateZ(${z * 30}px)`;
-            el.style.transition = 'transform 0.6s ease';
-            if (z > 0) el.style.boxShadow = `0 15px 40px rgba(0,0,0,0.6)`;
-        });
+        // Show evenly-spaced layers (not scaled by z-index value)
+        this._refreshLayerView();
+        this._updateLayerButtons();
     }
 
     deactivate3DView() {
@@ -966,7 +983,7 @@ export default class MagnifyingGlassInspector {
                 el.style.boxShadow = '';
             });
         }
-        
+
         // Hide 3D Exit X
         const exitX = document.getElementById('apex-3d-exit');
         if (exitX) exitX.style.display = 'none';
@@ -976,6 +993,102 @@ export default class MagnifyingGlassInspector {
         uiElements.forEach(el => {
             if (el) el.style.transform = '';
         });
+    }
+
+    // Z-INDEX LAYER MANAGEMENT
+    _getElementStack() {
+        const scene = document.getElementById('apex-3d-scene');
+        if (!scene) return [];
+
+        const elements = Array.from(scene.querySelectorAll('[data-ax-id]'));
+        return elements
+            .map(el => ({
+                element: el,
+                zIndex: parseInt(window.getComputedStyle(el).zIndex) || 0,
+                axId: el.dataset.axId
+            }))
+            .sort((a, b) => a.zIndex - b.zIndex);
+    }
+
+    _getLayerPosition(element) {
+        const stack = this._getElementStack();
+        return stack.findIndex(item => item.element === element);
+    }
+
+    _swapZIndex(element, direction) {
+        const stack = this._getElementStack();
+        const currentPos = this._getLayerPosition(element);
+
+        if (currentPos === -1) return;
+
+        // direction: 'left' means increase z-index (win), 'right' means decrease z-index (lose)
+        const targetPos = direction === 'left' ? currentPos + 1 : currentPos - 1;
+
+        if (targetPos < 0 || targetPos >= stack.length) return; // At boundary
+
+        const targetElement = stack[targetPos].element;
+
+        // Swap z-index values
+        const currentZ = parseInt(window.getComputedStyle(element).zIndex) || 0;
+        const targetZ = parseInt(window.getComputedStyle(targetElement).zIndex) || 0;
+
+        element.style.zIndex = targetZ;
+        targetElement.style.zIndex = currentZ;
+
+        // Update both in localStorage
+        const currentSelector = this.detector.getUniqueSelector(element);
+        const targetSelector = this.detector.getUniqueSelector(targetElement);
+
+        if (!this.edits[currentSelector]) this.edits[currentSelector] = {};
+        if (!this.edits[targetSelector]) this.edits[targetSelector] = {};
+
+        this.edits[currentSelector]['zIndex'] = targetZ;
+        this.edits[targetSelector]['zIndex'] = currentZ;
+
+        this.saveEdits();
+
+        // Refresh 3D view if active
+        if (this.palette.view3DActive) {
+            this._refreshLayerView();
+        }
+
+        // Update palette to show new z-index
+        if (this.palette.currentElement === element) {
+            const currentZ = document.getElementById('input-zindex');
+            if (currentZ) currentZ.value = targetZ;
+            this._updateLayerButtons();
+        }
+    }
+
+    _updateLayerButtons() {
+        if (!this.palette.currentElement) return;
+
+        const stack = this._getElementStack();
+        const position = this._getLayerPosition(this.palette.currentElement);
+
+        const btnUp = document.getElementById('btn-layer-up');
+        const btnDown = document.getElementById('btn-layer-down');
+
+        if (btnUp) btnUp.disabled = position >= stack.length - 1;
+        if (btnDown) btnDown.disabled = position <= 0;
+    }
+
+    _refreshLayerView() {
+        if (!this.palette.view3DActive) return;
+
+        const stack = this._getElementStack();
+        const fixedSpacing = Math.max(10, this.view3DLayerSpacing); // pixels between layers (min 10)
+
+        try {
+            stack.forEach((item, index) => {
+                item.element.style.transform = `translateZ(${index * fixedSpacing}px)`;
+                if (index > 0) {
+                    item.element.style.boxShadow = `0 15px 40px rgba(0,0,0,0.6)`;
+                }
+            });
+        } catch (e) {
+            console.warn('[APEX] Layer view refresh failed:', e);
+        }
     }
 
     clearDepthMap() {
