@@ -1289,7 +1289,7 @@ export default class MagnifyingGlassInspector {
         this.controlToolbar.innerHTML = `
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
                 <!-- Layer Control Buttons -->
-                <button id="toolbar-btn-left" title="Move to lower layer (LOSE)" style="
+                <button id="toolbar-btn-left" title="View-only: Z-order visualization (modification disabled)" style="
                     padding: 8px 12px;
                     background: #333;
                     color: #00ff00;
@@ -1301,7 +1301,7 @@ export default class MagnifyingGlassInspector {
                     transition: all 0.2s;
                 ">← LOSE</button>
 
-                <button id="toolbar-btn-right" title="Move to higher layer (WIN)" style="
+                <button id="toolbar-btn-right" title="View-only: Z-order visualization (modification disabled)" style="
                     padding: 8px 12px;
                     background: #00ff00;
                     color: #000;
@@ -1359,17 +1359,17 @@ export default class MagnifyingGlassInspector {
 
         if (btnLeft) {
             btnLeft.onclick = () => {
-                if (this.palette.currentElement) {
-                    this._swapZIndex(this.palette.currentElement, 'left');
-                }
+                // Z-index modification disabled (v2: view-only mode)
+                // Users can see z-order in 3D visualization but cannot modify
+                console.log('[APEX] Z-index modification disabled - view-only mode');
             };
         }
 
         if (btnRight) {
             btnRight.onclick = () => {
-                if (this.palette.currentElement) {
-                    this._swapZIndex(this.palette.currentElement, 'right');
-                }
+                // Z-index modification disabled (v2: view-only mode)
+                // Users can see z-order in 3D visualization but cannot modify
+                console.log('[APEX] Z-index modification disabled - view-only mode');
             };
         }
 
