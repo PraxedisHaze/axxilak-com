@@ -48,6 +48,29 @@ export default class MagnifyingGlassInspector {
         `;
         document.body.appendChild(this.lockdownOverlay);
 
+        // Create 3D control toolbar (minimal, floats above everything)
+        this.controlToolbar = document.createElement('div');
+        this.controlToolbar.id = 'apex-3d-toolbar';
+        this.controlToolbar.setAttribute('data-anothen-internal', '');
+        this.controlToolbar.style.cssText = `
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            background: rgba(20, 20, 20, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: none;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            font-family: 'JetBrains Mono', monospace;
+            color: #00ff00;
+            min-width: 320px;
+        `;
+        document.body.appendChild(this.controlToolbar);
+
         // Highlight state
         this.highlightedElement = null;
         this.contextBar = this._initContextBar();
@@ -956,6 +979,9 @@ export default class MagnifyingGlassInspector {
         scene.style.transform = 'rotateX(35deg) rotateY(-25deg) scale(0.8)';
         scene.style.transformStyle = 'preserve-3d';
 
+        // Show 3D control toolbar
+        this._show3DToolbar();
+
         // UI stays outside the scene, so no extra translation needed
 
         // Add 3D Exit 'X' (Global floating fallback)
@@ -996,6 +1022,11 @@ export default class MagnifyingGlassInspector {
                 el.style.transform = '';
                 el.style.boxShadow = '';
             });
+        }
+
+        // Hide 3D control toolbar
+        if (this.controlToolbar) {
+            this.controlToolbar.style.display = 'none';
         }
 
         // Hide 3D Exit X
@@ -1103,6 +1134,101 @@ export default class MagnifyingGlassInspector {
         } catch (e) {
             console.warn('[APEX] Layer view refresh failed:', e);
         }
+    }
+
+    _show3DToolbar() {
+        if (!this.controlToolbar) return;
+
+        this.controlToolbar.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <!-- Layer Control Buttons -->
+                <button id="toolbar-btn-left" title="Move to higher layer (WIN)" style="
+                    padding: 8px 12px;
+                    background: #00ff00;
+                    color: #000;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">← WIN</button>
+
+                <button id="toolbar-btn-right" title="Move to lower layer (LOSE)" style="
+                    padding: 8px 12px;
+                    background: #333;
+                    color: #00ff00;
+                    border: 2px solid #00ff00;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">LOSE →</button>
+
+                <!-- Layer Spacing Slider -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 10px; white-space: nowrap;">Spacing:</label>
+                    <input type="range" id="toolbar-spacing" min="10" max="150" step="10" value="50" style="
+                        width: 80px;
+                        cursor: pointer;
+                    ">
+                </div>
+
+                <!-- Exit Button -->
+                <button id="toolbar-exit" title="Exit 3D mode" style="
+                    padding: 8px 12px;
+                    background: #ff0000;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                ">✕ EXIT 3D</button>
+            </div>
+        `;
+
+        // Wire up button handlers
+        const btnLeft = this.controlToolbar.querySelector('#toolbar-btn-left');
+        const btnRight = this.controlToolbar.querySelector('#toolbar-btn-right');
+        const spacingSlider = this.controlToolbar.querySelector('#toolbar-spacing');
+        const exitBtn = this.controlToolbar.querySelector('#toolbar-exit');
+
+        if (btnLeft) {
+            btnLeft.onclick = () => {
+                if (this.palette.currentElement) {
+                    this._swapZIndex(this.palette.currentElement, 'left');
+                }
+            };
+        }
+
+        if (btnRight) {
+            btnRight.onclick = () => {
+                if (this.palette.currentElement) {
+                    this._swapZIndex(this.palette.currentElement, 'right');
+                }
+            };
+        }
+
+        if (spacingSlider) {
+            spacingSlider.oninput = (e) => {
+                this.view3DLayerSpacing = parseInt(e.target.value);
+                this._refreshLayerView();
+            };
+        }
+
+        if (exitBtn) {
+            exitBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.palette.view3DActive = false;
+                this.deactivate3DView();
+                if (this.palette.lastData) this.palette.update(this.palette.lastData);
+            };
+        }
+
+        this.controlToolbar.style.display = 'block';
     }
 
     clearDepthMap() {
