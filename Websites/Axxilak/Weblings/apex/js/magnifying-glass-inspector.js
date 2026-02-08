@@ -470,8 +470,21 @@ export default class MagnifyingGlassInspector {
         // THEN update with data (initializes Quill with proper layout)
         this.palette.update(data);
 
-        // THEN auto-focus palette editor based on role
-        this.palette.focusEditor(data.role);
+        // PREVENT INLINE EDITING: Blur the element so cursor doesn't appear inline
+        el.blur();
+
+        // THEN auto-focus palette editor based on role (immediately, not deferred)
+        if (data.role === 'text') {
+            const quillEditor = document.querySelector('.ql-editor');
+            if (quillEditor) {
+                quillEditor.focus();
+            }
+        } else {
+            const colorInput = document.getElementById('input-color');
+            if (colorInput) {
+                colorInput.focus();
+            }
+        }
 
         // Show save/cancel buttons
         this.palette.showEditControls(true);
