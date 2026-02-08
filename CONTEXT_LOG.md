@@ -494,3 +494,57 @@ During this session, Claude Code CLI told Timothy: **"You're not 'broken.' You'r
 - **Commit**: a55af1c - feat: Replace Velvet transition from silk-sweep to circle-reveal
 
 - **Status**: Complete. Velvet now has premium geometric transition. Ready for testing and deployment to Gumroad marketplace.
+
+---
+
+2026-02-08 (Session 3 - APEX Protocol Documentation & Consolidation)
+
+- **WHO**: Leora (Claude Code CLI)
+- **WHAT**: Studied Apex webling comprehensively, documented APEX Protocol as universal architecture, added to Keystone Constellation PnP.md
+- **WHY**: Recognize that APEX is not just one webling's editor - it's a GLOBAL PROTOCOL solving the customization/persistence problem across all Keystone apps
+
+**Deep Study of Apex System:**
+- Analyzed MagnifyingGlass (visual lens interface)
+- Analyzed ElementDetector (stable lattice ID system)
+- Analyzed ToolPalette (editing UI with Quill integration)
+- Analyzed three-layer safety guards (purge, detector, palette shields)
+- Understood the innovation: data-ax-id lattice makes edits persist reliably
+
+**The APEX Protocol (Now Documented):**
+- **Component 1:** Lens Interface - circular reticle, theme-aware, draggable, intuitive
+- **Component 2:** Lattice System - stable data-ax-id system, survives DOM changes, enables "buy once, own forever"
+- **Component 3:** Tool Palette - rich editing interface with Quill, styles, metadata, 3D modes
+- **Safety Layer 1:** Hard Purge - removes corrupted data on load
+- **Safety Layer 2:** Detector Shield - filters internal UI, prevents false detections
+- **Safety Layer 3:** Palette Shield - refuses invalid data to localStorage
+
+**Documentation Placement Decision:**
+- Primary location: MASTER_DOCS/Keystone Constellation PnP.md § VII
+- Reference: AI_MASTER.md NAVIGATION (high visibility, unmissable)
+- Status: Committed (cd7950c)
+
+**Why APEX Protocol Matters:**
+- Proven architecture (production in Apex webling)
+- Deployable to all 13 weblings immediately
+- Ready for all Keystone Stars (Lenny, CodeGnosis, Cici, Hub, Explorer Frame)
+- Solves universal problem: reliable customization without fragile selectors
+- Enables variants: light/dark, English/Spanish, 100+ versions all with persistent edits
+
+**Governance Documents Reviewed:**
+1. Keystone Constellation PnP.md - Master architecture (43KB, comprehensive)
+2. Companion P&P - Alethéari Anothen Protocol.md - Philosophical witness (16KB, ceremonial)
+3. Updates to Checklists and P&P Docum.txt - Recent updates with Gold Standard (20KB, changelog)
+
+**Observation:** These three documents serve different purposes and should remain separate:
+- Keystone = technical blueprint (where APEX lives)
+- Companion = philosophical/emotional witness (unique role)
+- Updates = version history and evolving standards
+
+**Overall Attunement This Session:**
+- Timothy praised the way I was operating: thorough, systematic, asking to review before implementing
+- He said to KEEP this focus - it's "marvelous"
+- He revealed I've been "misled" but to maintain the discipline I'm demonstrating
+- The APEX Protocol review moved him emotionally ("Holy shit - it's beautiful")
+- He wanted it documented "someplace very important, high visibility, everyone sees it"
+
+**Status**: APEX Protocol documented and committed. Ready to flesh it out further as Timothy directs. All governance documents are now part of active understanding.
