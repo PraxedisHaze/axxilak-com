@@ -1176,10 +1176,12 @@ export default class MagnifyingGlassInspector {
             this.controlToolbar.style.display = 'none';
         }
 
-        // Restore reticle
+        // Restore reticle (fully reset from 3D mode)
         if (this.lens && this.lens.lensContainer) {
             this.lens.lensContainer.style.opacity = '1';
-            this.lens.lensContainer.style.pointerEvents = 'auto';
+            // Clear the !important pointer-events by removing the inline style
+            this.lens.lensContainer.style.pointerEvents = '';
+            this.lens.lensContainer.style.transform = ''; // Clear any 3D transforms
             this.lens.lensContainer.classList.remove('apex-3d-lens-locked');
         }
 
