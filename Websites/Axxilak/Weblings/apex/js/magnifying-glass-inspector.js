@@ -528,6 +528,13 @@ export default class MagnifyingGlassInspector {
         // Skip locked elements
         if (el.dataset.axLocked === 'true') return;
 
+        // Skip structural elements (headers, navs, containers with children)
+        // Reason: Setting innerText on structural elements destroys all children
+        if (data.role === 'structure') {
+            console.warn('[APEX] Cannot edit structural elements - they contain children');
+            return;
+        }
+
         // Initialize edit session
         this.editSession.active = true;
         this.editSession.element = el;
