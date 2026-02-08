@@ -1125,8 +1125,10 @@ export default class MagnifyingGlassInspector {
 
         // UI stays outside the scene, so no extra translation needed
 
-        // Hide reticle when over toolbar
-        this.lens.lensContainer.style.pointerEvents = 'none';
+        // DISABLE lens interactions in 3D mode (view-only visualization)
+        // Keep visual but prevent all communication with elements
+        this.lens.lensContainer.style.pointerEvents = 'none !important';
+        this.lens.lensContainer.classList.add('apex-3d-lens-locked');
         this.controlToolbar.style.cursor = 'auto';
 
         // Track mouse over toolbar to hide/show reticle
@@ -1174,10 +1176,11 @@ export default class MagnifyingGlassInspector {
             this.controlToolbar.style.display = 'none';
         }
 
-        // Restore reticle opacity
+        // Restore reticle
         if (this.lens && this.lens.lensContainer) {
             this.lens.lensContainer.style.opacity = '1';
-            this.lens.lensContainer.style.pointerEvents = 'auto'; // Restore lens pointer-events
+            this.lens.lensContainer.style.pointerEvents = 'auto';
+            this.lens.lensContainer.classList.remove('apex-3d-lens-locked');
         }
 
         // Reset UI layering (if any was applied)
