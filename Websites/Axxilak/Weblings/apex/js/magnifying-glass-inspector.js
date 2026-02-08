@@ -224,6 +224,17 @@ export default class MagnifyingGlassInspector {
             // Block other palette clicks
             if (isOverPalette) return;
 
+            if (!this.highlightedElement) return;
+
+            // 3D MODE: Just select the element (no edit session, no lockdown)
+            if (this.palette.view3DActive) {
+                const data = this.detector._extractElementData(this.highlightedElement);
+                this.palette.update(data);
+                this._updateLayerButtons(); // Update layer button states
+                return;
+            }
+
+            // NORMAL MODE: Start edit session
             // Warn if unsaved changes exist
             if (this.editSession.active) {
                 if (confirm('You have unsaved changes. Discard them?')) {
@@ -234,9 +245,7 @@ export default class MagnifyingGlassInspector {
             }
 
             // Start new edit session
-            if (this.highlightedElement) {
-                this._startEditSession(this.highlightedElement);
-            }
+            this._startEditSession(this.highlightedElement);
         });
 
         // DEPTH PROBE SCROLLING
@@ -936,6 +945,11 @@ export default class MagnifyingGlassInspector {
     activate3DView() {
         const scene = document.getElementById('apex-3d-scene');
         if (!scene) return;
+
+        // Cancel any active edit session (3D is view-only mode)
+        if (this.editSession.active) {
+            this._endEditSession();
+        }
 
         scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
         scene.style.perspective = '2500px';
