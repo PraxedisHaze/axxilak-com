@@ -298,7 +298,7 @@ export default class MagnifyingGlassInspector {
 
             // Start new edit session on the actual clicked element
             this._startEditSession(clickedElement);
-        });
+        }, { capture: true });
 
         // DEPTH PROBE SCROLLING
         document.addEventListener('wheel', (e) => {
