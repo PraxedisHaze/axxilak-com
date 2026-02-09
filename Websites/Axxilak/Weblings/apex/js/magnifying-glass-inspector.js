@@ -132,7 +132,6 @@ export default class MagnifyingGlassInspector {
             this.highlightElement(data.element);
             this.palette.update(data);
             this.palette.show();
-            this._updateLayerButtons();
             if (this.palette.depthMapActive) {
                 this.visualizeDepth(data.element, this.reticleZ);
             }
@@ -282,8 +281,7 @@ export default class MagnifyingGlassInspector {
                 this.highlightElement(clickedElement); // Update highlight for consistency
                 this.palette.show();
                 this.palette.update(data);
-                this._updateLayerButtons();
-                return;
+                    return;
             }
 
             // NORMAL MODE: Start edit session
@@ -1312,22 +1310,9 @@ export default class MagnifyingGlassInspector {
         if (this.palette.currentElement === element) {
             const currentZ = document.getElementById('input-zindex');
             if (currentZ) currentZ.value = targetZ;
-            this._updateLayerButtons();
         }
     }
 
-    _updateLayerButtons() {
-        if (!this.palette.currentElement) return;
-
-        const stack = this._getElementStack();
-        const position = this._getLayerPosition(this.palette.currentElement);
-
-        const btnLeft = document.getElementById('btn-layer-left');
-        const btnRight = document.getElementById('btn-layer-right');
-
-        if (btnLeft) btnLeft.disabled = position >= stack.length - 1;
-        if (btnRight) btnRight.disabled = position <= 0;
-    }
 
     _refreshLayerView() {
         if (!this.palette.view3DActive) return;

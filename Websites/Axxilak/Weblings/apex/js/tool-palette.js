@@ -167,13 +167,13 @@ export class ToolPalette {
                     </div>
                 </div>
 
-                <!-- LAYER CONTROL BUTTONS (Z-INDEX SWAP) -->
+                <!-- SAVE/CANCEL BUTTONS -->
                 <div class="mb-4 flex gap-2">
-                    <button id="btn-layer-left" title="Move to higher layer (more priority)" class="flex-1 py-3 bg-indigo-700 hover:bg-indigo-600 text-white font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        ← WIN
+                    <button id="btn-save-changes" title="Save changes" class="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-green-500/50">
+                        ✓ SAVE
                     </button>
-                    <button id="btn-layer-right" title="Move to lower layer (less priority)" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-zinc-600/50 disabled:opacity-50 disabled:cursor-not-allowed">
-                        LOSE →
+                    <button id="btn-cancel-changes" title="Cancel changes" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-zinc-600/50">
+                        ✕ CANCEL
                     </button>
                 </div>
 
@@ -405,19 +405,19 @@ export class ToolPalette {
             };
         }
 
-        // Layer control buttons (Z-index swap)
-        const btnLayerLeft = document.getElementById('btn-layer-left');
-        const btnLayerRight = document.getElementById('btn-layer-right');
+        // Save/Cancel buttons
+        const btnSave = document.getElementById('btn-save-changes');
+        const btnCancel = document.getElementById('btn-cancel-changes');
 
-        if (btnLayerLeft) {
-            btnLayerLeft.onclick = () => {
-                if (this.onEdit) this.onEdit('layer-swap', 'left');
+        if (btnSave) {
+            btnSave.onclick = () => {
+                if (this.onEdit) this.onEdit('save-session', true);
             };
         }
 
-        if (btnLayerRight) {
-            btnLayerRight.onclick = () => {
-                if (this.onEdit) this.onEdit('layer-swap', 'right');
+        if (btnCancel) {
+            btnCancel.onclick = () => {
+                if (this.onEdit) this.onEdit('cancel-session', true);
             };
         }
 
