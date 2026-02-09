@@ -135,14 +135,7 @@ export class ElementDetector {
     // 1. MEDIA ROLE
     if (tagName === 'img') return true;
 
-    // 2. STRUCTURE ROLE (Fallbacks for move/clone)
-    if (['section', 'header', 'footer', 'main', 'article', 'div'].includes(tagName)) {
-      // Only treat as structural if it has child elements (is a container)
-      // NOTE: 'nav' excluded because it's always structural UI, never editable content
-      if (Array.from(el.childNodes).some(n => n.nodeType === 1)) return true;
-    }
-    
-    // 3. TEXT ROLE (Leaf elements only)
+    // 2. TEXT ROLE (Leaf elements - check before structure to prioritize buttons/links)
     if (['h1','h2','h3','h4','h5','h6','p','span','button','a'].includes(tagName)) {
       // If it has children, check if it's a 'leaf container' (e.g., a link containing a single span)
       const childElements = Array.from(el.childNodes).filter(n => n.nodeType === 1);
@@ -150,10 +143,30 @@ export class ElementDetector {
         // If it has only one or two small children, we allow it as a text-leaf for branding/links
         if (childElements.length <= 2) return true;
         // Otherwise, it's structural
-        return true; 
+        return true;
       }
       return (el.innerText || '').trim().length > 0;
     }
+
+    // 3. STRUCTURE ROLE (Fallbacks for move/clone - only after text elements)
+    if (['section', 'header', 'footer', 'main', 'article', 'div'].includes(tagName)) {
+      // Only treat as structural if it has child elements (is a container)
+      // BUT: Don't treat as structural if it only contains form controls (buttons, inputs, etc)
+      // NOTE: 'nav' excluded because it's always structural UI, never editable content
+      const children = Array.from(el.childNodes).filter(n => n.nodeType === 1);
+      if (children.length === 0) return false;
+
+      // Check if all children are form controls (buttons, inputs, etc) - skip those containers
+      const allFormControls = children.every(child => {
+        const childTag = child.tagName.toLowerCase();
+        return ['button', 'input', 'select', 'textarea'].includes(childTag);
+      });
+
+      if (allFormControls) return false; // Skip containers that only hold form controls
+
+      return true; // Container with mixed/content children is editable
+    }
+
     return false;
   }
 
