@@ -131,13 +131,14 @@ export class ElementDetector {
 
   _isEditable(el) {
     const tagName = el.tagName.toLowerCase();
-    
+
     // 1. MEDIA ROLE
     if (tagName === 'img') return true;
 
     // 2. STRUCTURE ROLE (Fallbacks for move/clone)
-    if (['section', 'header', 'footer', 'main', 'article', 'div', 'nav'].includes(tagName)) {
+    if (['section', 'header', 'footer', 'main', 'article', 'div'].includes(tagName)) {
       // Only treat as structural if it has child elements (is a container)
+      // NOTE: 'nav' excluded because it's always structural UI, never editable content
       if (Array.from(el.childNodes).some(n => n.nodeType === 1)) return true;
     }
     
