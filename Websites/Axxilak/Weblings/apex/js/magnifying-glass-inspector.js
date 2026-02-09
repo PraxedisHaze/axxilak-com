@@ -535,6 +535,9 @@ export default class MagnifyingGlassInspector {
         this.editSession.pendingChanges = {};
         this.editSession.disabledButtons = []; // Track buttons we disable
 
+        // ENABLE BUTTON DISABLE GUARD: Tell HandlerDispatcher to block button clicks
+        window.inspectorEditMode = true;
+
         // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
             if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-')) { // Skip EDIT and toolbar buttons
@@ -928,6 +931,9 @@ export default class MagnifyingGlassInspector {
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
         this.editSession.disabledButtons = [];
+
+        // DISABLE BUTTON DISABLE GUARD: Tell HandlerDispatcher to allow button clicks again
+        window.inspectorEditMode = false;
 
         // UNLOCK PAGE - Remove the lockdown overlay and restore pointer-events
         this.lockdownOverlay.style.display = 'none';

@@ -1221,6 +1221,9 @@
         // Initialize universal handler dispatcher (handles data-handler attributes)
         const dispatcher = new HandlerDispatcher();
 
+        // Edit Mode State: Inspector can toggle this to disable buttons
+        window.inspectorEditMode = false;
+
         let inspector = null;
         let editMode = false;
 

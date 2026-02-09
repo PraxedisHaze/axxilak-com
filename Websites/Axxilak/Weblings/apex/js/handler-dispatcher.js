@@ -79,6 +79,19 @@ class HandlerDispatcher {
             const target = e.target.closest('[data-handler]');
             if (!target) return;
 
+            // EDIT MODE GUARD: Block handlers when inspector is in edit mode
+            if (window.inspectorEditMode === true) {
+                // Allow clicks only if target is inside palette or internal UI
+                const inPalette = e.target.closest('#palette-container');
+                const inInternal = e.target.closest('[data-anothen-internal]');
+
+                if (!inPalette && !inInternal) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                    return false;  // Block handler execution
+                }
+            }
+
             const handlerAttr = target.getAttribute('data-handler');
             if (!handlerAttr) return;
 
