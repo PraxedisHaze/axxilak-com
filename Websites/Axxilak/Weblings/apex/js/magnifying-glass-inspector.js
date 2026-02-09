@@ -272,6 +272,7 @@ export default class MagnifyingGlassInspector {
             }
 
             // Block data-handler execution on editable content elements
+            console.log('[APEX] BLOCKING click on:', clickedElement.tagName, 'text:', clickedElement.innerText?.slice(0, 20));
             e.preventDefault();
             e.stopImmediatePropagation();
 
