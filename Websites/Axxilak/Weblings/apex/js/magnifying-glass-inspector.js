@@ -528,18 +528,25 @@ export default class MagnifyingGlassInspector {
         // Skip locked elements
         if (el.dataset.axLocked === 'true') return;
 
-        // Skip structural elements (headers, navs, containers with children)
-        // Reason: Setting innerText on structural elements destroys all children
-        if (data.role === 'structure') {
-            console.warn('[APEX] Cannot edit structural elements - they contain children');
-            return;
-        }
-
         // Initialize edit session
         this.editSession.active = true;
         this.editSession.element = el;
         this.editSession.originalState = this._captureElementState(el);
         this.editSession.pendingChanges = {};
+        this.editSession.disabledButtons = []; // Track buttons we disable
+
+        // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-')) { // Skip EDIT and toolbar buttons
+                // Store original onclick
+                this.editSession.disabledButtons.push({
+                    button: btn,
+                    originalOnclick: btn.onclick
+                });
+                // Disable it
+                btn.onclick = null;
+            }
+        });
 
         // Lock lens to element center
         const rect = el.getBoundingClientRect();
@@ -596,7 +603,7 @@ export default class MagnifyingGlassInspector {
             return false;
         };
 
-        // CRITICAL: Disable pointer-events on ALL page content (stops all clicks, even inline onclick)
+        // CRITICAL: Disable pointer-events on ALL page content
         const scene = document.getElementById('apex-3d-scene');
         if (scene) {
             scene.style.pointerEvents = 'none !important';
@@ -903,11 +910,19 @@ export default class MagnifyingGlassInspector {
         this.palette.showEditControls(false);
         this.palette.setDirty(false);
 
+        // RESTORE button handlers that were disabled during edit
+        if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
+            this.editSession.disabledButtons.forEach(({ button, originalOnclick }) => {
+                button.onclick = originalOnclick;
+            });
+        }
+
         // Reset session state
         this.editSession.active = false;
         this.editSession.element = null;
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
+        this.editSession.disabledButtons = [];
 
         // UNLOCK PAGE - Remove the lockdown overlay and restore pointer-events
         this.lockdownOverlay.style.display = 'none';
