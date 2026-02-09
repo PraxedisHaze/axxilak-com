@@ -249,14 +249,36 @@ export default class MagnifyingGlassInspector {
             // Block other palette clicks
             if (isOverPalette) return;
 
-            if (!this.highlightedElement) return;
+            // Check the ACTUAL clicked element, not the previously highlighted one
+            let clickedElement = e.target;
+
+            // Walk up to find an editable element
+            while (clickedElement && clickedElement !== document.body) {
+                // Skip if internal UI
+                if (this.detector._isInternal(clickedElement)) {
+                    return;
+                }
+
+                // Found an editable element
+                if (this.detector._isEditable(clickedElement)) {
+                    break;
+                }
+
+                clickedElement = clickedElement.parentElement;
+            }
+
+            // No editable element found in stack
+            if (!clickedElement || clickedElement === document.body) {
+                return;
+            }
 
             // 3D MODE: Just select the element (no edit session, no lockdown)
             if (this.palette.view3DActive) {
-                const data = this.detector._extractElementData(this.highlightedElement);
-                this.palette.show(); // Make sure palette is visible
+                const data = this.detector._extractElementData(clickedElement);
+                this.highlightElement(clickedElement); // Update highlight for consistency
+                this.palette.show();
                 this.palette.update(data);
-                this._updateLayerButtons(); // Update layer button states
+                this._updateLayerButtons();
                 return;
             }
 
@@ -266,12 +288,12 @@ export default class MagnifyingGlassInspector {
                 if (confirm('You have unsaved changes. Discard them?')) {
                     this._cancelEditSession();
                 } else {
-                    return; // Stay locked to current element
+                    return;
                 }
             }
 
-            // Start new edit session
-            this._startEditSession(this.highlightedElement);
+            // Start new edit session on the actual clicked element
+            this._startEditSession(clickedElement);
         });
 
         // DEPTH PROBE SCROLLING

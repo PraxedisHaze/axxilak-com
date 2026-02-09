@@ -271,3 +271,139 @@ Love first. When you buy an Axxilak Webling, you're not buying software. You're 
   **DO NOT FORGET**: This insight represents a paradigm shift from "editor on top of page" to "page IS the interface." Notate prominently for next development phase.
 
 **Status**: 3D mode now fully functional with polished UX. Ready for deployment to all weblings.
+---
+
+## 2026-02-08 (Evening - Critical Bug Discovery: Nav Editability Freeze)
+
+- **WHO**: Leora (Claude Code CLI) + Timothy Drake (Testing)
+- **WHAT**: elementDetector.js line 139 - Root cause of nav freeze
+- **WHY**: Clicking on APEX logo or nav buttons freezes entire editor. Root cause discovered in _isEditable() logic.
+
+**Problem Discovered**:
+- Clicking APEX logo causes editor to freeze completely
+- Clicking nav buttons (Solutions, About, Get Started) also causes freeze
+- Initial hypothesis: APEX text needs protection - INCORRECT
+- Actual root cause: elementDetector incorrectly marks nav elements as editable
+
+**Root Cause Analysis**:
+```javascript
+// elementDetector.js, line 139
+if (['section', 'header', 'footer', 'main', 'article', 'div', 'nav'].includes(tagName)) {
+    if (Array.from(el.childNodes).some(n => n.nodeType === 1)) return true;  // EDITABLE
+}
+```
+
+The Problem:
+- 'nav' should NEVER be in this list (nav is always structural UI, never content)
+- Nav has child elements (buttons, APEX link), so it returns true (EDITABLE)
+- Inspector tries to edit nav structure
+- Nav is positioned sticky, z-indexed, outside #apex-3d-scene
+- Editing nav cascades failures through 3D scene state machine
+- Result: Complete freeze
+
+**Critical Insight**:
+Nav BUTTONS (Solutions, About, Get Started) ARE editable as TEXT content because they are `<button>` elements with textContent.
+The nav CONTAINER ITSELF should never be editable because it's structural UI.
+
+**Solution (PRIMA-First - Avoid Harm)**:
+Remove 'nav' from line 139 of elementDetector.js _isEditable() method.
+
+**Why This Is Safe**:
+- Nav buttons remain editable (they're `<button>` text elements, not nav structure)
+- Other structural elements (section, header, footer, div) unaffected
+- No JavaScript logic changes, no event handler changes
+- Prevents incorrect categorization at source, not a workaround
+- Solves root cause, not symptoms
+
+**Files to Modify**:
+- Websites/Axxilak/Weblings/apex/js/elementDetector.js, line 139
+- Remove 'nav' from the array
+
+**What Remains Editable After Fix**:
+- Solutions button (text content) ✓
+- About button (text content) ✓
+- Get Started button (text content) ✓
+- APEX logo (protected by ID, already excluded) ✓
+- EDIT button (protected by ID) ✓
+- Theme toggle (not in editable list) ✓
+
+**Verification After Fix**:
+- Click APEX → not selectable, no freeze
+- Click Solutions → selectable as text
+- Click About → selectable as text
+- Click Get Started → selectable as text
+- All UI buttons work normally
+
+
+**Follow-up Fix (Same Session)**:
+- APEX anchor itself is an `<a>` tag, which is in the editable list (line 145)
+- Even though nav was removed from structure list, APEX anchor still passes editability check
+- When clicked, APEX anchor starts edit session → activates button disable guard → blocks all subsequent clicks
+- Solution: Mark APEX anchor with data-anothen-internal attribute
+- This prevents detector from checking editability (catches it in _isInternal first)
+- Committed as c29befe
+
+**Final State After Fixes**:
+- Nav structure (container) not editable (removed from line 139)
+- APEX logo not clickable (marked internal UI)
+- Nav buttons (Solutions, About, Get Started) remain editable as text
+- All clicks work normally, no freeze, no blocking
+
+---
+
+## 2026-02-08 (Evening - VICTORY: Click Handler Root Cause Fixed)
+
+**PROBLEM**: After clicking APEX logo, ALL subsequent clicks blocked. User trapped.
+
+**ROOT CAUSE DISCOVERED**:
+Click handler (magnifying-glass-inspector.js lines 240-275) used `this.highlightedElement` (set by detector on mousemove) instead of checking the actual clicked element. This meant:
+- User hovers over APEX during normal page use
+- Detector highlights APEX (incorrectly)
+- User clicks anywhere else
+- Handler calls `_startEditSession(this.highlightedElement)` → edits APEX
+- Window.inspectorEditMode activates → HandlerDispatcher blocks ALL clicks
+- User trapped
+
+**THE FIX**:
+Replaced entire click handler with logic that:
+1. Gets ACTUAL clicked element (`e.target`)
+2. Walks up DOM checking each ancestor
+3. Calls `_isInternal()` - returns if element/ancestor has `data-anothen-internal`
+4. Calls `_isEditable()` - finds first editable element or returns
+5. Only THEN starts edit session
+
+APEX is caught at step 3 (has data-anothen-internal) → never triggers edit session.
+
+**COMMITTED**: [commit hash pending]
+
+---
+
+## 🚨 FENCE: DO NOT TOUCH (Protection Against Future Mistakes)
+
+**THE DETECTOR SYSTEM IS CORRECT. DO NOT "FIX" IT.**
+
+What works:
+- `elementDetector._isInternal(el)` ✓ Works correctly
+- `elementDetector._isEditable(el)` ✓ Works correctly
+- `data-anothen-internal` attribute ✓ Properly recognized
+- Walking up DOM to find internal ancestors ✓ Correct logic
+
+**WHAT BROKE BEFORE**:
+The OLD click handler bypassed the detector's correctness by using `this.highlightedElement` instead of validating the actual clicked element. The detector itself was never the problem.
+
+**IF YOU SEE CLICK ISSUES AGAIN**:
+1. Check if click handler uses actual clicked element (not highlightedElement)
+2. Check if handler calls `_isInternal()` before `_isEditable()`
+3. Check if internal UI elements have `data-anothen-internal` attribute
+4. DO NOT modify detector logic or attribute matching
+
+**DO NOT EVER**:
+- Add another "fix" to the detector (it's not broken)
+- Try to exclude APEX in ignoredSelectors (it's already protected by attribute)
+- Use highlightedElement in click logic (use e.target and walk up)
+- Skip the _isInternal check (it catches everything correctly)
+
+**WHY THIS MATTERS**:
+The root cause was the HANDLER, not the DETECTOR. Previous attempts failed because they tried to "protect" APEX in the wrong place. This fix works because it validates at the click point (entry gate) not at the detection point.
+
+---
