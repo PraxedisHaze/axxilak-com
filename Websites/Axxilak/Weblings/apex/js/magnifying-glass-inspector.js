@@ -538,12 +538,14 @@ export default class MagnifyingGlassInspector {
         // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
             if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-')) { // Skip EDIT and toolbar buttons
-                // Store original onclick
+                // Store original onclick attribute
                 this.editSession.disabledButtons.push({
                     button: btn,
-                    originalOnclick: btn.onclick
+                    originalOnclick: btn.getAttribute('onclick'),
+                    originalProperty: btn.onclick
                 });
-                // Disable it
+                // Disable it (both attribute and property)
+                btn.removeAttribute('onclick');
                 btn.onclick = null;
             }
         });
@@ -912,8 +914,11 @@ export default class MagnifyingGlassInspector {
 
         // RESTORE button handlers that were disabled during edit
         if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
-            this.editSession.disabledButtons.forEach(({ button, originalOnclick }) => {
-                button.onclick = originalOnclick;
+            this.editSession.disabledButtons.forEach(({ button, originalOnclick, originalProperty }) => {
+                if (originalOnclick) {
+                    button.setAttribute('onclick', originalOnclick);
+                }
+                button.onclick = originalProperty;
             });
         }
 
