@@ -272,6 +272,10 @@ export default class MagnifyingGlassInspector {
                 return;
             }
 
+            // Block data-handler execution on editable content elements
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
             // 3D MODE: Just select the element (no edit session, no lockdown)
             if (this.palette.view3DActive) {
                 const data = this.detector._extractElementData(clickedElement);
