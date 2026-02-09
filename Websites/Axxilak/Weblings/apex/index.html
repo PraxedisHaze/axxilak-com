@@ -305,7 +305,7 @@
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
                 <a href="#solutions" class="hover:text-[var(--accent)] transition">Solutions</a>
                 <a href="#about-text" class="hover:text-[var(--accent)] transition">About</a>
-                <a href="#contact" class="btn-apex rounded-sm">Get Started</a>
+                <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button>
                 <button onclick="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
@@ -330,8 +330,7 @@
                 onclick="this.parentElement.classList.add('hidden')">Solutions</a>
             <a href="#about-text" class="text-sm font-medium hover:text-[var(--accent)]"
                 onclick="this.parentElement.classList.add('hidden')">About</a>
-            <a href="#contact" class="btn-apex rounded-sm text-center"
-                onclick="this.parentElement.classList.add('hidden')">Get Started</a>
+            <button onclick="this.parentElement.classList.add('hidden'); document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
         </div>
     </nav>
 
@@ -365,8 +364,8 @@
                 Built for speed, optimized for conversion, crystallized for the future.
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <a href="#contact" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20">Initialize
-                    Project</a>
+                <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize
+                    Project</button>
                 <a href="#solutions"
                     class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View
                     Solutions</a>
