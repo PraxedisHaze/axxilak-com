@@ -251,19 +251,16 @@ export default class MagnifyingGlassInspector {
 
             // Check the ACTUAL clicked element, not the previously highlighted one
             let clickedElement = e.target;
-            console.log('[CLICK HANDLER] Clicked on:', clickedElement.tagName, clickedElement.className, clickedElement.textContent?.slice(0, 20));
 
             // Walk up to find an editable element
             while (clickedElement && clickedElement !== document.body) {
                 // Skip if internal UI
                 if (this.detector._isInternal(clickedElement)) {
-                    console.log('[CLICK HANDLER] Element is internal, returning');
                     return;
                 }
 
                 // Found an editable element
                 if (this.detector._isEditable(clickedElement)) {
-                    console.log('[CLICK HANDLER] Element is editable:', clickedElement.tagName);
                     break;
                 }
 
@@ -272,12 +269,10 @@ export default class MagnifyingGlassInspector {
 
             // No editable element found in stack
             if (!clickedElement || clickedElement === document.body) {
-                console.log('[CLICK HANDLER] No editable element found');
                 return;
             }
 
             // Block data-handler execution on editable content elements
-            console.log('[CLICK HANDLER] BLOCKING event - preventDefault + stopImmediatePropagation');
             e.preventDefault();
             e.stopImmediatePropagation();
 
@@ -302,7 +297,6 @@ export default class MagnifyingGlassInspector {
             }
 
             // Start new edit session on the actual clicked element
-            console.log('[CLICK HANDLER] Starting edit session');
             this._startEditSession(clickedElement);
         }, { capture: true });
 
