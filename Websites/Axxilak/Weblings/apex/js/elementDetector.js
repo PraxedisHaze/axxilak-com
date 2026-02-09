@@ -64,10 +64,18 @@ export class ElementDetector {
     }
 
     let element = null;
+    console.log('[APEX][detect] Element stack:', elements.slice(0, 5).map(e => e.tagName + (e.id ? '#'+e.id : '') + (e.className ? '.' + e.className.split(' ')[0] : '')));
     for (const el of elements) {
       if (!el) continue;
-      if (this._isInternal(el)) continue;
-      if (!this._isEditable(el)) continue;
+      if (this._isInternal(el)) {
+        console.log('[APEX][detect]   → ' + el.tagName + ' is INTERNAL');
+        continue;
+      }
+      if (!this._isEditable(el)) {
+        console.log('[APEX][detect]   → ' + el.tagName + ' NOT EDITABLE');
+        continue;
+      }
+      console.log('[APEX][detect]   → FOUND EDITABLE: ' + el.tagName + ' text: ' + (el.innerText?.slice(0, 30) || '(none)'));
       element = el;
       break;
     }
