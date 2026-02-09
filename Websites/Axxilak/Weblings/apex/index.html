@@ -284,17 +284,38 @@
             fill: #2563eb;
         }
 
-        /* === QUILL EDITOR TEXT COLOR (APEX PALETTE) === */
+        /* ... QUILL EDITOR TEXT COLOR (APEX PALETTE) === */
         #quill-editor .ql-container,
         #quill-editor .ql-editor {
             color: #00ff00;
+        }
+
+        /* === STANDARDIZED BUTTON LINKS === */
+        .btn-link {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
         }
     </style>
 </head>
 
 <body class="antialiased">
+    <!-- Boot Overlay (Moved outside 3D scene to prevent hit-box interference) -->
+    <div id="boot-overlay">
+        <div class="boot-text" id="boot-log"></div>
+    </div>
+
+    <!-- Global Grid (Moved outside 3D scene) -->
+    <div id="global-grid" class="fixed inset-0 cyber-grid z-0 pointer-events-none" style="height: 120vh; top: -10vh;">
+    </div>
+
     <!-- Nav (OUTSIDE 3D scene - never transformed) -->
-    <nav class="sticky top-0 w-full backdrop-blur-md border-b z-50 theme-aware" data-ax-locked="true" style="position: relative; z-index: 100;">
+    <nav class="sticky top-0 w-full backdrop-blur-md border-b z-50 theme-aware" style="position: relative; z-index: 100;">
         <div class="max-w-7xl mx-auto p-4 md:p-6 flex justify-between items-center relative">
             <a href="#" class="text-xl font-extrabold tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <div class="w-3 h-3 bg-[var(--accent)]"></div>
@@ -303,10 +324,10 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
-                <a href="#solutions" class="hover:text-[var(--accent)] transition">Solutions</a>
-                <a href="#about-text" class="hover:text-[var(--accent)] transition">About</a>
-                <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button>
-                <button onclick="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
+                <button data-handler="scrollTo('#solutions')" class="btn-link hover:text-[var(--accent)] transition">Solutions</button>
+                <button data-handler="scrollTo('#about-text')" class="btn-link hover:text-[var(--accent)] transition">About</button>
+                <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button>
+                <button data-handler="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
                 <button id="edit-mode-btn"
@@ -318,7 +339,7 @@
 
             <!-- Mobile Menu Button -->
             <button class="md:hidden text-2xl focus:outline-none"
-                onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" aria-label="Open Menu">
+                data-handler="toggleMobileMenu()" aria-label="Open Menu">
                 &#9776;
             </button>
         </div>
@@ -326,25 +347,14 @@
         <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu"
             class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
-            <a href="#solutions" class="text-sm font-medium hover:text-[var(--accent)]"
-                onclick="this.parentElement.classList.add('hidden')">Solutions</a>
-            <a href="#about-text" class="text-sm font-medium hover:text-[var(--accent)]"
-                onclick="this.parentElement.classList.add('hidden')">About</a>
-            <button onclick="this.parentElement.classList.add('hidden'); document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
+            <button data-handler="scrollTo('#solutions')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
+            <button data-handler="scrollTo('#about-text')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
+            <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
         </div>
     </nav>
 
     <!-- 3D SCENE (nav is outside so it's never transformed) -->
     <div id="apex-3d-scene">
-        <!-- Boot Overlay -->
-        <div id="boot-overlay">
-            <div class="boot-text" id="boot-log"></div>
-        </div>
-
-        <!-- Cyber Grid Background (Fixed) -->
-        <div id="global-grid" class="fixed inset-0 cyber-grid z-0 pointer-events-none" style="height: 120vh; top: -10vh;">
-        </div>
-
         <!-- Hero -->
         <header class="py-24 md:py-32 px-6 relative overflow-hidden">
 
@@ -364,11 +374,11 @@
                 Built for speed, optimized for conversion, crystallized for the future.
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <button onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize
+                <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize
                     Project</button>
-                <a href="#solutions"
+                <button data-handler="scrollTo('#solutions')"
                     class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View
-                    Solutions</a>
+                    Solutions</button>
             </div>
         </div>
     </header>
@@ -598,10 +608,10 @@
                 <div class="flex flex-col gap-6">
                     <div class="text-xs font-bold uppercase tracking-widest text-zinc-500">Navigation</div>
                     <nav class="flex flex-col gap-4">
-                        <a href="#solutions" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors">Solutions</a>
-                        <a href="#about" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors">Precision</a>
-                        <a href="#about-text" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors">The Architect</a>
-                        <a href="#gallery" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors">Infrastructure</a>
+                        <button data-handler="scrollTo('#solutions')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
+                        <button data-handler="scrollTo('#about')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Precision</button>
+                        <button data-handler="scrollTo('#about-text')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">The Architect</button>
+                        <button data-handler="scrollTo('#gallery')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Infrastructure</button>
                     </nav>
                 </div>
             </div>
@@ -1148,7 +1158,45 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             typeBootLine();
+            if (typeof attachHandlers === 'function') attachHandlers();
         });
+
+        // === APEX HANDLER UTILITY ===
+        function attachHandlers() {
+            document.querySelectorAll('[data-handler]').forEach(btn => {
+                const handlerStr = btn.dataset.handler;
+                if (handlerStr.startsWith('scrollTo(')) {
+                    const selector = handlerStr.match(/'(.*?)'/)[1];
+                    btn.onclick = (e) => {
+                        e.preventDefault();
+                        const target = document.querySelector(selector);
+                        if (target) target.scrollIntoView({ behavior: 'smooth' });
+                        // If it's a mobile menu item, close the menu
+                        const mobileMenu = document.getElementById('mobile-menu');
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    };
+                } else if (handlerStr === 'toggleTheme()') {
+                    btn.onclick = () => window.toggleTheme();
+                } else if (handlerStr === 'toggleEditMode()') {
+                    btn.onclick = (e) => window.toggleEditMode(e);
+                } else if (handlerStr === 'toggleMobileMenu()') {
+                    btn.onclick = () => {
+                        const menu = document.getElementById('mobile-menu');
+                        if (menu) menu.classList.toggle('hidden');
+                    };
+                } else if (handlerStr === 'closeSnake()') {
+                    btn.onclick = () => window.closeSnake();
+                } else if (handlerStr === 'showThanks(event)') {
+                    btn.onclick = (e) => window.showThanks(e);
+                } else if (handlerStr === 'exportApex()') {
+                    btn.onclick = () => window.exportApex();
+                } else if (handlerStr === 'resetApex()') {
+                    btn.onclick = () => window.resetApex();
+                }
+            });
+        }
     </script>
 
     <!-- OLD EDITOR SYSTEM REMOVED - Replaced by new lens/detector/palette integration -->
@@ -1168,6 +1216,10 @@
 
     <script type="module">
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        import { HandlerDispatcher } from './js/handler-dispatcher.js';
+
+        // Initialize universal handler dispatcher (handles data-handler attributes)
+        const dispatcher = new HandlerDispatcher();
 
         let inspector = null;
         let editMode = false;
