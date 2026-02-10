@@ -215,6 +215,11 @@
             </div>
         </form>
 
+        <nav class="mt-10 flex flex-col items-center gap-2 text-xs uppercase tracking-widest text-[var(--gold)] opacity-70">
+            <a href="https://axxilak.com" class="hover:opacity-100 transition" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:opacity-100 transition" data-ax-locked="true">Free Stuff</a>
+        </nav>
+
         <div class="mt-24 text-[0.5rem] opacity-20 tracking-[1em] uppercase">Oracle Webling // MMXXVI // Axxilak</div>
     </footer>
 
@@ -290,6 +295,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'oracle';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -322,8 +328,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('oracle-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('oracle-edits-state');
+                localStorage.removeItem('oracle-lens-state');
                 location.reload();
             }
         };

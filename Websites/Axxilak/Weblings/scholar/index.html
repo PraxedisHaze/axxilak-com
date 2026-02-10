@@ -369,6 +369,10 @@
             <footer class="sans text-xs text-gray-400 pb-12 pt-12 border-t border-[var(--line)]">
                 Typeset in Cormorant Garamond & Proza Libre.<br>
                 © 2026 Scholar Webling / Axxilak.
+                <nav class="mt-4 flex flex-col gap-2 text-xs text-gray-400">
+                    <a href="https://axxilak.com" class="hover:text-gray-600 transition-colors" data-ax-locked="true">Axxilak.com</a>
+                    <a href="/free-stuff.html" class="hover:text-gray-600 transition-colors" data-ax-locked="true">Free Stuff</a>
+                </nav>
             </footer>
         </main>
 
@@ -451,6 +455,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'scholar';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -483,8 +488,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('scholar-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('scholar-edits-state');
+                localStorage.removeItem('scholar-lens-state');
                 location.reload();
             }
         };

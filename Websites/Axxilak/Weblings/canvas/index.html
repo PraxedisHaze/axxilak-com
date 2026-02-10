@@ -153,6 +153,10 @@
         <div class="flex flex-col md:flex-row justify-between items-start gap-12 max-w-7xl mx-auto reveal">
             <div class="text-[10px] uppercase tracking-[0.5em] opacity-40">
                 Canvas Webling / Axxilak Studio / MMXXVI
+                <nav class="mt-6 flex flex-col gap-2 text-[10px] uppercase tracking-[0.5em] opacity-60">
+                    <a href="https://axxilak.com" class="hover:opacity-80 transition" data-ax-locked="true">Axxilak.com</a>
+                    <a href="/free-stuff.html" class="hover:opacity-80 transition" data-ax-locked="true">Free Stuff</a>
+                </nav>
             </div>
             <div class="flex flex-col items-end gap-4 w-full md:w-auto">
                 <form action="mailto:canvas@axxilak.com" method="POST" enctype="text/plain" class="w-full md:w-auto">
@@ -241,7 +245,8 @@
 
         reveals.forEach(reveal => observer.observe(reveal));
 
-        import MagnifyingGlassInspector from '../engines/apex-editor/magnifying-glass-inspector.js';
+        window.WEBLING_NAME = 'canvas';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
         function initInspector() {
@@ -273,8 +278,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('canvas-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('canvas-edits-state');
+                localStorage.removeItem('canvas-lens-state');
                 location.reload();
             }
         };

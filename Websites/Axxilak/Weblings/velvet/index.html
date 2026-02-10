@@ -255,6 +255,10 @@
         <div>
             AXXILAK<br>
             VELVET WEBLING
+            <nav class="mt-4 flex flex-col gap-2 text-xs uppercase tracking-widest text-gray-600">
+                <a href="https://axxilak.com" class="hover:text-gray-400 transition-colors" data-ax-locked="true">Axxilak.com</a>
+                <a href="/free-stuff.html" class="hover:text-gray-400 transition-colors" data-ax-locked="true">Free Stuff</a>
+            </nav>
         </div>
         <div>
             MMXXVI
@@ -375,7 +379,8 @@
         }
         updateThemeIcon();
 
-        import MagnifyingGlassInspector from '../engines/apex-editor/magnifying-glass-inspector.js';
+        window.WEBLING_NAME = 'velvet';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
         function initInspector() {
@@ -407,8 +412,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('velvet-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('velvet-edits-state');
+                localStorage.removeItem('velvet-lens-state');
                 location.reload();
             }
         };

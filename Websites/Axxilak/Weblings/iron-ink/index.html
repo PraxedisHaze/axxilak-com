@@ -277,6 +277,10 @@
             VERSION 1.0.0<br>
             NO COPYRIGHT INTENDED.<br>
             INFORMATION WANTS TO BE FREE.
+            <nav class="mt-6 flex flex-col gap-2 text-xs font-bold uppercase tracking-widest">
+                <a href="https://axxilak.com" class="hover:opacity-70 transition" data-ax-locked="true">Axxilak.com</a>
+                <a href="/free-stuff.html" class="hover:opacity-70 transition" data-ax-locked="true">Free Stuff</a>
+            </nav>
         </div>
 
         <form action="mailto:iron@axxilak.com" method="POST" enctype="text/plain" class="w-full md:w-1/2">
@@ -411,6 +415,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'iron-ink';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -443,8 +448,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('iron-ink-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('iron-ink-edits-state');
+                localStorage.removeItem('iron-ink-lens-state');
                 location.reload();
             }
         };

@@ -442,6 +442,10 @@
 
     <footer class="py-8 text-center text-gray-300 text-xs uppercase tracking-widest border-t border-white/5">
         &copy; 2026 Axxilak Studios. All Rights Reserved.
+        <nav class="mt-4 flex flex-col items-center gap-2 text-xs uppercase tracking-widest text-gray-400">
+            <a href="https://axxilak.com" class="hover:text-white transition-colors" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:text-white transition-colors" data-ax-locked="true">Free Stuff</a>
+        </nav>
     </footer>
 
     <script src="../engines/transitions/molten-pour.js"></script>
@@ -689,6 +693,7 @@
     
     <script src="../../coherence_engine.js"></script>
     <script type="module">
+        window.WEBLING_NAME = 'liquid-gold';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -721,8 +726,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('liquid-gold-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('liquid-gold-edits-state');
+                localStorage.removeItem('liquid-gold-lens-state');
                 location.reload();
             }
         };

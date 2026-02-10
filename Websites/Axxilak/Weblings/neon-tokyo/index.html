@@ -263,6 +263,13 @@
         </div>
     </div>
 
+    <footer class="mt-24 border-t border-white/5 py-8 px-6 text-[10px] uppercase tracking-[0.4em] text-[var(--accent)] text-center">
+        <nav class="flex flex-col items-center gap-2">
+            <a href="https://axxilak.com" class="hover:text-white transition-colors" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:text-white transition-colors" data-ax-locked="true">Free Stuff</a>
+        </nav>
+    </footer>
+
     <script>
         // Matrix Code Rain
         const canvas = document.getElementById('matrix-canvas');
@@ -397,7 +404,8 @@
         }
         updateThemeIcon();
 
-        import MagnifyingGlassInspector from '../engines/apex-editor/magnifying-glass-inspector.js';
+        window.WEBLING_NAME = 'neon-tokyo';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
         function initInspector() {
@@ -431,8 +439,8 @@
 
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('neon-tokyo-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('neon-tokyo-edits-state');
+                localStorage.removeItem('neon-tokyo-lens-state');
                 location.reload();
             }
         };

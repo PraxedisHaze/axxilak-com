@@ -177,6 +177,10 @@
                 <p class="text-xs opacity-80">Your energy is acknowledged.</p>
             </div>
         </form>
+        <nav class="mt-8 flex flex-col items-center gap-2 text-xs uppercase tracking-widest opacity-50">
+            <a href="https://axxilak.com" class="hover:opacity-80 transition" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:opacity-80 transition" data-ax-locked="true">Free Stuff</a>
+        </nav>
         <div class="mt-8 font-bold tracking-widest text-xs uppercase opacity-30">Aura Webling / Axxilak</div>
     </footer>
 
@@ -231,16 +235,33 @@
             }, 500);
         }
 
-        import MagnifyingGlassInspector from '../engines/apex-editor/magnifying-glass-inspector.js';
+        // Set webling name before importing module (for dynamic storage keys)
+        window.WEBLING_NAME = 'aura';
+        window.editMode = false;
+    </script>
+    <script type="module">
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        import { HandlerDispatcher } from './js/handler-dispatcher.js';
+
+        window.inspectorEditMode = false;
+
         let inspector = null;
-        let editMode = false;
+        const dispatcher = new HandlerDispatcher();
+
+        // Initialize inspector on demand
         function initInspector() {
-            if (!inspector) { inspector = new MagnifyingGlassInspector(); }
+            if (!inspector) {
+                inspector = new MagnifyingGlassInspector();
+                window.inspector = inspector; // Expose for theme toggle access
+                // Attach button disable prevention
+                dispatcher.preventButtonDisableOnInspectorMode();
+            }
         }
+
         window.toggleEditMode = function(e) {
             initInspector();
-            editMode = !editMode;
-            if (editMode) {
+            window.editMode = !window.editMode;
+            if (window.editMode) {
                 document.body.classList.add('edit-mode');
                 inspector.activate(e);
             } else {
@@ -248,8 +269,12 @@
                 inspector.deactivate();
             }
         };
+
         const editBtn = document.getElementById('edit-mode-btn');
-        if (editBtn) { editBtn.addEventListener('click', window.toggleEditMode); }
+        if (editBtn) {
+            editBtn.addEventListener('click', window.toggleEditMode);
+        }
+
         window.exportApex = function() {
             const doc = document.documentElement.cloneNode(true);
             doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
@@ -261,13 +286,17 @@
             link.href = url; link.download = 'aura-customized.html'; link.click();
             URL.revokeObjectURL(url);
         };
+
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('aura-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const weblingName = window.WEBLING_NAME || 'aura';
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+                localStorage.removeItem(`${weblingName}-edits-state-${theme}`);
+                localStorage.removeItem(`${weblingName}-lens-state`);
                 location.reload();
             }
         };
+
         window.addEventListener('DOMContentLoaded', () => { initInspector(); });
     </script>
 </body>

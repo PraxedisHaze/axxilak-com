@@ -230,6 +230,10 @@
                 <p class="text-xs opacity-80">Your growth will be nourished.</p>
             </div>
         </form>
+        <nav class="mt-12 flex flex-col items-center gap-2 text-xs uppercase tracking-widest opacity-70">
+            <a href="https://axxilak.com" class="hover:opacity-100 transition" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:opacity-100 transition" data-ax-locked="true">Free Stuff</a>
+        </nav>
         <div class="mt-20 text-sm opacity-60">
             © 2026 GAIA WEBLING / AXXILAK
         </div>
@@ -291,6 +295,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'gaia';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -323,8 +328,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('gaia-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('gaia-edits-state');
+                localStorage.removeItem('gaia-lens-state');
                 location.reload();
             }
         };

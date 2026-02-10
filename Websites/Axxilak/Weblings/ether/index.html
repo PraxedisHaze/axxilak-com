@@ -174,6 +174,10 @@
         <div class="text-xs tracking-[0.3em] uppercase text-slate-400 font-light mt-12">
             &copy; 2026 ETHER ARCHITECTURE / AXXILAK
         </div>
+        <nav class="mt-6 flex flex-col items-center gap-2 text-xs tracking-[0.3em] uppercase text-slate-400 font-light">
+            <a href="https://axxilak.com" class="hover:text-slate-600 transition-colors" data-ax-locked="true">Axxilak.com</a>
+            <a href="/free-stuff.html" class="hover:text-slate-600 transition-colors" data-ax-locked="true">Free Stuff</a>
+        </nav>
     </footer>
     <script src="js/sanctuary-engine.js"></script>
     <script>
@@ -231,6 +235,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'ether';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -263,8 +268,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('ether-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('ether-edits-state');
+                localStorage.removeItem('ether-lens-state');
                 location.reload();
             }
         };

@@ -173,6 +173,10 @@
                     <p class="text-xs opacity-80">Transmission confirmed at basecamp.</p>
                 </div>
             </form>
+            <nav class="mt-10 flex flex-col items-center gap-2 text-xs uppercase tracking-[0.5em] opacity-40">
+                <a href="https://axxilak.com" class="hover:opacity-80 transition" data-ax-locked="true">Axxilak.com</a>
+                <a href="/free-stuff.html" class="hover:opacity-80 transition" data-ax-locked="true">Free Stuff</a>
+            </nav>
             <div class="mt-20 text-xs font-bold uppercase tracking-[0.5em] opacity-20">
                 Summit Webling // MMXXVI // Axxilak
             </div>
@@ -235,6 +239,7 @@
 
     
     <script type="module">
+        window.WEBLING_NAME = 'summit';
         import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
         let inspector = null;
         let editMode = false;
@@ -267,8 +272,8 @@
         };
         window.resetApex = function() {
             if (confirm('Reset all customizations?')) {
-                localStorage.removeItem('summit-edits-state');
-                localStorage.removeItem('apex-lens-state');
+                const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; localStorage.removeItem('summit-edits-state');
+                localStorage.removeItem('summit-lens-state');
                 location.reload();
             }
         };
