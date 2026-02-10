@@ -123,8 +123,8 @@ export default class MagnifyingGlassInspector {
             this.lens.setSearching(false);
             
             // RED DOT LOGIC: Only show over dark colors for high-precision targeting
-            const isDark = this._isColorDark(data.styles.backgroundColor);
-            this.lens.setCenterDot(isDark);
+            // Note: setCenterDot() doesn't accept parameters; red dot always on (design choice)
+            this.lens.setCenterDot();
 
             // Start hint timer if we found something new
             if (this.highlightedElement !== data.element) {
@@ -733,7 +733,7 @@ export default class MagnifyingGlassInspector {
         // CRITICAL: Disable pointer-events on ALL page content
         const scene = document.getElementById('apex-3d-scene');
         if (scene) {
-            scene.style.pointerEvents = 'none !important';
+            scene.style.cssText += 'pointer-events: none !important;';
             // Also disable on all descendants to be sure
             scene.querySelectorAll('*').forEach(el => {
                 if (!el.classList.contains('lens-container') && !el.closest('#palette-container')) {
@@ -744,7 +744,7 @@ export default class MagnifyingGlassInspector {
 
         // ALSO lock nav (it's OUTSIDE the scene)
         const nav = document.querySelector('nav');
-        if (nav) nav.style.pointerEvents = 'none !important';
+        if (nav) nav.style.cssText += 'pointer-events: none !important;';
 
         // DISABLE button handlers in nav (pointer-events alone doesn't stop inline onclick)
         try {
@@ -1017,13 +1017,13 @@ export default class MagnifyingGlassInspector {
             this.editSession.pendingChanges['backgroundPosition'] = 'center';
             this.editSession.pendingChanges['color'] = textColor;
 
-            // Apply preview
+            // Apply preview (use cssText for vendor prefix compatibility)
             el.style.backgroundImage = bgImage;
-            el.style.backgroundClip = bgClip;
-            el.style.webkitBackgroundClip = bgClip;
             el.style.backgroundSize = 'cover';
             el.style.backgroundPosition = 'center';
             el.style.color = textColor;
+            // Apply background-clip with vendor prefix via cssText for reliability
+            el.style.cssText += `background-clip: ${bgClip}; -webkit-background-clip: ${bgClip}; -webkit-text-fill-color: transparent;`;
 
             this.palette.setDirty(true);
             return;
@@ -1162,10 +1162,8 @@ export default class MagnifyingGlassInspector {
             if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
                 this.editSession.disabledButtons.forEach(({ button, originalOnclick, originalProperty }) => {
                     if (button) {
-                        if (originalOnclick) {
-                            button.setAttribute('onclick', originalOnclick);
-                        }
-                        button.onclick = originalProperty;
+                        // Use property assignment instead of setAttribute (safer for handler functions)
+                        button.onclick = originalProperty || null;
                     }
                 });
             }
@@ -1267,20 +1265,22 @@ export default class MagnifyingGlassInspector {
         const selector = this.detector.getUniqueSelector(el);
         if (!selector || !this.edits[selector]) return;
 
-        if (!confirm('Reset EVERYTHING on this element including text?')) return;
+        if (!confirm('Reset ALL STYLES on this element? (Content will remain)')) return;
 
         // Cancel current session to revert unsaved inline changes
         if (this.editSession.active) this._cancelEditSession();
 
-        // Nuclear: strip ALL inline styles
+        // Strip ALL inline styles (safe approach - preserves DOM structure)
         el.removeAttribute('style');
 
-        // Restore original content from captured state
+        // Restore src for images only (safe, doesn't break DOM)
         const original = this.originals[selector];
-        if (original) {
-            el.innerHTML = original.innerHTML;
-            if (original.src !== undefined) el.src = original.src;
+        if (original && original.src !== undefined && el.tagName === 'IMG') {
+            el.src = original.src;
         }
+
+        // NOTE: Do NOT restore innerHTML. It destroyed DOM structure during theme switches.
+        // If user wants full content reset, they can reload the page.
 
         // Wipe stored edits for this element only
         delete this.edits[selector];

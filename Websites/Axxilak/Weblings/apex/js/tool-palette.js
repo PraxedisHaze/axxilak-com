@@ -31,6 +31,7 @@ export class ToolPalette {
     }
 
     update(data) {
+        if (!this.container || !this.contentArea) return; // Defensive check
         this.lastData = data;
         const { selector, styles, textContent, element, role } = data;
         const isStructural = role === 'structure';
@@ -60,6 +61,8 @@ export class ToolPalette {
 
         const isLocked = element.dataset.axLocked === 'true' || element.closest('[data-ax-locked="true"]');
         const tagName = element.tagName.toUpperCase();
+        const isImage = tagName === 'IMG';
+        const hasBgImage = styles.backgroundImage && styles.backgroundImage !== 'none' && !styles.backgroundImage.includes('linear-gradient');
 
         const childCount = element.children.length;
         const currentOpacity = styles.opacity || '1';
@@ -167,28 +170,136 @@ export class ToolPalette {
                     </div>
                 </div>
 
-                <!-- SAVE/CANCEL BUTTONS -->
-                <div class="mb-4 flex gap-2">
-                    <button id="btn-save-changes" title="Save changes" class="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-green-500/50">
-                        ✓ SAVE
+                <!-- RESET DROPDOWN -->
+                <div class="mb-4 relative">
+                    <button id="btn-reset-toggle" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-amber-400 font-bold text-[10px] uppercase tracking-[0.15em] rounded-sm transition-all border border-amber-400/30 hover:border-amber-400/60">
+                        ↺ RESET ▾
                     </button>
-                    <button id="btn-cancel-changes" title="Cancel changes" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-sm uppercase tracking-[0.1em] rounded-sm transition-all border border-zinc-600/50">
-                        ✕ CANCEL
-                    </button>
+                    <div id="reset-dropdown" class="hidden absolute left-0 right-0 mt-1 bg-zinc-900 border border-amber-400/40 rounded-sm z-10 overflow-hidden shadow-lg">
+                        <button id="btn-reset-element-all" class="w-full px-3 py-2 text-left text-[10px] text-zinc-300 hover:bg-amber-400/10 hover:text-amber-400 transition-colors">
+                            Reset Selected Element
+                        </button>
+                        <button id="btn-reset-page" class="w-full px-3 py-2 text-left text-[10px] text-red-400 hover:bg-red-400/10 transition-colors border-t border-zinc-800">
+                            Reset Page
+                        </button>
+                    </div>
                 </div>
 
-                <!-- MAIN CONTROLS -->
+                <!-- ═══ TEXT ═══ -->
+                <div class="mt-4 pt-3 border-t border-zinc-700/40 mb-1">
+                    <span class="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.25em]">Text</span>
+                </div>
+
                 <div class="palette-control ${(isStructural || isMedia) ? 'opacity-30 pointer-events-none' : ''}">
                     <label class="palette-label">Content ${isStructural ? '(Container)' : (isMedia ? '(Media)' : '')}</label>
                     <div id="quill-editor" class="bg-zinc-900 text-white" style="height: 100px;"></div>
                 </div>
 
-                <div class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
-                    <label class="palette-label">Color</label>
+                <div id="text-color-control" class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}" style="transition: opacity 0.3s;">
+                    <label class="palette-label" id="text-color-label">Text Color</label>
                     <div class="palette-color-group">
                         <input type="color" id="input-color" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
                         <input type="text" id="hex-color" class="palette-input palette-input--hex font-mono text-[11px]" value="${this.rgbToHex(styles.color)}">
                     </div>
+                </div>
+
+                <div id="text-gradient-control" class="palette-control mt-4 ${(isStructural || isMedia) ? 'opacity-30 pointer-events-none' : ''}" style="transition: opacity 0.3s;">
+                    <label class="palette-label">Text Gradient</label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="color" id="input-text-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
+                        <span class="text-[9px] text-zinc-500">\u2192</span>
+                        <input type="color" id="input-text-grad-color2" class="palette-input--color" value="#8b5cf6">
+                        <button id="btn-text-grad-clear" class="text-[8px] text-zinc-500 hover:text-amber-400 transition-colors ml-auto" title="Clear text gradient">\u2715 clear</button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="input-text-grad-angle" min="0" max="360" step="1" value="90" class="flex-1 accent-[var(--accent)]">
+                        <span id="text-grad-angle-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">90\u00b0</span>
+                    </div>
+                </div>
+
+                <div class="palette-control mt-4 ${(isStructural || isMedia) ? 'opacity-30 pointer-events-none' : ''}">
+                    <label class="palette-label">Text Glow</label>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="input-text-glow-blur" min="0" max="50" step="1" value="0" class="flex-1 accent-[var(--accent)]">
+                        <span id="text-glow-blur-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">0px</span>
+                    </div>
+                </div>
+
+                <!-- ═══ CONTAINER ═══ -->
+                <div class="mt-5 pt-3 border-t border-zinc-700/40 mb-1">
+                    <span class="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.25em]">Container</span>
+                </div>
+
+                <!-- CONTAINER GLOW -->
+                <div class="palette-control mt-4">
+                    <label class="palette-label">Container Glow</label>
+                    <div class="flex items-center gap-3">
+                        <input type="color" id="input-glow-color" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
+                        <input type="range" id="input-glow-blur" min="0" max="50" step="1" value="0" class="flex-1 accent-[var(--accent)]">
+                        <span id="glow-blur-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">0px</span>
+                    </div>
+                </div>
+
+                <!-- CONTAINER GRADIENT -->
+                <div class="palette-control mt-4">
+                    <label class="palette-label">Container Gradient</label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="color" id="input-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.backgroundColor)}">
+                        <span class="text-[9px] text-zinc-500">→</span>
+                        <input type="color" id="input-grad-color2" class="palette-input--color" value="${this.rgbToHex(styles.color)}">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="input-grad-angle" min="0" max="360" step="1" value="180" class="flex-1 accent-[var(--accent)]">
+                        <span id="grad-angle-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">180°</span>
+                    </div>
+                </div>
+
+                <!-- TEXT MASK -->
+                <div class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
+                    <label class="palette-label">Text Mask</label>
+                    <input type="text" id="input-mask-url" class="palette-input text-[10px] mb-2" placeholder="Image URL...">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[9px] text-zinc-500 whitespace-nowrap">Mask:</span>
+                        <input type="color" id="input-mask-color" class="palette-input--color" value="#0a0a0a">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <input type="range" id="input-mask-fade" min="0" max="100" step="1" value="0" class="flex-1 accent-[var(--accent)]">
+                        <span id="mask-fade-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">0%</span>
+                    </div>
+                </div>
+
+                <!-- ═══ MEDIA ═══ -->
+                <div class="mt-5 pt-3 border-t border-zinc-700/40 mb-1">
+                    <span class="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.25em]">Media</span>
+                </div>
+
+                <!-- IMAGE UPLOAD -->
+                <div class="palette-control mt-4 ${!(isImage || hasBgImage) ? 'hidden' : ''}">
+                    <label class="palette-label">Image Upload</label>
+                    <div class="flex flex-col gap-2">
+                        <button id="btn-image-upload" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-sm transition-all border border-zinc-700 uppercase tracking-widest">
+                            Upload File
+                        </button>
+                        <input type="file" id="input-image-file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
+                        <div id="image-status" class="text-[8px] font-mono text-zinc-500 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- MEDIA URL (shared: auto-detects image vs video) -->
+                <div class="palette-control mt-4">
+                    <label class="palette-label">Media URL</label>
+                    <div class="flex flex-col gap-2">
+                        <input type="text" id="input-media-url" class="palette-input text-[10px]" placeholder="Paste image or video URL...">
+                        <button id="btn-apply-url" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-sm transition-all border border-zinc-700 uppercase tracking-widest">
+                            Apply URL
+                        </button>
+                        <div id="media-status" class="text-[8px] font-mono text-zinc-500 hidden"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ LAYOUT ═══ -->
+                <div class="mt-5 pt-3 border-t border-zinc-700/40 mb-1">
+                    <span class="text-[7px] font-bold text-zinc-600 uppercase tracking-[0.25em]">Layout</span>
                 </div>
 
                 <div class="palette-control ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
@@ -229,19 +340,9 @@ export class ToolPalette {
                     </div>
                 </div>
 
-                <!-- SAVE/CANCEL CONTROLS -->
-                <div id="edit-controls" class="hidden mt-6 pt-4 border-t-2 border-[var(--accent)]/20">
-                    <div class="flex gap-3">
-                        <button id="btn-save-changes" class="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-bold text-[11px] uppercase tracking-[0.15em] rounded-sm transition-all shadow-[0_0_20px_rgba(34,197,94,0.4)] hover:shadow-[0_0_30px_rgba(34,197,94,0.6)]">
-                            ✓ SAVE CHANGES
-                        </button>
-                        <button id="btn-cancel-changes" class="flex-1 py-3 bg-zinc-700 hover:bg-zinc-600 text-zinc-300 font-bold text-[11px] uppercase tracking-[0.15em] rounded-sm transition-all">
-                            ✕ CANCEL
-                        </button>
-                    </div>
-                    <div id="dirty-indicator" class="hidden mt-2 text-center text-[9px] text-yellow-400 font-mono animate-pulse">
-                        • Unsaved changes •
-                    </div>
+                <!-- Dirty indicator (shown when changes are pending) -->
+                <div id="dirty-indicator" class="hidden mt-4 text-center text-[9px] text-yellow-400 font-mono animate-pulse">
+                    • Unsaved changes •
                 </div>
             </div>
         `;
@@ -259,7 +360,6 @@ export class ToolPalette {
             modules: {
                 toolbar: [
                     ['bold', 'italic', 'underline'],
-                    [{ 'color': [] }],
                     ['clean']
                 ]
             }
@@ -269,9 +369,15 @@ export class ToolPalette {
         this.quill.root.innerText = content || '';
         
         this.quill.on('text-change', (delta, oldDelta, source) => {
-            // Only trigger edit if the user made the change
             if (source === 'user') {
-                if (this.onEdit) this.onEdit('textContent', this.quill.getText().trim());
+                // Strip Quill's <p> wrapper — block elements inside inline elements = invalid HTML
+                let html = this.quill.root.innerHTML;
+                // Unwrap single <p>...</p> to just the inner content
+                html = html.replace(/^<p>(.*)<\/p>$/s, '$1');
+                // Convert remaining <p> breaks to <br> for multi-line
+                html = html.replace(/<\/p><p>/g, '<br>');
+                html = html.replace(/^<p>|<\/p>$/g, '');
+                if (this.onEdit) this.onEdit('innerHTML', html);
             }
         });
     }
@@ -344,8 +450,24 @@ export class ToolPalette {
 
         if (colorInput) {
             colorInput.oninput = (e) => {
-                hexInput.value = e.target.value;
+                if (hexInput) hexInput.value = e.target.value;
                 if (this.onEdit) this.onEdit('color', e.target.value);
+                if (this.quill) this.quill.root.style.color = e.target.value;
+                // Re-fire text glow if active (glow always follows text color)
+                const glowBlur = document.getElementById('input-text-glow-blur');
+                if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
+            };
+        }
+        if (hexInput) {
+            hexInput.onchange = (e) => {
+                let hex = e.target.value.trim();
+                if (!hex.startsWith('#')) hex = '#' + hex;
+                if (colorInput) colorInput.value = hex;
+                if (this.onEdit) this.onEdit('color', hex);
+                if (this.quill) this.quill.root.style.color = hex;
+                // Re-fire text glow if active (glow always follows text color)
+                const glowBlur = document.getElementById('input-text-glow-blur');
+                if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
             };
         }
 
@@ -360,6 +482,236 @@ export class ToolPalette {
                 if (this.onEdit) this.onEdit('fontFamily', e.target.value);
             };
         }
+
+        // IMAGE controls
+        const imageUploadBtn = document.getElementById('btn-image-upload');
+        const imageFileInput = document.getElementById('input-image-file');
+        const imageUrlInput = document.getElementById('input-image-url');
+        const imageStatus = document.getElementById('image-status');
+
+        const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'];
+        const MAX_ENCODED_KB = 500;
+
+        const showImageStatus = (msg, isError) => {
+            if (!imageStatus) return;
+            imageStatus.textContent = msg;
+            imageStatus.className = `text-[8px] font-mono ${isError ? 'text-red-400' : 'text-green-400'}`;
+            imageStatus.classList.remove('hidden');
+        };
+
+        if (imageUploadBtn && imageFileInput) {
+            imageUploadBtn.onclick = () => imageFileInput.click();
+            imageFileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!ALLOWED_TYPES.includes(file.type)) {
+                    showImageStatus('Invalid type. Use PNG, JPEG, GIF, WebP, or SVG.', true);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onerror = () => showImageStatus('Failed to read file.', true);
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const MAX_DIM = 800;
+                        let w = img.width, h = img.height;
+                        if (w > MAX_DIM || h > MAX_DIM) {
+                            const ratio = Math.min(MAX_DIM / w, MAX_DIM / h);
+                            w = Math.round(w * ratio);
+                            h = Math.round(h * ratio);
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                        const sizeKB = Math.round(dataUrl.length / 1024);
+
+                        // localStorage budget check
+                        try {
+                            const used = JSON.stringify(localStorage).length;
+                            const limit = 5 * 1024 * 1024;
+                            if (used + dataUrl.length > limit * 0.9) {
+                                showImageStatus(`Storage nearly full (${Math.round(used / 1024)}KB used). Rejected.`, true);
+                                return;
+                            }
+                        } catch (err) { /* storage access error — proceed anyway */ }
+
+                        if (sizeKB > MAX_ENCODED_KB) {
+                            showImageStatus(`${sizeKB}KB — large, may fill storage`, false);
+                        } else {
+                            showImageStatus(`${sizeKB}KB — OK`, false);
+                        }
+
+                        if (this.onEdit) this.onEdit('imageSrc', dataUrl);
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+        }
+
+        // UNIFIED MEDIA URL (auto-detects image vs video)
+        const mediaUrlInput = document.getElementById('input-media-url');
+        const applyUrlBtn = document.getElementById('btn-apply-url');
+        const mediaStatus = document.getElementById('media-status');
+
+        const showMediaStatus = (msg, isError) => {
+            if (!mediaStatus) return;
+            mediaStatus.textContent = msg;
+            mediaStatus.className = `text-[8px] font-mono ${isError ? 'text-red-400' : 'text-green-400'}`;
+            mediaStatus.classList.remove('hidden');
+        };
+
+        const applyMediaUrl = () => {
+            if (!mediaUrlInput) return;
+            const url = mediaUrlInput.value.trim();
+            if (!url) {
+                showMediaStatus('Paste a URL first', true);
+                return;
+            }
+            if (!url.startsWith('http') && !url.startsWith('data:')) {
+                showMediaStatus('Enter a valid URL starting with http', true);
+                return;
+            }
+
+            // Detect video URLs
+            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]+)/);
+            const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+            const isDirectVideo = /\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
+
+            if (ytMatch || vimeoMatch || isDirectVideo) {
+                if (this.onEdit) this.onEdit('videoSrc', url);
+                showMediaStatus(ytMatch ? 'YouTube video applied' : vimeoMatch ? 'Vimeo video applied' : 'Video applied', false);
+            } else {
+                // Default to image for all other URLs
+                if (this.onEdit) this.onEdit('imageSrc', url);
+                showMediaStatus('Image applied', false);
+            }
+        };
+
+        if (applyUrlBtn) {
+            applyUrlBtn.onclick = applyMediaUrl;
+        }
+        if (mediaUrlInput) {
+            mediaUrlInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') applyMediaUrl();
+            });
+        }
+
+        // GLOW controls
+        const glowColor = document.getElementById('input-glow-color');
+        const glowBlur = document.getElementById('input-glow-blur');
+        const updateGlow = () => {
+            const color = glowColor ? glowColor.value : '#00ff00';
+            const blur = glowBlur ? parseInt(glowBlur.value) : 0;
+            const label = document.getElementById('glow-blur-value');
+            if (label) label.textContent = blur + 'px';
+            if (blur === 0) {
+                if (this.onEdit) this.onEdit('boxShadow', 'none');
+                return;
+            }
+            const layers = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
+            const shadow = layers.map(m => `0 0 ${Math.round(blur * m)}px ${color}`).join(', ');
+            if (this.onEdit) this.onEdit('boxShadow', shadow);
+        };
+        if (glowColor) glowColor.oninput = updateGlow;
+        if (glowBlur) glowBlur.oninput = updateGlow;
+
+        // TEXT GLOW controls (always uses current text color — no separate color picker)
+        const textGlowBlur = document.getElementById('input-text-glow-blur');
+        const updateTextGlow = () => {
+            const textColorInput = document.getElementById('input-color');
+            const color = textColorInput ? textColorInput.value : '#ffffff';
+            const blur = textGlowBlur ? parseInt(textGlowBlur.value) : 0;
+            const label = document.getElementById('text-glow-blur-value');
+            if (label) label.textContent = blur + 'px';
+            if (blur === 0) {
+                if (this.onEdit) this.onEdit('textShadow', 'none');
+                return;
+            }
+            const layers = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
+            const shadow = layers.map(m => `0 0 ${Math.round(blur * m)}px ${color}`).join(', ');
+            if (this.onEdit) this.onEdit('textShadow', shadow);
+        };
+        if (textGlowBlur) textGlowBlur.oninput = updateTextGlow;
+
+        // TEXT GRADIENT controls
+        const textGradColor1 = document.getElementById('input-text-grad-color1');
+        const textGradColor2 = document.getElementById('input-text-grad-color2');
+        const textGradAngle = document.getElementById('input-text-grad-angle');
+        const textGradClear = document.getElementById('btn-text-grad-clear');
+        const applyTextGradient = () => {
+            const c1 = textGradColor1 ? textGradColor1.value : '#ffffff';
+            const c2 = textGradColor2 ? textGradColor2.value : '#8b5cf6';
+            const angle = textGradAngle ? parseInt(textGradAngle.value) : 90;
+            const label = document.getElementById('text-grad-angle-value');
+            if (label) label.textContent = angle + '\u00b0';
+            if (this.onEdit) {
+                this.onEdit('backgroundImage', `linear-gradient(${angle}deg, ${c1}, ${c2})`);
+                this.onEdit('webkitBackgroundClip', 'text');
+                this.onEdit('backgroundClip', 'text');
+                this.onEdit('webkitTextFillColor', 'transparent');
+            }
+            // Gray out Text Color — gradient overrides it
+            const colorControl = document.getElementById('text-color-control');
+            const colorLabel = document.getElementById('text-color-label');
+            if (colorControl) { colorControl.style.opacity = '0.3'; colorControl.style.pointerEvents = 'none'; }
+            if (colorLabel) colorLabel.textContent = 'Text Color (gradient active)';
+        };
+        if (textGradColor1) textGradColor1.oninput = applyTextGradient;
+        if (textGradColor2) textGradColor2.oninput = applyTextGradient;
+        if (textGradAngle) textGradAngle.oninput = applyTextGradient;
+        if (textGradClear) {
+            textGradClear.onclick = () => {
+                if (this.onEdit) {
+                    this.onEdit('backgroundImage', '');
+                    this.onEdit('webkitBackgroundClip', '');
+                    this.onEdit('backgroundClip', '');
+                    this.onEdit('webkitTextFillColor', '');
+                }
+                // Restore Text Color control
+                const colorControl = document.getElementById('text-color-control');
+                const colorLabel = document.getElementById('text-color-label');
+                if (colorControl) { colorControl.style.opacity = '1'; colorControl.style.pointerEvents = ''; }
+                if (colorLabel) colorLabel.textContent = 'Text Color';
+            };
+        }
+
+        // GRADIENT controls
+        const gradColor1 = document.getElementById('input-grad-color1');
+        const gradColor2 = document.getElementById('input-grad-color2');
+        const gradAngle = document.getElementById('input-grad-angle');
+        const updateGradient = () => {
+            const c1 = gradColor1 ? gradColor1.value : '#000000';
+            const c2 = gradColor2 ? gradColor2.value : '#ffffff';
+            const angle = gradAngle ? parseInt(gradAngle.value) : 180;
+            const label = document.getElementById('grad-angle-value');
+            if (label) label.textContent = angle + '°';
+            if (this.onEdit) this.onEdit('backgroundImage', `linear-gradient(${angle}deg, ${c1}, ${c2})`);
+        };
+        if (gradColor1) gradColor1.oninput = updateGradient;
+        if (gradColor2) gradColor2.oninput = updateGradient;
+        if (gradAngle) gradAngle.oninput = updateGradient;
+
+        // TEXT MASK controls
+        const maskUrl = document.getElementById('input-mask-url');
+        const maskColor = document.getElementById('input-mask-color');
+        const maskFade = document.getElementById('input-mask-fade');
+        const updateTextMask = () => {
+            const url = maskUrl ? maskUrl.value.trim() : '';
+            const fade = maskFade ? parseInt(maskFade.value) : 0;
+            const mColor = maskColor ? maskColor.value : '#0a0a0a';
+            const label = document.getElementById('mask-fade-value');
+            if (label) label.textContent = fade + '%';
+            if (!url) return;
+            if (this.onEdit) this.onEdit('textClipMask', { url, fade, maskColor: mColor });
+        };
+        if (maskUrl) maskUrl.oninput = updateTextMask;
+        if (maskColor) maskColor.oninput = updateTextMask;
+        if (maskFade) maskFade.oninput = updateTextMask;
 
         if (labelsToggle) {
             labelsToggle.onclick = () => {
@@ -405,19 +757,46 @@ export class ToolPalette {
             };
         }
 
-        // Save/Cancel buttons
-        const btnSave = document.getElementById('btn-save-changes');
-        const btnCancel = document.getElementById('btn-cancel-changes');
-
-        if (btnSave) {
-            btnSave.onclick = () => {
-                if (this.onEdit) this.onEdit('save-session', true);
+        // Peek (reticle visibility toggle)
+        const peekBtn = document.getElementById('btn-peek');
+        if (peekBtn) {
+            peekBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('peek-toggle', true);
             };
         }
 
-        if (btnCancel) {
-            btnCancel.onclick = () => {
-                if (this.onEdit) this.onEdit('cancel-session', true);
+        // RESET dropdown
+        const resetToggle = document.getElementById('btn-reset-toggle');
+        const resetDropdown = document.getElementById('reset-dropdown');
+
+        if (resetToggle && resetDropdown) {
+            resetToggle.onclick = () => resetDropdown.classList.toggle('hidden');
+            document.addEventListener('click', (e) => {
+                if (!resetDropdown.classList.contains('hidden') &&
+                    !resetDropdown.contains(e.target) &&
+                    e.target !== resetToggle) {
+                    resetDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        const resetElementAllBtn = document.getElementById('btn-reset-element-all');
+        if (resetElementAllBtn) {
+            resetElementAllBtn.onmouseenter = () => { if (this.onEdit) this.onEdit('reset-preview', 'element'); };
+            resetElementAllBtn.onmouseleave = () => { if (this.onEdit) this.onEdit('reset-preview-clear', true); };
+            resetElementAllBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('reset-element-all', true);
+                if (resetDropdown) resetDropdown.classList.add('hidden');
+            };
+        }
+
+        const resetPageBtn = document.getElementById('btn-reset-page');
+        if (resetPageBtn) {
+            resetPageBtn.onmouseenter = () => { if (this.onEdit) this.onEdit('reset-preview', 'page'); };
+            resetPageBtn.onmouseleave = () => { if (this.onEdit) this.onEdit('reset-preview-clear', true); };
+            resetPageBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('reset-page', true);
+                if (resetDropdown) resetDropdown.classList.add('hidden');
             };
         }
 
@@ -462,8 +841,14 @@ export class ToolPalette {
         `;
     }
 
-    show() { this.container.classList.remove('hidden'); }
-    hide() { this.container.classList.add('hidden'); }
+    show() {
+        if (!this.container) return; // Defensive check
+        this.container.classList.remove('hidden');
+    }
+    hide() {
+        if (!this.container) return; // Defensive check
+        this.container.classList.add('hidden');
+    }
 
     showEditControls(visible) {
         const controls = document.getElementById('edit-controls');
