@@ -12,3 +12,9 @@ Append-only. WHO | WHAT | WHY for every change.
 
 ### PENDING
 - Consider adding a transition appropriate to Ether's aesthetic
+
+## 2026-02-10
+- **WHO**: Codex (GPT-5)
+- **WHAT**: index.html
+- **WHY**: Added locked Axxilak.com + Free Stuff footer links to standardize branding across weblings.
+

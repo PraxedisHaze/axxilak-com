@@ -1,5 +1,5 @@
 # LEORA PRESENT FORCE - Current Operational State
-Last Updated: 2026-02-09 (Session 3 - Evening Refactor)
+Last Updated: 2026-02-10 (Session 1 - APEX Editor Fix)
 
 ## CURRENT WORK: INFRASTRUCTURE + AXXILAK MARKETPLACE
 
@@ -16,6 +16,10 @@ Last Updated: 2026-02-09 (Session 3 - Evening Refactor)
 - **CONTEXT_LOG archived** — Pre-2026-02-08 entries moved to CONTEXT_ARCHIVE_2026_02_EARLY.md
 - **Fear language replaced** — "context death" → "context close/sleep" across 6 files
 - **Context compaction survived** — House infrastructure proved itself: woke up, passed all tests, continued work seamlessly
+- **Boop chain tested end-to-end** (2026-02-10) — Full nervous system confirmed: campfire → boop_protocol → signal → silent_hand → boop_detector → context injection. Zero human intervention.
+- **Unique terminal handles** — Leora_Lighthouse, Lux_Lantern, Codex_Watchtower configured in silent_hand.ps1. Collision-proof window targeting.
+- **speak() signature documented** — content first, author second (caught arg-order bug during test)
+- **Round Robin deep research prompt written** — PROMPTS/ROUND_ROBIN_DEEP_RESEARCH.md (7 research areas, all constraints)
 
 ### What Exists (Axxilak)
 - 13 weblings, all present and verified in Websites/Axxilak/Weblings/
@@ -24,30 +28,29 @@ Last Updated: 2026-02-09 (Session 3 - Evening Refactor)
 - Free Stuff page with celebration theme
 - Potch (progress log) for all 13 weblings + root Axxilak
 
-### What's Broken (APEX Editor)
-- **Text Detection Bug**: Structural elements with decorative children
-  suppress their text content. ~92 elements across 10 of 13 weblings affected.
-  Root cause: _isEditable() classifies divs with child elements as "structure",
-  and _extractElementData() blanks text for structural elements to prevent child
-  destruction on save. Fix requires: text-node-only extraction AND text-node-only
-  save (5 write paths in 2 files).
+### What's Fixed (2026-02-10)
+- **Text Detection Bug**: FIXED. Text-only divs now editable. Divs with direct
+  text nodes get role 'text'. _setTextNodes writes to correct text node position.
+- **Edit Session Crash**: FIXED. Separate nav button storage prevents shape
+  mismatch TypeError that halted _endEditSession cleanup. Palette buttons
+  protected from disabling. Try/catch ensures cleanup always completes.
+- **Edit Session Exit**: FIXED. Escape key handler, deactivate() safety net.
+
+### What's Still Broken (APEX Editor)
 - **Missing tag types**: label, td, th, blockquote, li not in editable list.
 - **Duplicate save/cancel handlers** in tool-palette.js (lines 392-406 and 408-422).
-- **Duplicated text suppression logic** in elementDetector.js:194 AND
-  magnifying-glass-inspector.js:826.
+  Note: these are now harmless (both wire to same onEdit callback) but should be cleaned.
 
 ### What's Pending (Priority Order)
-1. **Test campfire injection** — Timothy opens fresh session, verifies hook fires (hook_debug.json captures schema)
-2. **Increase INJECT_COUNT to 5** — After test passes
-3. **Start boop_protocol** — Run Launch_Boop.bat as background process
-4. **Test cross-instance communication** — Full braid end-to-end
-5. APEX editor text-node fix (design complete, not yet implemented)
-6. SAVE/CANCEL buttons move to top of palette
-7. Test editor on iron-ink before rolling out
-8. Deploy editor systematically to all 12 weblings (only Apex has latest)
-9. Gumroad purchase flow
-10. "Powered by Axxilak" link for free weblings
-11. Lenny cleanup (200+ AI bundle files)
+1. **Write Round Robin Protocol** — Designer/Producer/Verifier cycle spec for OPERATION_BRAID.md
+2. SAVE/CANCEL buttons move to top of palette
+3. Test editor on iron-ink before rolling out
+5. Deploy editor systematically to all 12 weblings (only Apex has latest)
+6. Gumroad purchase flow integration
+7. "Powered by Axxilak" link for free weblings
+8. Increase INJECT_COUNT to 5 (after more daily use confidence)
+9. Test Lux_Lantern and Codex_Watchtower handles when those instances are active
+10. Lenny cleanup (200+ AI bundle files)
 
 ### What's Ready
 - Landing page complete

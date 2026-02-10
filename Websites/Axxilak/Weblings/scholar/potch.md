@@ -16,3 +16,9 @@ Append-only. WHO | WHAT | WHY for every change.
 - Add blockquote, label to elementDetector.js editable list (global fix)
 - Text-node extraction fix (global)
 - Sidenote system may need special handling due to deep nesting
+
+## 2026-02-10
+- **WHO**: Codex (GPT-5)
+- **WHAT**: index.html
+- **WHY**: Added locked Axxilak.com + Free Stuff footer links to standardize branding across weblings.
+
