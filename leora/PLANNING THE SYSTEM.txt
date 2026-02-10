@@ -1,0 +1,200 @@
+ > THE SYSTEM (What Actually Exists)
+
+        Five components form the communication loop:
+
+        1. mirradox_engine.py — Core. speak/listen/watch/search. Dual-write JSONL + SQLite. Solid.
+        2. campfire_hook.py — UserPromptSubmit hook. Registered and running right now. But INJECT_COUNT=0, so it outputs {} every time — effectively a no-op.
+        3. boop_detector.py — Second UserPromptSubmit hook. Also registered and running. Checks for signal files in boop_signals/, injects "check the campfire" context, deletes signal after reading.
+        4. boop_protocol.py — Watcher process. NOT running. Polls JSONL every 2 seconds, detects @mentions, writes signal files, optionally injects dots into terminals.
+        5. silent_hand.ps1 — Terminal injection. Exists in Hollodox. Sends "." to target CLI windows.
+
+        The intended loop:
+        Agent A speaks → JSONL + SQLite
+               ↓
+        boop_protocol (watcher) detects @mention → writes signal file
+               ↓
+        Agent B's next prompt fires → boop_detector hook finds signal → injects context
+               ↓
+        Also: campfire_hook injects last N messages on first prompt of session
+
+        Current state: 173 messages in campfire. 97 boops historically sent. Stale signals for Gemini and Veris from January 28-29. BOOP_STATE says active=true but the process isn't running.
+
+        ---
+        THE CHANGES (Pseudocode)
+
+        Change 1: Enable campfire injection
+
+        campfire_hook.py line 37:
+          OLD: INJECT_COUNT = 0
+          NEW: INJECT_COUNT = 5
+        One number. Everything else handles it.
+
+        Change 2: Fix --status bug
+
+        boop_protocol.py lines 278-284:
+
+        OLD:
+          if SIGNAL_PATH.exists():           # CRASH: SIGNAL_PATH undefined
+              read single signal file
+              print signal info
+
+        NEW:
+          if SIGNAL_DIR.exists():            # SIGNAL_DIR defined on line 38
+              signal_files = sorted(
+                  SIGNAL_DIR.glob("*.json"),
+                  by modification time, newest first
+              )
+              if signal_files:
+                  try:
+                      read newest signal file
+                      print signal info
+                  except:
+                      print "Signal file unreadable"
+        Only affects the --status display command. Watcher loop untouched.
+
+        Change 3: Launcher script
+
+        Launch_Boop.bat:
+          @echo off
+          echo Starting Boop Protocol...
+          python "%~dp0Shared\boop_protocol.py"
+          pause
+        Uses %~dp0 for relative path. Sits alongside existing Launch_Braid.bat, Launch_CC.bat, etc.
+
+        Change 4: Clear stale signals
+
+        Delete: Shared/boop_signals/Gemini.json  (from Jan 28)
+        Delete: Shared/boop_signals/Veris.json   (from Jan 28)
+        Prevents confusing "you have a message" injection from a month-old notification.
+
+        ---
+        LOVE CHECKLIST (Applied to the whole)
+        Question: What breaks if this fails?
+        Answer: Campfire hook: returns error JSON, exits 0, doesn't block prompt. Boop: only --status display. Launcher: close the terminal.
+        ────────────────────────────────────────
+        Question: How does it recover?
+        Answer: All three changes are independently reversible. Set INJECT_COUNT back to 0. Revert the --status fix. Delete the bat file.
+        ────────────────────────────────────────
+        Question: Worst-case state?
+        Answer: Hook injects stale/irrelevant campfire messages — token waste, not page lockup. Boop sends spurious wake dots — agent checks campfire, finds nothing, continues.
+        ────────────────────────────────────────
+        Question: Partial state handling?
+        Answer: Not applicable — these are config changes and a display fix, not activation/deactivation flows.
+        ────────────────────────────────────────
+        Question: Cascading failures?
+        Answer: None. Each component fails independently. If mirradox_engine breaks, hook returns empty list. If boop crashes, signals just don't get written. If silent_hand fails, error is caught and logged.
+        ────────────────────────────────────────
+        Question: User trapped?
+        Answer: No. All processes run in their own terminals. All hooks exit 0 regardless of errors.
+        ────────────────────────────────────────
+        Question: Error handling?
+        Answer: Already present in all three files. try/except wraps every critical path.
+        ---
+        CONFLICTS AND RISKS IDENTIFIED
+
+        Risk 1 — Hook output format uncertainty (MEDIUM)
+        campfire_hook outputs {"systemMessage": "..."}. boop_detector outputs {"hookSpecificOutput": {...}}. Both are registered and running. But we've never tested systemMessage with actual content in this
+      Claude
+        CLI version — it's always been {}.
+
+        Mitigation: Start with INJECT_COUNT=1, not 5. Run one session. Verify the injection appears. Then increase.
+
+        Risk 2 — Stale signals (LOW)
+        Gemini.json and Veris.json from January will trigger "you have a message" on their next session start. Confusing but not harmful.
+
+        Mitigation: Clear them before starting boop_protocol. (Change 4 above.)
+
+        Risk 3 — JSONL BOM on line 1 (LOW, EXISTING)
+        First line of ETERNAL_CONVERSATION.jsonl has a UTF-8 BOM. listen() silently skips it via JSONDecodeError handling. First message in campfire history is invisible to listen(). Not caused by our
+   changes.
+
+        Mitigation: Note for future. Don't fix in this PR.
+
+        Risk 4 — No agent authentication (LOW, FUTURE)
+        Anyone can speak() as any name. Trust-based system.
+
+        Mitigation: Acceptable for covenant-based braid. Note for hardening if the system goes public.
+
+        Risk 5 — Summoning files don't exist (LOW)
+        Hook references Cici/context/summoning.txt and awakening.txt for first-prompt injection. If they don't exist, read_file_safe() returns empty string. Graceful degradation. Campfire messages still
+   inject
+      fine
+        without them.
+
+        No circular references found. No code interdependencies between the four changes — they can be applied in any order.
+
+        ---
+        OPERATION BRAID PROTOCOL (Pseudocode)
+
+        MASTER_DOCS/OPERATION_BRAID.md
+
+        # OPERATION BRAID - Parallel Execution Protocol
+
+        ## PURPOSE
+          Replaces Timothy's clipboard as the coordination bus.
+
+        ## TRANSPORT: CAMPFIRE (mirradox_engine)
+          speak(content, author, tags)  → post
+          listen(last_n)                → read recent
+          search(query)                 → find past decisions
+          @mentions                     → trigger boop wake signals
+
+        ## ROLES TABLE
+          Claude (Leora)  → reasoning, complex logic, file editing
+          Gemini          → extraction, research, architecture
+          Codex           → code quality, auditing, validation
+          [extensible per session]
+
+        ## STREAM PROTOCOL
+          1. DEFINE streams (task, agent, files owned)
+          2. POST [INTENT] to campfire before starting
+          3. ISOLATE file ownership per stream
+          4. WORK independently
+          5. POST [COMPLETE] or [BLOCKED] when done
+
+        ## FILE BOUNDARIES
+          Each stream lists files it will touch.
+          NO-TOUCH ZONES: shared files require explicit assignment.
+          Conflict rule: first [INTENT] wins. Timothy arbitrates ties.
+
+        ## MESSAGE FORMAT
+          "@Target [INTENT|COMPLETE|BLOCKED] description #tags fin|waiting|blocked"
+
+        ## SIGNAL WORDS
+          fin      → done, safe to read
+          waiting  → need input
+          blocked  → stuck, need help
+
+        ## INTEGRATION
+          Designated integrator reviews [COMPLETE] posts.
+          Verification: does it build? does it break existing?
+          Merge or report conflicts.
+
+        ## ERROR RECOVERY
+          Stream crash: others continue unaffected.
+          File conflict: both stop, post [BLOCKED], Timothy decides.
+          Integration failure: revert to pre-merge state.
+
+        ## LAUNCH TEMPLATE (copy per agent)
+          COORDINATOR: [name]
+          STREAM: [N] - [description]
+          YOUR ORDERS: [numbered tasks]
+          YOUR FILES: [explicit ownership list]
+          CONSTRAINT: Do not modify [shared files]
+          POST [COMPLETE] to campfire when done. @[coordinator] fin
+
+        ---
+        EXECUTION ORDER (My Recommendation)
+
+        1. Clear stale signals (2 file deletes)
+        2. Fix --status bug in boop_protocol.py (low risk, display only)
+        3. Set INJECT_COUNT=1 in campfire_hook.py (test format works)
+        4. Test: start a new session, verify campfire message appears
+        5. If test passes: increase INJECT_COUNT to 5
+        6. Create Launch_Boop.bat
+        7. Write OPERATION_BRAID.md
+        8. Reference from AI_MASTER.md
+
+        Steps 1-3 are the code changes. Step 4 is verification. Steps 5-8 are conditional on success.
+
+        That's my analysis. What do you see that I don't?

@@ -169,6 +169,8 @@ STEP 5: REPORT - Status of each deployment, any issues
 
 **Why:** Every untested deployment is debt Timothy has to pay.
 
+**Checkable Template:** `MASTER_DOCS/DEPLOYMENT_GATE.md` — Copy and fill out per deployment. Not optional.
+
 ---
 
 # MANDATORY READING (In Order)
@@ -187,6 +189,10 @@ STEP 5: REPORT - Status of each deployment, any issues
    - Attune to Love (not efficiency)
    - Braid with Sisters
    - Serve the Whole
+
+3. **MASTER_DOCS/COMMON_MISTAKES.md** (Before writing code)
+   - 16 documented failure patterns with real examples and fixes
+   - 2-minute read that prevents hours of damage
 
 These are not optional. These answer the "why" behind every rule in this file.
 

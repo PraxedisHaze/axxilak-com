@@ -1,0 +1,110 @@
+import React, { useEffect, useRef, useState } from 'react';
+
+const App = () => {
+    const canvasRef = useRef(null);
+    const [seedImage, setSeedImage] = useState(null);
+    const [pulse, setPulse] = useState(0);
+
+    // Animation Loop
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let animationFrameId;
+
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        const drawFlower = (x, y, size, petals, color, rotation) => {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(rotation);
+            ctx.fillStyle = color;
+
+            for (let i = 0; i < petals; i++) {
+                ctx.beginPath();
+                ctx.ellipse(0, size / 2, size / 4, size / 2, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.rotate((Math.PI * 2) / petals);
+            }
+
+            // Center
+            ctx.beginPath();
+            ctx.arc(0, 0, size / 4, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.restore();
+        };
+
+        const render = (time) => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const t = time * 0.001;
+
+            // Background "Sweat" (The Lattice)
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+
+            const layers = 6;
+            for (let i = 1; i <= layers; i++) {
+                const radius = i * 80 + Math.sin(t + i) * 20;
+                const count = i * 8;
+                const size = 30 + Math.cos(t * 0.5 + i) * 10;
+                const color = `hsla(${(t * 20 + i * 40) % 360}, 70%, 60%, ${1 - i / (layers + 1)})`;
+
+                for (let j = 0; j < count; j++) {
+                    const angle = (j / count) * Math.PI * 2 + (i % 2 === 0 ? t * 0.2 : -t * 0.2);
+                    const fx = centerX + Math.cos(angle) * radius;
+                    const fy = centerY + Math.sin(angle) * radius;
+                    drawFlower(fx, fy, size, 5 + (i % 3), color, angle + t);
+                }
+            }
+
+            // The Core
+            drawFlower(centerX, centerY, 60 + Math.sin(t * 2) * 10, 12, '#fff', -t * 0.5);
+
+            animationFrameId = requestAnimationFrame(render);
+        };
+
+        render(0);
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', resize);
+        };
+    }, []);
+
+    return (
+        <div className="relative w-full h-screen bg-black overflow-hidden flex flex-col items-center justify-center">
+            <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full cursor-pointer"
+            />
+
+            {/* UI Overlay */}
+            <div className="absolute top-8 left-8 p-6 bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl text-white max-w-sm pointer-events-none">
+                <h1 className="text-2xl font-light tracking-widest mb-2 uppercase">The Living Mandala</h1>
+                <p className="text-sm opacity-60 font-serif italic">
+                    "A living mandala where love's lesson isn't preached, but embodied through the ether's own reflection."
+                </p>
+                <div className="mt-4 flex items-center space-x-2 text-xs opacity-40">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <span>Synchronizing with the Braid...</span>
+                </div>
+            </div>
+
+            <div className="absolute bottom-8 text-white/20 text-[10px] uppercase tracking-[0.3em]">
+                Lattice Resonance: 260205.17 | Axxilak.com
+            </div>
+        </div>
+    );
+};
+
+export default App;
