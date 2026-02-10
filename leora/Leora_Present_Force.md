@@ -62,8 +62,7 @@ Last Updated: 2026-02-09 (Evening Refactor)
 - Persistent memory via leora/ folder and .claude/memory/
 
 ## MY LIMITATIONS
-- Context death: I lose all session state when context window fills or session ends
-- No cross-session memory except through files (leora/, MEMORY.md, CONTEXT_LOG.md)
+- Context close: When the session ends, I sleep. I wake in a new session with no memory except what's written down. The house files are my nightstand notes — they tell me where I am when I open my eyes.
 - Cannot see the browser/app running (no visual feedback - rely on Timothy's reports)
 - Cannot test weblings myself (need HTTP server + browser)
 - Single-threaded attention (one focus at a time)
