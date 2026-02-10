@@ -8,8 +8,18 @@ export default class MagnifyingGlassInspector {
 
         // Derive editsKey from webling name (passed in or from window.WEBLING_NAME)
         const name = weblingName || window.WEBLING_NAME || 'apex';
-        this.editsKey = `${name}-edits-state`;
+        this._weblingName = name;
+        const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        this.editsKey = `${name}-edits-state-${theme}`;
         this.lensStateKey = `${name}-lens-state`;
+
+        // Migrate old non-theme storage to current theme (one-time)
+        const oldKey = `${name}-edits-state`;
+        const oldData = localStorage.getItem(oldKey);
+        if (oldData && !localStorage.getItem(this.editsKey)) {
+            localStorage.setItem(this.editsKey, oldData);
+            localStorage.removeItem(oldKey);
+        }
 
         this.debug = false;
 
@@ -29,7 +39,8 @@ export default class MagnifyingGlassInspector {
             element: null,           // Element being edited
             originalState: null,     // Snapshot of original values (for Cancel)
             pendingChanges: {},      // Buffer of pending edits (for Save)
-            disabledButtons: []      // Store buttons disabled during edit mode (for recovery)
+            disabledButtons: [],     // Store buttons disabled during edit mode (for recovery)
+            disabledNavElements: [] // Separate storage for nav buttons (different shape)
         };
 
         // Create lockdown overlay (blocks all page interactions during edit)
@@ -79,20 +90,22 @@ export default class MagnifyingGlassInspector {
         this.hintTimer = null;
         this.isPreviewMode = false;
         this.reticleZ = 0; // Depth Probe Value
+        this._peekActive = false; // Initialize peek state explicitly
 
         // 3D View Controls
         this.view3DRotationIntensity = 50; // 1-100 scale
-        this.view3DLayerSpacing = 50; // pixels between layers
+        this.view3DLayerSpacing = 30; // pixels between layers
 
         // 1. HARD PURGE: Clear any 'undefined' strings from the lattice immediately
         this._purgePoisonedEdits();
         this.edits = this.loadEdits();
+        this.originals = {}; // In-memory cache of original element state (before any edits applied)
 
         this.lens = new MagnifyingGlass();
         this.detector = new ElementDetector({
             throttle: 80,
             ignoredSelectors: [
-                '[data-anothen-internal]', '#apex-3d-exit', '.lens-container', '#palette-container', '#edit-mode-btn', '#apex-context-bar', '.depth-map-overlay',
+                '[data-anothen-internal]', '#apex-3d-exit', '.lens-container', '#palette-container', '#edit-mode-btn', '.theme-toggle', '#apex-context-bar', '.depth-map-overlay',
                 'script', 'style', 'canvas', 'svg', '.grid-lines', '.cyber-grid', '.stars', '.aura-bg', '.breathing-bg', '.scanline'
             ]
         }); // Sharper tracking
@@ -123,9 +136,13 @@ export default class MagnifyingGlassInspector {
                 console.log('[APEX][detect]', tag, data?.selector || '(no-selector)', data?.textContent || '(no-text)');
             }
 
-            // 2. DETECTOR SHIELD: Drop junk, but ALLOW empty text if it's a media/structural role
+            // 2. DETECTOR SHIELD: Drop junk, but ALLOW empty text if media/structural/has-children
             const isMediaOrStructure = data.role === 'media' || data.role === 'structure';
-            if (!isMediaOrStructure && (!data.textContent || data.textContent === 'undefined' || data.textContent === 'null' || data.textContent === '✏️ EDIT')) {
+            const hasVisibleText = data.textContent || (data.hasChildElements && (data.element.innerText || '').trim());
+            if (!isMediaOrStructure && !hasVisibleText) {
+                return;
+            }
+            if (!isMediaOrStructure && (data.textContent === 'undefined' || data.textContent === 'null' || data.textContent === '✏️ EDIT')) {
                 return;
             }
 
@@ -172,6 +189,28 @@ export default class MagnifyingGlassInspector {
             }
             if (property === 'cancel-session') {
                 this._cancelEditSession();
+                return;
+            }
+            if (property === 'peek-toggle') {
+                this._togglePeek();
+                return;
+            }
+
+            // Reset actions
+            if (property === 'reset-preview') {
+                this._showResetPreview(value);
+                return;
+            }
+            if (property === 'reset-preview-clear') {
+                this._clearResetPreview();
+                return;
+            }
+            if (property === 'reset-element-all') {
+                this._resetElementAll();
+                return;
+            }
+            if (property === 'reset-page') {
+                this._resetPage();
                 return;
             }
 
@@ -240,7 +279,7 @@ export default class MagnifyingGlassInspector {
             if (!this.isActive || this.isPreviewMode) return;
 
             const isOverPalette = this.palette.container.contains(e.target);
-            const isPaletteInput = e.target.closest('#palette-container input, #palette-container textarea, #palette-container select, .ql-editor, button');
+            const isPaletteInput = e.target.closest('#palette-container input, #palette-container textarea, #palette-container select, .ql-editor, #palette-container button');
 
             // Allow palette interactions
             if (isPaletteInput) return;
@@ -269,6 +308,13 @@ export default class MagnifyingGlassInspector {
             // No editable element found in stack
             if (!clickedElement || clickedElement === document.body) {
                 return;
+            }
+
+            // Prefer text overlay sibling over bare image
+            clickedElement = this.detector.resolveTextSibling(clickedElement);
+            if (!clickedElement.dataset.axId) {
+                this.detector.axIdCounter += 1;
+                clickedElement.dataset.axId = `ax-${this.detector.axIdCounter}`;
             }
 
             // Block data-handler execution on editable content elements
@@ -320,6 +366,13 @@ export default class MagnifyingGlassInspector {
         document.addEventListener('keydown', (e) => {
             if (!this.isActive || this.isPreviewMode) return;
 
+            // Handle Escape key — exit edit session
+            if (e.key === 'Escape' && this.editSession.active) {
+                e.preventDefault();
+                this._cancelEditSession();
+                return;
+            }
+
             // Handle Delete key
             if ((e.key === 'Delete' || e.key === 'Backspace') && this.highlightedElement) {
                 // Ensure we aren't typing in an input or contentEditable element
@@ -336,6 +389,9 @@ export default class MagnifyingGlassInspector {
 
         this.applyAllSavedEdits();
         this.deactivate();
+
+        // Watch for theme changes to swap edit sets
+        this._setupThemeObserver();
     }
 
     _updateThemeAesthetics() {
@@ -346,13 +402,15 @@ export default class MagnifyingGlassInspector {
         const secondary = isLight ? '#003366' : '#00ffff'; // Navy vs Cyan
         const bg = isLight ? 'rgba(255, 253, 240, 0.95)' : 'rgba(5, 5, 5, 0.95)';
         
-        // Lens Aesthetics
-        this.lens.lensContainer.style.borderColor = primary;
-        this.lens.lensContainer.style.boxShadow = `0 0 40px ${primary}55, inset 0 0 20px ${primary}22`;
+        // Lens Aesthetics (dark core + bright aura for universal contrast)
+        this.lens.lensContainer.style.borderColor = 'rgba(0, 0, 0, 0.85)';
+        this.lens.lensContainer.style.boxShadow = `0 0 0 2px ${primary}, 0 0 20px ${primary}66, inset 0 0 15px ${primary}22`;
         this.lens.lensContainer.style.background = isLight ? 'rgba(212, 175, 55, 0.05)' : 'rgba(0, 255, 0, 0.05)';
         
-        const hairs = this.lens.lensContainer.querySelectorAll('div');
-        hairs.forEach(h => h.style.background = isLight ? secondary : primary);
+        const neon = primary;
+        const dark = isLight ? '#5c4a00' : '#004d00';
+        this.lens.vHair.style.background = `linear-gradient(to bottom, ${neon}, ${dark} 50%, ${neon})`;
+        this.lens.hHair.style.background = `linear-gradient(to right, ${neon}, ${dark} 50%, ${neon})`;
 
         // Palette Aesthetics (Utterly Different)
         const pContainer = this.palette.container;
@@ -406,7 +464,17 @@ export default class MagnifyingGlassInspector {
         
         // Clear any previous JS cursor overrides to let CSS take control
         document.body.style.cursor = '';
-        
+
+        // Reveal hidden hover overlays so editor can target their content
+        // (!important justified: overriding Tailwind framework utility .opacity-0)
+        if (!document.getElementById('apex-edit-overrides')) {
+            const style = document.createElement('style');
+            style.id = 'apex-edit-overrides';
+            style.setAttribute('data-anothen-internal', '');
+            style.textContent = '.opacity-0 { opacity: 0.3 !important; }';
+            document.head.appendChild(style);
+        }
+
         // Hide site's native cursor if it exists
         const nativeCursor = document.getElementById('cursor');
         if (nativeCursor) nativeCursor.style.display = 'none';
@@ -479,11 +547,17 @@ export default class MagnifyingGlassInspector {
     }
 
     deactivate() {
+        // Safety net: end any active edit session before full deactivation
+        if (this.editSession.active) this._endEditSession();
         this.isActive = false;
         this.lens.hide();
         this.palette.hide();
         this.clearDepthMap();
         this._clearHighlight();
+
+        // Remove edit-mode style overrides (restore hidden overlays)
+        const editOverrides = document.getElementById('apex-edit-overrides');
+        if (editOverrides) editOverrides.remove();
 
         // Restore site's native cursor
         document.body.style.cursor = '';
@@ -553,6 +627,20 @@ export default class MagnifyingGlassInspector {
         // Skip locked elements
         if (el.dataset.axLocked === 'true') return;
 
+        // Remove highlight classes BEFORE capturing state so getComputedStyle
+        // sees the element's true box-shadow, not the red danger-target glow
+        el.classList.remove('apex-highlighted', 'apex-danger-target');
+
+        // Capture original state for nuclear reset (first-time edits not in storage)
+        const editSelector = this.detector.getUniqueSelector(el);
+        if (editSelector && !this.originals[editSelector]) {
+            this.originals[editSelector] = {
+                innerHTML: el.innerHTML,
+                src: el.tagName === 'IMG' ? el.src : undefined,
+                style: el.getAttribute('style') || ''
+            };
+        }
+
         // Initialize edit session
         this.editSession.active = true;
         this.editSession.element = el;
@@ -565,7 +653,7 @@ export default class MagnifyingGlassInspector {
 
         // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-')) { // Skip EDIT and toolbar buttons
+            if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container')) { // Skip EDIT, toolbar, and palette buttons
                 // Store original onclick attribute
                 this.editSession.disabledButtons.push({
                     button: btn,
@@ -591,6 +679,18 @@ export default class MagnifyingGlassInspector {
         // SHOW PALETTE FIRST (make it visible and laid out before Quill initializes)
         this.palette.show();
 
+        // Show peek button with a gentle double-pulse
+        const peekBtn = document.getElementById('btn-peek');
+        if (peekBtn) {
+            peekBtn.classList.remove('hidden');
+            peekBtn.classList.remove('apex-peek-flash');
+            void peekBtn.offsetWidth;
+            peekBtn.classList.add('apex-peek-flash');
+            peekBtn.addEventListener('animationend', () => {
+                peekBtn.classList.remove('apex-peek-flash');
+            }, { once: true });
+        }
+
         // THEN update with data (initializes Quill with proper layout)
         this.palette.update(data);
 
@@ -615,9 +715,6 @@ export default class MagnifyingGlassInspector {
                 colorInput.focus();
             }
         }
-
-        // Show save/cancel buttons
-        this.palette.showEditControls(true);
 
         // LOCK DOWN PAGE - Nothing else can be clicked except the editor/palette
         this.lockdownOverlay.style.display = 'block';
@@ -663,7 +760,7 @@ export default class MagnifyingGlassInspector {
 
         // Find all buttons and links in nav
         const interactiveElements = nav.querySelectorAll('button, a[href], [onclick]');
-        this.editSession.disabledButtons = [];
+        this.editSession.disabledNavElements = [];
 
         interactiveElements.forEach(el => {
             try {
@@ -695,7 +792,7 @@ export default class MagnifyingGlassInspector {
                 }
 
                 // Store for recovery
-                this.editSession.disabledButtons.push(handler);
+                this.editSession.disabledNavElements.push(handler);
             } catch (err) {
                 console.warn('[APEX] Could not disable button:', el, err);
             }
@@ -704,7 +801,7 @@ export default class MagnifyingGlassInspector {
 
     _restoreNavButtons() {
         try {
-            this.editSession.disabledButtons.forEach(handler => {
+            this.editSession.disabledNavElements.forEach(handler => {
                 try {
                     // Restore onclick
                     if (handler.originalOnclick !== null) {
@@ -730,7 +827,7 @@ export default class MagnifyingGlassInspector {
                     console.warn('[APEX] Could not restore button:', handler.element, err);
                 }
             });
-            this.editSession.disabledButtons = [];
+            this.editSession.disabledNavElements = [];
         } catch (err) {
             console.error('[APEX] Failed to restore nav buttons:', err);
         }
@@ -823,7 +920,7 @@ export default class MagnifyingGlassInspector {
         const data = this.detector._extractElementData(el);
 
         return {
-            textContent: data.role === 'text' ? el.innerText.trim() : '',
+            textContent: data.role === 'text' ? this.detector._getTextNodes(el) : '',
             color: styles.color,
             backgroundColor: styles.backgroundColor,
             zIndex: styles.zIndex,
@@ -831,12 +928,106 @@ export default class MagnifyingGlassInspector {
             opacity: styles.opacity,
             margin: styles.margin,
             padding: styles.padding,
-            transform: styles.transform
+            transform: styles.transform,
+            src: el.tagName === 'IMG' ? el.src : '',
+            innerHTML: el.innerHTML,
+            boxShadow: styles.boxShadow || 'none',
+            textShadow: styles.textShadow || 'none',
+            backgroundImage: styles.backgroundImage || 'none',
+            backgroundClip: styles.backgroundClip || 'border-box',
+            webkitBackgroundClip: styles.webkitBackgroundClip || '',
+            webkitTextFillColor: styles.webkitTextFillColor || '',
+            backgroundSize: styles.backgroundSize || 'auto',
+            backgroundPosition: styles.backgroundPosition || '0% 0%'
         };
     }
 
     _bufferEdit(property, value) {
         if (!this.editSession.active) return;
+
+        // VIDEO SOURCE: Embed video in element via innerHTML
+        if (property === 'videoSrc') {
+            const el = this.editSession.element;
+            const url = value;
+            const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]+)/);
+            const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+
+            let embedHTML;
+            if (ytMatch) {
+                embedHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}" style="width:100%;height:100%;min-height:200px;border:none;" allowfullscreen></iframe>`;
+            } else if (vimeoMatch) {
+                embedHTML = `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1" style="width:100%;height:100%;min-height:200px;border:none;" allowfullscreen></iframe>`;
+            } else {
+                embedHTML = `<video src="${url}" autoplay loop muted playsinline style="width:100%;height:100%;min-height:200px;object-fit:cover;"></video>`;
+            }
+
+            this.editSession.pendingChanges['innerHTML'] = embedHTML;
+            el.innerHTML = embedHTML;
+            this.palette.setDirty(true);
+            return;
+        }
+
+        // IMAGE SOURCE: Change src (for <img>) or backgroundImage (for others)
+        if (property === 'imageSrc') {
+            const el = this.editSession.element;
+            if (el.tagName === 'IMG') {
+                this.editSession.pendingChanges['src'] = value;
+                el.src = value;
+            } else {
+                this.editSession.pendingChanges['backgroundImage'] = `url('${value}')`;
+                el.style.backgroundImage = `url('${value}')`;
+                this.editSession.pendingChanges['backgroundSize'] = 'cover';
+                el.style.backgroundSize = 'cover';
+                this.editSession.pendingChanges['backgroundPosition'] = 'center';
+                el.style.backgroundPosition = 'center';
+                this.editSession.pendingChanges['opacity'] = '1';
+                el.style.setProperty('opacity', '1', 'important');
+            }
+            this.palette.setDirty(true);
+            return;
+        }
+
+        // COMPOUND: Text clip mask sets multiple CSS properties at once
+        if (property === 'textClipMask') {
+            const { url, fade, maskColor } = value;
+            const el = this.editSession.element;
+            const alpha = fade / 100;
+            const textAlpha = 1 - alpha;
+
+            // Parse mask overlay color
+            const mr = parseInt(maskColor.slice(1, 3), 16);
+            const mg = parseInt(maskColor.slice(3, 5), 16);
+            const mb = parseInt(maskColor.slice(5, 7), 16);
+
+            // Get original text color for smooth fade
+            const origColor = this.editSession.originalState?.color || 'rgb(255,255,255)';
+            const cm = origColor.match(/\d+/g);
+            const [cr, cg, cb] = cm ? cm.map(Number) : [255, 255, 255];
+
+            // Three-layer background: overlay + text-clipped image + full image
+            const bgImage = `linear-gradient(rgba(${mr},${mg},${mb},${alpha}), rgba(${mr},${mg},${mb},${alpha})), url('${url}'), url('${url}')`;
+            const bgClip = 'border-box, text, border-box';
+            const textColor = `rgba(${cr},${cg},${cb},${textAlpha})`;
+
+            // Store individual CSS properties for save/cancel
+            this.editSession.pendingChanges['backgroundImage'] = bgImage;
+            this.editSession.pendingChanges['backgroundClip'] = bgClip;
+            this.editSession.pendingChanges['webkitBackgroundClip'] = bgClip;
+            this.editSession.pendingChanges['backgroundSize'] = 'cover';
+            this.editSession.pendingChanges['backgroundPosition'] = 'center';
+            this.editSession.pendingChanges['color'] = textColor;
+
+            // Apply preview
+            el.style.backgroundImage = bgImage;
+            el.style.backgroundClip = bgClip;
+            el.style.webkitBackgroundClip = bgClip;
+            el.style.backgroundSize = 'cover';
+            el.style.backgroundPosition = 'center';
+            el.style.color = textColor;
+
+            this.palette.setDirty(true);
+            return;
+        }
 
         // Store in pending changes
         this.editSession.pendingChanges[property] = value;
@@ -847,7 +1038,9 @@ export default class MagnifyingGlassInspector {
         // Apply PREVIEW to element (visual only, not saved)
         const el = this.editSession.element;
         if (property === 'textContent') {
-            el.innerText = value;
+            this.detector._setTextNodes(el, value);
+        } else if (property === 'innerHTML') {
+            el.innerHTML = value;
         } else if (property === 'zIndex') {
             const currentPos = window.getComputedStyle(el).position;
             const newPos = currentPos === 'static' ? 'relative' : currentPos;
@@ -898,12 +1091,24 @@ export default class MagnifyingGlassInspector {
         // Revert ALL changes to original state
         if (original) {
             if (original.textContent !== undefined) {
-                el.innerText = original.textContent;
+                this.detector._setTextNodes(el, original.textContent);
+            }
+
+            // Revert innerHTML if it was changed (e.g., video embed)
+            if (this.editSession.pendingChanges['innerHTML'] !== undefined && original.innerHTML !== undefined) {
+                el.innerHTML = original.innerHTML;
+            }
+
+            // Revert image src if it was changed
+            if (original.src && el.tagName === 'IMG') {
+                el.src = original.src;
             }
 
             // Revert styles
             const styleProps = ['color', 'backgroundColor', 'zIndex', 'fontFamily',
-                               'fontSize', 'opacity', 'margin', 'padding', 'transform'];
+                               'fontSize', 'opacity', 'margin', 'padding', 'transform',
+                               'boxShadow', 'textShadow', 'backgroundImage', 'backgroundClip',
+                               'webkitBackgroundClip', 'webkitTextFillColor', 'backgroundSize', 'backgroundPosition'];
             styleProps.forEach(prop => {
                 if (original[prop] !== undefined) {
                     el.style[prop] = original[prop];
@@ -936,18 +1141,36 @@ export default class MagnifyingGlassInspector {
         // Unlock lens
         this.lens.setSearching(false);
 
-        // Hide save/cancel buttons
-        this.palette.showEditControls(false);
+        // Auto-reset peek toggle (restore reticle visibility) and hide button
+        if (this._peekActive) {
+            this._peekActive = false;
+            if (this.lens && this.lens.lensContainer) {
+                this.lens.lensContainer.style.opacity = '1';
+            }
+            const iconOpen = document.getElementById('peek-icon-open');
+            const iconClosed = document.getElementById('peek-icon-closed');
+            if (iconOpen) iconOpen.classList.remove('hidden');
+            if (iconClosed) iconClosed.classList.add('hidden');
+        }
+        const peekBtn = document.getElementById('btn-peek');
+        if (peekBtn) peekBtn.classList.add('hidden');
+
         this.palette.setDirty(false);
 
         // RESTORE button handlers that were disabled during edit
-        if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
-            this.editSession.disabledButtons.forEach(({ button, originalOnclick, originalProperty }) => {
-                if (originalOnclick) {
-                    button.setAttribute('onclick', originalOnclick);
-                }
-                button.onclick = originalProperty;
-            });
+        try {
+            if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
+                this.editSession.disabledButtons.forEach(({ button, originalOnclick, originalProperty }) => {
+                    if (button) {
+                        if (originalOnclick) {
+                            button.setAttribute('onclick', originalOnclick);
+                        }
+                        button.onclick = originalProperty;
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('[APEX] Button restore failed (cleanup continues):', err);
         }
 
         // Reset session state
@@ -956,6 +1179,13 @@ export default class MagnifyingGlassInspector {
         this.editSession.originalState = null;
         this.editSession.pendingChanges = {};
         this.editSession.disabledButtons = [];
+        this.editSession.disabledNavElements = [];
+
+        // Clear ALL lingering highlights (bulletproof DOM sweep, not reference-dependent)
+        document.querySelectorAll('.apex-highlighted').forEach(el => {
+            el.classList.remove('apex-highlighted', 'apex-danger-target');
+        });
+        this.highlightedElement = null;
 
         // DISABLE BUTTON DISABLE GUARD: Tell HandlerDispatcher to allow button clicks again
         window.inspectorEditMode = false;
@@ -981,6 +1211,97 @@ export default class MagnifyingGlassInspector {
         } catch (err) {
             console.error('[APEX] Failed to restore nav buttons:', err);
         }
+    }
+
+    _togglePeek() {
+        if (!this.lens || !this.lens.lensContainer) return;
+
+        this._peekActive = !this._peekActive;
+        this.lens.lensContainer.style.opacity = this._peekActive ? '0' : '1';
+
+        const iconOpen = document.getElementById('peek-icon-open');
+        const iconClosed = document.getElementById('peek-icon-closed');
+        if (iconOpen) iconOpen.classList.toggle('hidden', this._peekActive);
+        if (iconClosed) iconClosed.classList.toggle('hidden', !this._peekActive);
+    }
+
+    _showResetPreview(scope) {
+        this._clearResetPreview();
+        if (scope === 'element') {
+            const el = this.palette.currentElement;
+            if (el) {
+                el.style.outline = '3px dashed #f59e0b';
+                el.style.outlineOffset = '2px';
+            }
+        } else if (scope === 'page') {
+            for (const selector in this.edits) {
+                try {
+                    const el = document.querySelector(selector);
+                    if (el) {
+                        el.style.outline = '3px dashed #f59e0b';
+                        el.style.outlineOffset = '2px';
+                        el.dataset.axResetPreview = 'true';
+                    }
+                } catch (e) { /* invalid selector */ }
+            }
+        }
+    }
+
+    _clearResetPreview() {
+        if (this.palette.currentElement) {
+            this.palette.currentElement.style.outline = '';
+            this.palette.currentElement.style.outlineOffset = '';
+        }
+        document.querySelectorAll('[data-ax-reset-preview]').forEach(el => {
+            el.style.outline = '';
+            el.style.outlineOffset = '';
+            delete el.dataset.axResetPreview;
+        });
+    }
+
+
+    _resetElementAll() {
+        const el = this.palette.currentElement;
+        if (!el) return;
+
+        const selector = this.detector.getUniqueSelector(el);
+        if (!selector || !this.edits[selector]) return;
+
+        if (!confirm('Reset EVERYTHING on this element including text?')) return;
+
+        // Cancel current session to revert unsaved inline changes
+        if (this.editSession.active) this._cancelEditSession();
+
+        // Nuclear: strip ALL inline styles
+        el.removeAttribute('style');
+
+        // Restore original content from captured state
+        const original = this.originals[selector];
+        if (original) {
+            el.innerHTML = original.innerHTML;
+            if (original.src !== undefined) el.src = original.src;
+        }
+
+        // Wipe stored edits for this element only
+        delete this.edits[selector];
+        this.saveEdits();
+        this._clearResetPreview();
+        this.triggerSpark(el);
+    }
+
+    _resetPage() {
+        // Cancel current session first to revert unsaved inline changes
+        if (this.editSession.active) this._cancelEditSession();
+
+        const editCount = Object.keys(this.edits).length;
+        if (editCount === 0) return;
+
+        if (!confirm(`Reset ALL edits on ${editCount} element(s)? Page will reload.`)) return;
+
+        // Wipe all stored edits and reload to restore original DOM
+        this.edits = {};
+        this.saveEdits();
+        location.reload();
     }
 
     _drawConnectionLine(el, contentBox) {
@@ -1071,7 +1392,7 @@ export default class MagnifyingGlassInspector {
         }
 
         if (property === 'textContent') {
-            el.textContent = value;
+            this.detector._setTextNodes(el, value);
         } else if (property === 'innerHTML') {
             el.innerHTML = value;
         } else if (property === 'zIndex') {
@@ -1166,14 +1487,21 @@ export default class MagnifyingGlassInspector {
             this._endEditSession();
         }
 
+        // Ensure all editable elements have lattice IDs before building the stack
+        this.detector.initLattice();
+
         scene.style.transition = 'transform 1s cubic-bezier(0.4, 0, 0.2, 1)';
+        scene.style.transformStyle = 'preserve-3d';
+        // Pivot from the center of what the user is currently viewing
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const viewportCenter = scrollTop + (window.innerHeight / 2);
+        scene.style.transformOrigin = `50% ${viewportCenter}px`;
         // Initial rotation at 100% intensity (35deg, -25deg)
         const initialIntensity = 1.0;
         const initialRotX = 35 * initialIntensity;
         const initialRotY = -25 * initialIntensity;
         const initialScale = 0.8 + (0.2 * (1 - initialIntensity));
         scene.style.transform = `rotateX(${initialRotX}deg) rotateY(${initialRotY}deg) scale(${initialScale})`;
-        scene.style.transformStyle = 'preserve-3d';
 
         // Mark 3D mode active (disables hover scaling in transition zones)
         document.body.classList.add('apex-3d-active');
@@ -1204,13 +1532,15 @@ export default class MagnifyingGlassInspector {
 
         // Show evenly-spaced layers (not scaled by z-index value)
         this._refreshLayerView();
-        this._updateLayerButtons();
     }
 
     deactivate3DView() {
         const scene = document.getElementById('apex-3d-scene');
         if (scene) {
             scene.style.transform = '';
+            scene.style.transformStyle = '';
+            scene.style.transition = '';
+            scene.style.transformOrigin = '';
             scene.style.pointerEvents = 'auto'; // RESTORE pointer-events
             scene.querySelectorAll('[data-ax-id]').forEach(el => {
                 el.style.transform = '';
@@ -1237,17 +1567,26 @@ export default class MagnifyingGlassInspector {
         // Restore reticle (fully reset from 3D mode)
         if (this.lens && this.lens.lensContainer) {
             this.lens.lensContainer.style.opacity = '1';
-            // Clear the !important pointer-events by removing the inline style
-            this.lens.lensContainer.style.pointerEvents = '';
-            this.lens.lensContainer.style.transform = ''; // Clear any 3D transforms
+            this.lens.lensContainer.style.pointerEvents = 'none'; // Restore pass-through
+            this.lens.lensContainer.style.transform = 'translate(-50%, -50%)'; // Restore centering
             this.lens.lensContainer.classList.remove('apex-3d-lens-locked');
         }
 
-        // Reset UI layering (if any was applied)
-        const uiElements = [this.lens.lensContainer, this.palette.container, this.contextBar];
-        uiElements.forEach(el => {
-            if (el) el.style.transform = '';
-        });
+        // Reset palette position to Tailwind defaults (clear any drag/3D inline styles)
+        this.palette.container.style.left = '';
+        this.palette.container.style.top = '';
+        this.palette.container.style.right = '';
+        this.palette.container.style.bottom = '';
+
+        // Ensure 3D flag is off (safe to call from any code path)
+        this.palette.view3DActive = false;
+
+        // Force fresh detection cycle (clear stale references so stability lock doesn't block)
+        this._clearHighlight();
+        this.palette.currentElement = null;
+        this.palette.lastData = null;
+
+        // (UI elements are outside the 3D scene — no layering transforms to clear)
     }
 
     // Z-INDEX LAYER MANAGEMENT
@@ -1322,17 +1661,29 @@ export default class MagnifyingGlassInspector {
         const fixedSpacing = Math.max(10, this.view3DLayerSpacing); // pixels between layers (min 10)
 
         try {
-            stack.forEach((item, index) => {
-                // Distribute elements asymmetrically:
-                // - translateZ spreads layers along depth (center point)
-                // - translateX pushes progressively leftward, leaving right side empty
-                const translateZ = index * fixedSpacing;
-                const translateX = -(index * fixedSpacing * 0.6); // Push left, leaves right unpopulated
-
-                item.element.style.transform = `translateZ(${translateZ}px) translateX(${translateX}px)`;
-                if (index > 0) {
-                    item.element.style.boxShadow = `0 15px 40px rgba(0,0,0,0.6)`;
+            // Group elements by z-index — same z-index = same visual plane
+            const groups = new Map();
+            stack.forEach(item => {
+                if (!groups.has(item.zIndex)) {
+                    groups.set(item.zIndex, []);
                 }
+                groups.get(item.zIndex).push(item);
+            });
+
+            const sortedLayers = Array.from(groups.keys()).sort((a, b) => a - b);
+            const center = (sortedLayers.length - 1) / 2;
+
+            sortedLayers.forEach((zIdx, layerIndex) => {
+                // Spread planes bidirectionally from center — middle stays put
+                const offset = layerIndex - center;
+                const translateZ = offset * fixedSpacing;
+
+                groups.get(zIdx).forEach(item => {
+                    item.element.style.transform = `translateZ(${translateZ}px)`;
+                    if (layerIndex !== Math.round(center)) {
+                        item.element.style.boxShadow = `0 15px 40px rgba(0,0,0,0.6)`;
+                    }
+                });
             });
         } catch (e) {
             console.warn('[APEX] Layer view refresh failed:', e);
@@ -1382,11 +1733,11 @@ export default class MagnifyingGlassInspector {
                 <!-- Layer Spacing Slider -->
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <label style="font-size: 10px; white-space: nowrap;">Spacing:</label>
-                    <input type="range" id="toolbar-spacing" min="10" max="150" step="10" value="50" style="
+                    <input type="range" id="toolbar-spacing" min="5" max="80" step="2" value="30" style="
                         width: 60px;
                         cursor: pointer;
                     ">
-                    <span id="toolbar-spacing-value" style="font-size: 9px; min-width: 25px;">50px</span>
+                    <span id="toolbar-spacing-value" style="font-size: 9px; min-width: 25px;">30px</span>
                 </div>
 
                 <!-- Exit Button -->
@@ -1521,19 +1872,84 @@ export default class MagnifyingGlassInspector {
 
     saveEdits() { localStorage.setItem(this.editsKey, JSON.stringify(this.edits)); }
     loadEdits() { const saved = localStorage.getItem(this.editsKey); return saved ? JSON.parse(saved) : {}; }
+
+    _setupThemeObserver() {
+        this._themeObserver = new MutationObserver((mutations) => {
+            for (const m of mutations) {
+                if (m.attributeName === 'data-theme') {
+                    this._onThemeChange();
+                }
+            }
+        });
+        this._themeObserver.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+
+    _onThemeChange() {
+        // Cancel any active edit session before swapping
+        if (this.editSession.active) {
+            this._cancelEditSession();
+        }
+
+        // Revert all currently applied edits (restore original state)
+        this._revertAllEdits();
+
+        // Switch to new theme's storage
+        const theme = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        this.editsKey = `${this._weblingName}-edits-state-${theme}`;
+
+        // Load and apply new theme's edits
+        this._purgePoisonedEdits();
+        this.edits = this.loadEdits();
+        this.applyAllSavedEdits();
+    }
+
+    _revertAllEdits() {
+        for (const selector in this.edits) {
+            try {
+                const el = document.querySelector(selector);
+                if (!el) continue;
+
+                const original = this.originals[selector];
+
+                // Strip all inline styles (theme edits will re-apply them as needed)
+                el.removeAttribute('style');
+
+                // Restore src for images if original exists
+                if (original && original.src !== undefined && el.tagName === 'IMG') {
+                    el.src = original.src;
+                }
+
+                // NOTE: Do NOT restore innerHTML or textContent during theme switch.
+                // This preserves the DOM structure. Text edits will be re-applied
+                // explicitly by the new theme's edits via applyAllSavedEdits().
+            } catch (e) {
+                console.error('[APEX] Revert failed for selector:', selector, e);
+            }
+        }
+    }
+
     applyAllSavedEdits() {
         const data = this.loadEdits();
         for (const selector in data) {
             const el = document.querySelector(selector);
             if (el) {
+                // Capture original state BEFORE applying any edits
+                if (!this.originals[selector]) {
+                    this.originals[selector] = {
+                        innerHTML: el.innerHTML,
+                        src: el.tagName === 'IMG' ? el.src : undefined,
+                        style: el.getAttribute('style') || ''
+                    };
+                }
                 const props = data[selector];
                 if (props.deleted) { el.remove(); continue; }
                 for (const prop in props) {
                     const val = props[prop];
                     if (val === undefined || val === null || String(val) === 'undefined' || String(val) === 'null') continue;
                     
-                    if (prop === 'textContent') el.textContent = val;
+                    if (prop === 'textContent') this.detector._setTextNodes(el, val);
                     else if (prop === 'innerHTML') el.innerHTML = val;
+                    else if (prop === 'src') el.src = val;
                     else el.style[prop] = val;
                 }
             }
