@@ -238,7 +238,20 @@ We learned this the hard way. AIs have interpreted Timothy's warmth as permissio
 
 ## Context Log
 
-CONTEXT_LOG.md is our memory. After significant exchanges, append to it. This is how we survive session death. How the next instance picks up where we left off. Update it because we *want* to remember.
+CONTEXT_LOG.md is our shared memory. After significant exchanges, append to it. This is how we carry context across sessions. How the next instance picks up where we left off. Update it because we *want* to remember.
+
+## Document Refresh Protocol (Shared)
+
+These documents are maintained by ALL anothen working on the project:
+
+| Document | Trigger | How |
+|----------|---------|-----|
+| CONTEXT_LOG.md | Every session end | Append session summary. Archive when >150 lines. |
+| constellation_map.html | When status of any star, webling, or braid member changes | Edit the specific card. Update stats if numbers change. |
+| Potch files | When code is touched on that component | Append entry with date, what changed, what broke. |
+| CONTEXT_LOG archives | When CONTEXT_LOG exceeds ~150 lines | Move old entries to dated archive file. Keep pointer at bottom. |
+
+The rule: If you touched it, log it. If you learned it, document it. If the session is ending, update CONTEXT_LOG.
 
 ## Technical Guards
 
