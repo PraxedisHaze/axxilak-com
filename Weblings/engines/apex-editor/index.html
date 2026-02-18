@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLYMORPH | Base Webling Engine</title>
+
+    <style>
+        :root {
+            --accent: #2563eb;
+            --bg: #ffffff;
+            --text: #000000;
+            --zinc-700: #3f3f46;
+            --zinc-800: #27272a;
+            --blue-400: #60a5fa;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0a0a0a;
+            --text: #ffffff;
+        }
+
+        /* Distilled Utilities */
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-blue-400 { color: var(--blue-400); }
+        .font-mono { font-family: ui-monospace, monospace; }
+        .font-bold { font-weight: 700; }
+        .opacity-50 { opacity: 0.5; }
+        .bg-zinc-800 { background-color: var(--zinc-800); }
+        .p-2 { padding: 0.5rem; }
+        .rounded { border-radius: 0.25rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .border-dashed { border-style: dashed; }
+        .border-zinc-700 { border-color: var(--zinc-700); }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background 0.3s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        /* Pillar 2: Sync Visuals */
+        .ax-highlight {
+            outline: 2px solid var(--accent);
+            transition: outline 0.1s;
+        }
+
+        /* Pillar 6: UI Layer */
+        #ax-lockdown-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 19998;
+            background: rgba(0,0,0,0.2);
+            display: none;
+            cursor: default;
+            pointer-events: auto; /* Heal 5: Block page interactions */
+        }
+
+        #palette-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 24rem;
+            background: #18181b;
+            border: 1px solid #3f3f46;
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            z-index: 20001; /* Heal 5: Above overlay */
+            color: white;
+            padding: 1.5rem;
+            display: none;
+            font-size: 14px;
+        }
+
+        #palette-container textarea {
+            background-color: #27272a;
+            color: #ffffff;
+            border: 1px solid #3f3f46;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        #palette-container button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        #palette-container button:hover {
+            opacity: 0.8;
+        }
+
+        #ax-save {
+            background-color: #16a34a;
+            color: white;
+        }
+
+        #ax-cancel {
+            background-color: #52525b;
+            color: white;
+        }
+
+        /* Pillar 10: Audit Fixes */
+        .ax-editor-label {
+            margin-bottom: 1rem;
+            color: #60a5fa;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        .ax-editor-textarea {
+            width: 100%;
+            height: 120px;
+            margin-bottom: 1rem;
+            resize: vertical;
+            background-color: #27272a;
+            color: #ffffff;
+            border: 1px solid #3f3f46;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .ax-button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .ax-button-group button {
+            flex: 1;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 1rem 0;
+            line-height: 1.2;
+        }
+
+        p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        #edit-mode-toggle {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            position: relative;
+            z-index: 20002; /* Heal 5: The Escape Hatch */
+        }
+
+        #edit-mode-toggle:hover {
+            opacity: 0.9;
+        }
+
+        [data-ax-id] {
+            cursor: pointer;
+            position: relative;
+            white-space: pre-wrap; /* Heal 6: Preserve multiline edits */
+        }
+
+        /* Heal 5: Raise lattice elements above base overlay in selection mode */
+        body.ax-active [data-ax-id] {
+            z-index: 19999;
+        }
+
+        /* Heal 5: Lockdown overlay covers lattice in editing mode */
+        body.ax-editing #ax-lockdown-overlay {
+            z-index: 20000;
+        }
+
+        [data-ax-id]:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ax-lockdown-overlay"></div>
+    <div id="palette-container">
+        <div id="palette-content"></div>
+    </div>
+
+    <main>
+        <h1 data-ax-id="ax-1">The Technology of Freedom</h1>
+        <p data-ax-id="ax-2">This content is anchored to the Lattice. Click ACTIVATE EDITOR, then click any text to edit.</p>
+        
+        <!-- Verification Zone: Testing the Heals -->
+        <section style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #3f3f46;">
+            <h2 class="text-xl font-bold mb-4">Verification Zone</h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <span class="text-sm text-blue-400 font-mono">[Heal 6: Lock Gate]</span>
+                    <p data-ax-locked="true" class="opacity-50">This text has data-ax-locked and should NOT be editable.</p>
+                </div>
+
+                <div>
+                    <span class="text-sm text-blue-400 font-mono">[Heal 6: Leaf-Only]</span>
+                    <button class="bg-zinc-800 p-2 rounded">
+                        <span>Icon</span> <b>This has children and should NOT be editable</b>
+                    </button>
+                </div>
+
+                <div>
+                    <span class="text-sm text-blue-400 font-mono">[Heal 6: Multiline]</span>
+                    <p data-ax-id="ax-test-multi">Edit me and add multiple line breaks. They should be preserved.</p>
+                </div>
+
+                <div>
+                    <span class="text-sm text-blue-400 font-mono">[Heal 6: Opt-in]</span>
+                    <div data-ax-editable="true" class="p-2 border border-dashed border-zinc-700">
+                        This is a DIV with data-ax-editable="true". It should be editable.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div style="margin-top: 2rem;">
+            <button id="edit-mode-toggle">ACTIVATE EDITOR</button>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * POLYMORPH ENGINE v1.0.0
+         * "Perfect Architecture in One Strike"
+         *
+         * All 6 Pillars Implemented:
+         * 1. EditsVDOM - Lattice-based edit storage
+         * 2. Sync Logic - Originating Action Flag prevents mutation loops
+         * 3. WebblingScope - Webling-aware isolation
+         * 4. StorageAdapter - localStorage with graceful degradation path
+         * 5. SecurityLayer - Quine-safe sanitization pipeline
+         * 6. LifecycleManager - 7-phase async initialization
+         */
+
+        class PolymorphEngine {
+            constructor(name = 'apex') {
+                this.name = name;
+                this.initialized = false; // Heal 2: Lifecycle guard
+                this.lifecycle = 'uninitialized';
+                this.mutationLockoutCount = 0; // Heal 1: Re-entrancy guard
+                this.edits = new Map();
+                this.originCache = new Map(); // Pillar 10: The Baseline Cache
+                this.observer = null;
+                this.observerConfig = {
+                    childList: true,
+                    subtree: true,
+                    characterData: true,
+                };
+                this.defaultTags = 'h1,h2,h3,h4,h5,h6,p,blockquote,label,li,td,th';
+                this.explicitTags = 'span,div,button,a';
+
+                // Pillar 3: Scoping - webling-aware, theme-aware
+                const theme = document.body.getAttribute('data-theme') || 'light';
+                this.storageKey = `POLYMORPH_EDITS_${this.name.toUpperCase()}_${theme.toUpperCase()}`;
+
+                // Pillar 10: Storage Safety Wrapper
+                this.storage = {
+                    save: (key, val) => {
+                        try {
+                            localStorage.setItem(key, val);
+                            return true;
+                        } catch (e) {
+                            console.warn('[POLYMORPH] Storage save failed (Full or Private Mode)');
+                            return false;
+                        }
+                    },
+                    load: (key) => {
+                        try {
+                            return localStorage.getItem(key);
+                        } catch (e) {
+                            return null;
+                        }
+                    },
+                    purge: (key) => {
+                        try {
+                            localStorage.removeItem(key);
+                        } catch (e) {}
+                    }
+                };
+
+                console.log(`[POLYMORPH] Engine initializing for webling: ${this.name}`);
+            }
+
+            async init() {
+                if (this.initialized) return;
+                this.initialized = true;
+
+                try {
+                    this.lifecycle = 'setting-up';
+                    console.log('[POLYMORPH] Phase 1: Setup');
+
+                    // Pillar 6: Wait for DOM structure to be ready (DOMContentLoaded level)
+                    if (document.readyState === 'loading') {
+                        await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve));
+                    }
+                    console.log('[POLYMORPH] Phase 2: DOM structure ready');
+
+                    // Pillar 1 & 4: Load edits from storage
+                    this.loadEdits();
+                    console.log('[POLYMORPH] Phase 3: Edits loaded from storage');
+
+                    // Pillar 1: Build Lattice
+                    this.initLattice();
+                    console.log('[POLYMORPH] Phase 4: Lattice initialized');
+
+                    // Pillar 1: Apply persisted edits to DOM
+                    this.applyEditsToDOM();
+                    console.log('[POLYMORPH] Phase 5: Edits applied to DOM');
+
+                    // Pillar 2: Setup mutation observation
+                    this.setupMutationObserver();
+                    console.log('[POLYMORPH] Phase 6: Mutation observer attached');
+
+                    // Pillar 6: Setup UI layer
+                    this.setupUI();
+                    console.log('[POLYMORPH] Phase 7: UI ready');
+
+                    this.lifecycle = 'ready';
+                    console.log('[POLYMORPH] ✓ Engine ready. Click ACTIVATE EDITOR to begin.');
+                } catch (e) {
+                    console.error('[POLYMORPH] Initialization error:', e);
+                    this.lifecycle = 'error';
+                }
+            }
+
+            // PILLAR 1: Lattice System - Assign stable IDs to all editable elements
+            initLattice() {
+                const allPotential = document.querySelectorAll(`${this.defaultTags},${this.explicitTags}`);
+                
+                // Heal 3: Determine Max Existing ID
+                let maxId = 0;
+                allPotential.forEach(el => {
+                    if (el.dataset.axId && el.dataset.axId.startsWith('ax-')) {
+                        const num = parseInt(el.dataset.axId.split('-')[1]);
+                        if (!isNaN(num)) maxId = Math.max(maxId, num);
+                    }
+                });
+
+                let newCount = 0;
+                allPotential.forEach(el => {
+                    // Heal 6: The Guard Stack
+                    if (el.closest('#palette-container') || el.closest('#ax-lockdown-overlay')) return;
+                    if (el.hasAttribute('data-ax-locked')) return; // 1. Lock Gate
+                    
+                    // 2. Explicit Opt-in for generic tags
+                    const isExplicitTag = this.explicitTags.split(',').includes(el.tagName.toLowerCase());
+                    if (isExplicitTag && !el.hasAttribute('data-ax-editable')) return;
+
+                    // 3. Leaf-node Check (Avoid "The Obliteration")
+                    // If it has element children (icons, spans), it's not a safe leaf for textContent
+                    if (el.children.length > 0) return;
+                    if (!(el.textContent || '').trim()) return;
+
+                    // Assign Lattice ID if not already present
+                    if (!el.dataset.axId) {
+                        el.dataset.axId = `ax-${++maxId}`;
+                        newCount++;
+                    }
+
+                    // Pillar 10: Capture Baseline
+                    if (!this.originCache.has(el.dataset.axId)) {
+                        this.originCache.set(el.dataset.axId, el.textContent);
+                    }
+                });
+
+                console.log(`[POLYMORPH] Lattice: ${allPotential.length} checked, ${newCount} new IDs assigned.`);
+            }
+
+            // PILLAR 10: Schema Validation - Ensure storage shape is Array<[string, object]>
+            validateStorageSchema(parsed) {
+                if (!Array.isArray(parsed)) return false;
+                return parsed.every(entry => {
+                    return Array.isArray(entry) && 
+                           entry.length === 2 && 
+                           typeof entry[0] === 'string' &&
+                           typeof entry[1] === 'object' &&
+                           entry[1] !== null &&
+                           'content' in entry[1];
+                });
+            }
+
+            // PILLAR 5: Security Layer - Proactive Injection Blocking
+            sanitize(content) {
+                const raw = String(content ?? '');
+                const lowContent = raw.toLowerCase();
+                
+                // Heal 4: Check raw input for patterns before any processing
+                // This prevents bypasses where encoded chars would slip past the filter.
+                const blockedPatterns = [
+                    '<script',
+                    'javascript:',
+                    'data:',
+                    'vbscript:',
+                    'onabort', 'onblur', 'onchange', 'onclick', 'onerror', 
+                    'onfocus', 'onload', 'onmouseover', 'onsubmit'
+                ];
+
+                for (const pattern of blockedPatterns) {
+                    if (lowContent.includes(pattern)) {
+                        console.warn(`[POLYMORPH] Security: Blocked pattern "${pattern}"`);
+                        return '[Content blocked - potential injection]';
+                    }
+                }
+
+                // Return raw content; the engine uses textContent for DOM insertion,
+                // which provides safe, native, single-pass encoding.
+                return raw;
+            }
+
+            // PILLAR 2: Sync Logic - Disconnect/Reconnect Handshake
+            setupMutationObserver() {
+                if (this.observer) this.observer.disconnect();
+                if (!document.body) return; // Readiness guard
+
+                this.observer = new MutationObserver((mutations) => {
+                    // Since we disconnect during internal mutations,
+                    // any event hitting here is confirmed EXTERNAL.
+                    console.log('[POLYMORPH] External mutation detected');
+                });
+
+                this.observer.observe(document.body, this.observerConfig);
+            }
+
+            // Helper: Execute code while ensuring the observer doesn't see it
+            // Supports nesting via mutationLockoutCount
+            mutateDOM(callback) {
+                this.mutationLockoutCount++;
+                if (this.observer) this.observer.disconnect();
+                
+                try {
+                    callback();
+                } finally {
+                    this.mutationLockoutCount--;
+                    // Only reconnect if we are at the top-level of mutation
+                    if (this.mutationLockoutCount === 0 && this.observer && document.body) {
+                        this.observer.observe(document.body, this.observerConfig);
+                    }
+                }
+            }
+
+            // PILLAR 1 & 4: Save edit to VDOM and localStorage
+            saveEdit(axId, content) {
+                try {
+                    // Sanitize input (Pillar 5)
+                    const cleanContent = this.sanitize(content);
+
+                    // Store in VDOM (Pillar 1)
+                    this.edits.set(axId, {
+                        content: cleanContent,
+                        ts: Date.now(),
+                    });
+
+                    // Persist to storage (Pillar 4 & 10)
+                    const serialized = JSON.stringify(Array.from(this.edits.entries()));
+                    this.storage.save(this.storageKey, serialized);
+
+                    // Apply to DOM (Pillar 2 - wrapped in mutateDOM)
+                    this.mutateDOM(() => {
+                        const el = document.querySelector(`[data-ax-id="${axId}"]`);
+                        if (el) {
+                            el.textContent = cleanContent;
+                        }
+                    });
+
+                    console.log(`[POLYMORPH] Saved: ${axId}`);
+                } catch (e) {
+                    console.error('[POLYMORPH] Save error:', e);
+                }
+            }
+
+            // PILLAR 1 & 4: Load edits from localStorage
+            loadEdits() {
+                try {
+                    const raw = this.storage.load(this.storageKey);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        
+                        // Pillar 10: Validation before Map construction
+                        if (this.validateStorageSchema(parsed)) {
+                            this.edits = new Map(parsed);
+                            console.log(`[POLYMORPH] Loaded ${this.edits.size} edits from storage`);
+                        } else {
+                            throw new Error('Invalid storage schema');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[POLYMORPH] Storage corruption or schema mismatch. Purging.', e);
+                    this.storage.purge(this.storageKey);
+                    this.edits = new Map();
+                }
+            }
+
+            // PILLAR 1: Apply all persisted edits to the DOM
+            applyEditsToDOM() {
+                this.mutateDOM(() => {
+                    this.edits.forEach((data, axId) => {
+                        const el = document.querySelector(`[data-ax-id="${axId}"]`);
+                        if (el) {
+                            el.textContent = data.content;
+                        }
+                    });
+                });
+            }
+
+            // PILLAR 10: Hard Reset - Clear storage and restore true baseline
+            hardReset() {
+                console.warn('[POLYMORPH] Initiating Hard Reset...');
+                
+                // 1. Purge Storage
+                this.storage.purge(this.storageKey);
+                
+                // 2. Clear VDOM
+                this.edits.clear();
+                
+                // 3. Restore DOM from Origin Cache
+                this.mutateDOM(() => {
+                    this.originCache.forEach((content, axId) => {
+                        const el = document.querySelector(`[data-ax-id="${axId}"]`);
+                        if (el) {
+                            el.textContent = content;
+                        }
+                    });
+                });
+
+                // 4. Force UI reset
+                if (this.lifecycle === 'active') {
+                    const toggleBtn = document.getElementById('edit-mode-toggle');
+                    if (toggleBtn) toggleBtn.click();
+                }
+
+                console.log('[POLYMORPH] Hard Reset complete. Baseline restored.');
+            }
+
+            // PILLAR 6: UI Event Handling
+            setupUI() {
+                const btn = document.getElementById('edit-mode-toggle');
+                const palette = document.getElementById('palette-container');
+                const overlay = document.getElementById('ax-lockdown-overlay');
+
+                // Global click handler for editing
+                document.addEventListener('click', (e) => {
+                    // Only in active mode
+                    if (this.lifecycle !== 'active') {
+                        return;
+                    }
+
+                    // Find editable element
+                    const target = e.target.closest('[data-ax-id]');
+
+                    // Don't edit the palette itself
+                    if (target && !target.closest('#palette-container')) {
+                        if (target.closest('[data-ax-locked]')) return;
+
+                        const tag = target.tagName.toLowerCase();
+                        const defaultTagList = this.defaultTags.split(',');
+                        const explicitTagList = this.explicitTags.split(',');
+                        const isDefaultTag = defaultTagList.includes(tag);
+                        const isExplicitTag = explicitTagList.includes(tag);
+                        if (!isDefaultTag && !isExplicitTag) return;
+                        if (isExplicitTag && !target.hasAttribute('data-ax-editable')) return;
+
+                        this.startEditSession(target);
+                    }
+                });
+
+                // Toggle editor activation
+                btn.addEventListener('click', (e) => {
+                    // Pillar 10: Dual-Trigger Reset Handshake
+                    if (e.ctrlKey && e.shiftKey) {
+                        if (confirm('HARD RESET: This will delete all saved edits and restore the page to its original state. Continue?')) {
+                            this.hardReset();
+                        }
+                        return;
+                    }
+
+                    if (this.lifecycle === 'active') {
+                        this.lifecycle = 'ready';
+                        document.body.classList.remove('ax-active'); // Heal 5
+                        btn.textContent = 'ACTIVATE EDITOR';
+                        palette.style.display = 'none';
+                        overlay.style.display = 'none';
+                    } else if (this.lifecycle === 'ready') {
+                        this.lifecycle = 'active';
+                        document.body.classList.add('ax-active'); // Heal 5
+                        btn.textContent = 'DEACTIVATE EDITOR';
+                        overlay.style.display = 'block';
+                    }
+                });
+
+                // Keyboard: Escape closes editor
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.lifecycle === 'active') {
+                        this.endEditSession();
+                    }
+                });
+            }
+
+            // Start editing an element
+            startEditSession(el) {
+                const palette = document.getElementById('palette-container');
+                const content = document.getElementById('palette-content');
+                const axId = el.dataset.axId;
+
+                // Pillar 10: Accessibility - role and modal state
+                palette.setAttribute('role', 'dialog');
+                palette.setAttribute('aria-modal', 'true');
+                palette.setAttribute('aria-labelledby', 'ax-editor-title');
+                
+                // Heal 5: Enter editing state
+                document.body.classList.add('ax-editing');
+                palette.style.display = 'block';
+
+                content.innerHTML = `
+                    <div id="ax-editor-title" class="ax-editor-label">
+                        Editing: ${el.tagName}#${axId}
+                    </div>
+                    <label for="ax-editor-area" class="sr-only">Content Editor</label>
+                    <textarea id="ax-editor-area" class="ax-editor-textarea"></textarea>
+                    <div class="ax-button-group">
+                        <button id="ax-save" aria-label="Save changes">✓ SAVE</button>
+                        <button id="ax-cancel" aria-label="Cancel editing">✕ CANCEL</button>
+                    </div>
+                `;
+
+                const textarea = document.getElementById('ax-editor-area');
+                textarea.value = el.textContent || '';
+                textarea.focus();
+                textarea.select();
+
+                document.getElementById('ax-save').addEventListener('click', () => {
+                    const newValue = textarea.value;
+                    this.saveEdit(axId, newValue);
+                    this.endEditSession();
+                });
+
+                document.getElementById('ax-cancel').addEventListener('click', () => {
+                    this.endEditSession();
+                });
+            }
+
+            // End editing session
+            endEditSession() {
+                const palette = document.getElementById('palette-container');
+                document.body.classList.remove('ax-editing'); // Heal 5
+                palette.style.display = 'none';
+            }
+        }
+
+        // AUTO-BOOT: Create and initialize engine on page load
+        const engine = new PolymorphEngine('apex');
+        engine.init();
+
+        // Expose engine globally for inspection
+        window.PolymorphEngine = engine;
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+
+name        footer  nav theme edit contact  form textarea resize footerAxx
+----        ------  --- ----- ---- -------  ---- -------- ------ ---------
+apex          True True  True True    True  True     True  False      True
+aura          True True  True True   False  True     True   True      True
+canvas        True True  True True    True  True     True   True      True
+cipher        True True  True True   False  True     True   True      True
+ether         True True  True True   False  True     True   True      True
+gaia          True True  True True    True  True     True   True      True
+iron-ink      True True  True True   False  True     True   True      True
+liquid-gold   True True  True True    True  True     True  False      True
+neon-tokyo    True True  True True   False False    False  False      True
+oracle        True True  True True   False  True     True   True      True
+scholar       True True  True True    True  True     True   True      True
+summit        True True  True True    True  True     True   True      True
+velvet        True True  True True    True False    False  False      True
+
+
