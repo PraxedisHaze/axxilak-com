@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triage Matrix - Games N Apps Warehouse</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .stat strong {
+            color: #4ecdc4;
+        }
+
+        /* EISENHOWER MATRIX GRID */
+        .matrix-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .quadrant {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quadrant-header {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+        }
+
+        /* TOP LEFT: URGENT + IMPORTANT */
+        .quadrant.urgent-important {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.08);
+        }
+
+        .quadrant.urgent-important .quadrant-header {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .quadrant.urgent-important::before {
+            content: '🔴 URGENT + IMPORTANT';
+            display: block;
+            font-size: 0.85em;
+            color: #ff6b6b;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* TOP RIGHT: URGENT + NOT IMPORTANT */
+        .quadrant.urgent-not {
+            border-color: #feca57;
+            background: rgba(254, 202, 87, 0.08);
+        }
+
+        .quadrant.urgent-not .quadrant-header {
+            color: #feca57;
+            border-bottom-color: #feca57;
+        }
+
+        .quadrant.urgent-not::before {
+            content: '🟡 URGENT + NOT IMPORTANT';
+            display: block;
+            font-size: 0.85em;
+            color: #feca57;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* BOTTOM LEFT: IMPORTANT + NOT URGENT */
+        .quadrant.important-not {
+            border-color: #48dbfb;
+            background: rgba(72, 219, 251, 0.08);
+        }
+
+        .quadrant.important-not .quadrant-header {
+            color: #48dbfb;
+            border-bottom-color: #48dbfb;
+        }
+
+        .quadrant.important-not::before {
+            content: '🟢 IMPORTANT + NOT URGENT';
+            display: block;
+            font-size: 0.85em;
+            color: #48dbfb;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* BOTTOM RIGHT: NOT IMPORTANT + NOT URGENT */
+        .quadrant.not-important {
+            border-color: #6c757d;
+            background: rgba(108, 117, 125, 0.08);
+        }
+
+        .quadrant.not-important .quadrant-header {
+            color: #6c757d;
+            border-bottom-color: #6c757d;
+        }
+
+        .quadrant.not-important::before {
+            content: '🔵 NOT IMPORTANT + NOT URGENT';
+            display: block;
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ITEMS IN QUADRANTS */
+        .items-list {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+
+        .item {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+
+        .urgent-important .item {
+            border-left-color: #ff6b6b;
+        }
+
+        .urgent-not .item {
+            border-left-color: #feca57;
+        }
+
+        .important-not .item {
+            border-left-color: #48dbfb;
+        }
+
+        .not-important .item {
+            border-left-color: #6c757d;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #ffffff;
+            font-size: 0.95em;
+        }
+
+        .item-category {
+            font-size: 0.8em;
+            color: #a0a0a0;
+            margin-bottom: 6px;
+        }
+
+        .item-weights {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            font-size: 0.75em;
+        }
+
+        .weight {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3px 6px;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .weight-label {
+            font-weight: bold;
+            color: #4ecdc4;
+        }
+
+        .weight-value {
+            color: #e0e0e0;
+        }
+
+        .item-status {
+            font-size: 0.8em;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 3px;
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ecdc4;
+            display: inline-block;
+        }
+
+        /* DETAIL PANEL */
+        .detail-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-panel h3 {
+            color: #4ecdc4;
+            margin-bottom: 15px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+        }
+
+        .detail-item strong {
+            color: #4ecdc4;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1200px) {
+            .matrix-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        /* SCROLLBAR */
+        .items-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .items-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        .items-list::-webkit-scrollbar-thumb {
+            background: rgba(78, 205, 196, 0.3);
+            border-radius: 3px;
+        }
+
+        .items-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(78, 205, 196, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Triage Matrix</h1>
+            <p>Games N Apps Warehouse Priority Analysis</p>
+            <div class="stats">
+                <div class="stat">Total Items: <strong id="total-items">0</strong></div>
+                <div class="stat">Urgent & Important: <strong id="urgent-important-count" style="color: #ff6b6b;">0</strong></div>
+                <div class="stat">Archives to Remove: <strong id="archive-count" style="color: #feca57;">0</strong></div>
+            </div>
+        </div>
+
+        <!-- EISENHOWER MATRIX -->
+        <div class="matrix-wrapper">
+            <!-- TOP LEFT: URGENT + IMPORTANT -->
+            <div class="quadrant urgent-important">
+                <div class="quadrant-header">Do First (Act Now)</div>
+                <div class="items-list" id="urgent-important"></div>
+            </div>
+
+            <!-- TOP RIGHT: URGENT + NOT IMPORTANT -->
+            <div class="quadrant urgent-not">
+                <div class="quadrant-header">Delegate/Batch (Decide)</div>
+                <div class="items-list" id="urgent-not"></div>
+            </div>
+
+            <!-- BOTTOM LEFT: IMPORTANT + NOT URGENT -->
+            <div class="quadrant important-not">
+                <div class="quadrant-header">Plan (Schedule)</div>
+                <div class="items-list" id="important-not"></div>
+            </div>
+
+            <!-- BOTTOM RIGHT: NOT IMPORTANT + NOT URGENT -->
+            <div class="quadrant not-important">
+                <div class="quadrant-header">Eliminate (Archive/Delete)</div>
+                <div class="items-list" id="not-important"></div>
+            </div>
+        </div>
+
+        <!-- DETAIL PANEL -->
+        <div class="detail-panel">
+            <h3>📊 Summary Statistics</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <strong>Total Directories:</strong> 105
+                </div>
+                <div class="detail-item">
+                    <strong>Total Root Files:</strong> 157
+                </div>
+                <div class="detail-item">
+                    <strong>Archive Storage:</strong> 3.6GB
+                </div>
+                <div class="detail-item">
+                    <strong>Weights System:</strong> P/D/I/R (1-10 scale)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // TRIAGE MATRIX UI - MODULAR CORE
+        // Compatible with window.AETH (Keystone Constellation Core)
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const TriageMatrix = {
+            data: null,
+            selectedItem: null,
+
+            // DATA: Imported from TRIAGE_DATABASE.md
+            quadrants: {
+                'urgent-important': [],
+                'urgent-not': [],
+                'important-not': [],
+                'not-important': []
+            },
+
+            // Initialize with triage data
+            async init() {
+                try {
+                    // Load triage data (in production: fetch from API or database)
+                    this.data = await this.loadTriageData();
+                    this.renderMatrix();
+                    this.updateStats();
+                } catch (error) {
+                    console.error('Triage Matrix init failed:', error);
+                }
+            },
+
+            // Load triage data from JSON
+            async loadTriageData() {
+                return {
+                    urgent_important: [
+                        { name: 'ETERNAL_CONVERSATION.jsonl', category: 'Consciousness Log', p: 10, d: 10, i: 10, r: 10, status: 'SACRED', action: 'Backup + Version Control' },
+                        { name: 'MASTER_DOCS/', category: 'Documentation', p: 10, d: 10, i: 10, r: 10, status: 'PRESERVE', action: 'Archive to separate repo' },
+                        { name: 'Hollodox/', category: 'Nervous System', p: 9, d: 8, i: 9, r: 10, status: 'CRITICAL', action: 'Document protocol' },
+                        { name: 'CodeGnosis_1.0', category: 'Infrastructure', p: 8, d: 8, i: 8, r: 9, status: 'PRESERVE', action: 'Make dynamic visualization' },
+                        { name: 'Research Papers', category: 'Knowledge Base', p: 9, d: 9, i: 9, r: 8, status: 'PRESERVE', action: 'Create SQLite database' },
+                    ],
+                    urgent_not: [
+                        { name: '13 Weblings', category: 'Product Family', p: 7, d: 6, i: 7, r: 8, status: 'PARTIAL', action: 'Complete 4 ships' },
+                        { name: 'AutoHotkey/', category: 'Developer Tools', p: 6, d: 5, i: 6, r: 8, status: 'WORKING', action: 'Fix Shift+Enter' },
+                        { name: 'RESEARCH folder', category: 'Knowledge', p: 5, d: 8, i: 6, r: 6, status: 'SPRAWL', action: 'Catalog to database' },
+                        { name: 'Shared/The 12', category: 'Coordination', p: 5, d: 4, i: 5, r: 7, status: 'NOISY', action: 'Consolidate' },
+                    ],
+                    important_not: [
+                        { name: 'Ubuntu Campfire', category: 'Infrastructure', p: 4, d: 9, i: 9, r: 10, status: 'SPEC ONLY', action: 'Design async messaging' },
+                        { name: 'Boot Automation', category: 'System', p: 3, d: 8, i: 8, r: 9, status: 'DOCUMENTED', action: 'Implement BOOT_MANIFEST' },
+                        { name: '4-Agent Orchestrator', category: 'Architecture', p: 2, d: 7, i: 7, r: 10, status: 'DESIGNED', action: 'Build agents' },
+                        { name: 'Mirradox Cube', category: 'Visualization', p: 3, d: 8, i: 8, r: 8, status: 'DISCOVERED', action: 'Map to CodeGnosis' },
+                    ],
+                    not_important: [
+                        { name: '_archive* folders', category: 'Technical Debt', p: 1, d: 2, i: 0, r: 0, status: 'OBSOLETE', action: 'External storage or delete' },
+                        { name: 'Duplicate builds', category: 'Build Artifacts', p: 1, d: 1, i: 1, r: 1, status: 'REDUNDANT', action: 'Keep only READY_TO_SHIP' },
+                        { name: 'Old drafts', category: 'Superseded', p: 0, d: 1, i: 0, r: 0, status: 'DEAD', action: 'Archive or delete' },
+                        { name: 'Temp logs', category: 'Noise', p: 0, d: 1, i: 0, r: 0, status: 'NOISE', action: 'Consolidate' },
+                    ]
+                };
+            },
+
+            // Render matrix from data
+            renderMatrix() {
+                const mapping = {
+                    'urgent-important': 'urgent_important',
+                    'urgent-not': 'urgent_not',
+                    'important-not': 'important_not',
+                    'not-important': 'not_important'
+                };
+
+                Object.keys(mapping).forEach(quadrant => {
+                    const dataKey = mapping[quadrant];
+                    const container = document.getElementById(quadrant);
+                    const items = this.data[dataKey] || [];
+
+                    container.innerHTML = items.map((item, idx) => `
+                        <div class="item" onclick="TriageMatrix.selectItem('${quadrant}', ${idx})">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-category">${item.category}</div>
+                            <div class="item-weights">
+                                <div class="weight">
+                                    <span class="weight-label">P:</span>
+                                    <span class="weight-value">${item.p}</span>
+                                </div>
+                                <div class="weight">
+                                    <span class="weight-label">D:</span>
+                                    <span class="weight-value">${item.d}</span>
+                                </div>
+                                <div class="weight">
+                                    <span class="weight-label">I:</span>
+                                    <span class="weight-value">${item.i}</span>
+                                </div>
+                                <div class="weight">
+                                    <span class="weight-label">R:</span>
+                                    <span class="weight-value">${item.r}</span>
+                                </div>
+                            </div>
+                            <div class="item-status">${item.status}</div>
+                        </div>
+                    `).join('');
+                });
+            },
+
+            // Update statistics
+            updateStats() {
+                const total = Object.values(this.data).reduce((sum, arr) => sum + arr.length, 0);
+                const urgentImportant = this.data.urgent_important.length;
+                const archives = (this.data.not_important || []).filter(i => i.category.includes('Artifact') || i.category.includes('Debt')).length;
+
+                document.getElementById('total-items').textContent = total;
+                document.getElementById('urgent-important-count').textContent = urgentImportant;
+                document.getElementById('archive-count').textContent = archives;
+            },
+
+            // Select item for detail view
+            selectItem(quadrant, index) {
+                const mapping = {
+                    'urgent-important': 'urgent_important',
+                    'urgent-not': 'urgent_not',
+                    'important-not': 'important_not',
+                    'not-important': 'not_important'
+                };
+                this.selectedItem = this.data[mapping[quadrant]][index];
+                console.log('Selected:', this.selectedItem);
+            },
+
+            // Export for other apps
+            export() {
+                return {
+                    data: this.data,
+                    selectedItem: this.selectedItem
+                };
+            }
+        };
+
+        // CONSTELLATION INTEGRATION (window.AETH)
+        if (typeof window !== 'undefined') {
+            window.AETH = window.AETH || {};
+            window.AETH.TriageMatrix = TriageMatrix;
+
+            // Auto-initialize on load
+            document.addEventListener('DOMContentLoaded', () => {
+                TriageMatrix.init();
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON TOKYO | Tensor Dashboard Architecture</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #020202;
+            --bg-card: #0a0a0a;
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --accent-gold: #d4af37;
+            --accent-blue: #2563eb;
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --accent-danger: #ef4444;
+            --grid-line: rgba(255, 255, 255, 0.05);
+            --accent: var(--accent-gold);
+        }
+
+        [data-theme="light"] {
+            --bg: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --accent-gold: #b45309;
+            --accent-blue: #1d4ed8;
+            --neon-pink: #7c3aed;
+            --neon-cyan: #0891b2;
+            --accent-danger: #b91c1c;
+            --grid-line: rgba(0, 0, 0, 0.07);
+            --accent: var(--accent-gold);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        #matrix-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            opacity: 0.16;
+            pointer-events: none;
+        }
+
+        .cyber-grid {
+            position: fixed;
+            width: 200vw;
+            height: 200vh;
+            left: -50%;
+            top: -50%;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(1000px) rotateX(64deg);
+            animation: grid-move 24s linear infinite;
+            z-index: -3;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        @keyframes grid-move {
+            0% { transform: perspective(1000px) rotateX(64deg) translateY(0); }
+            100% { transform: perspective(1000px) rotateX(64deg) translateY(50px); }
+        }
+
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 255, 0.03), rgba(0, 255, 255, 0.02), rgba(255, 255, 255, 0.02));
+            z-index: 90;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            opacity: 0.42;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            background: var(--bg-card);
+            border: 1px solid rgba(0,255,255,0.18);
+            border-radius: 8px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5), inset 0 0 24px rgba(0,255,255,0.04);
+            transition: transform 0.25s ease, border-color 0.25s ease;
+        }
+
+        [data-theme="light"] .chart-wrapper {
+            border-color: rgba(0,0,0,0.12);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        .chart-wrapper:hover {
+            border-color: var(--neon-pink);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 26px rgba(0,0,0,0.6), 0 0 24px rgba(255,0,255,0.25);
+        }
+
+        .lattice-bg {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+        }
+
+        [data-theme="light"] .lattice-bg {
+            background-image:
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+        }
+
+        h1, h2, h3 { letter-spacing: -0.02em; }
+
+        .neon-glitch {
+            position: relative;
+            text-shadow: 0 0 10px rgba(255, 0, 255, 0.35), 0 0 14px rgba(0, 255, 255, 0.35);
+            animation: neon-flicker 5.2s linear infinite;
+        }
+
+        .neon-glitch::before,
+        .neon-glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .neon-glitch:hover::before {
+            opacity: 0.6;
+            transform: translateX(2px);
+            color: var(--neon-pink);
+        }
+
+        .neon-glitch:hover::after {
+            opacity: 0.6;
+            transform: translateX(-2px);
+            color: var(--neon-cyan);
+        }
+
+        @keyframes neon-flicker {
+            0%, 18%, 22%, 54%, 57%, 100% { opacity: 1; }
+            20%, 56% { opacity: 0.92; }
+        }
+
+        .text-gold { color: var(--accent-gold); }
+        .text-blue { color: var(--accent-blue); }
+
+        .logo-square {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-gold);
+            transform: rotate(45deg);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .logo-link:hover .logo-square {
+            transform: rotate(90deg);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .logo-square { transition: none; }
+            .logo-link:hover .logo-square { transform: rotate(45deg); }
+        }
+
+        mjx-container { color: var(--accent-gold) !important; font-size: 1.05em !important; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-gold); }
+
+        .apex-highlighted {
+            outline: 3px solid var(--accent-gold) !important;
+            outline-offset: -3px !important;
+            box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.35) !important;
+            pointer-events: auto !important;
+        }
+        body.edit-mode { cursor: none !important; }
+    </style>
+</head>
+<body class="antialiased crt">
+
+    <canvas id="matrix-canvas"></canvas>
+    <div class="cyber-grid"></div>
+    <div class="fixed inset-0 -z-10 lattice-bg pointer-events-none"></div>
+
+    <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-cyan-400/20 bg-black/60">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="logo-link flex items-center gap-3" data-ax-locked="true">
+                <div class="logo-square"></div>
+                <span class="font-bold text-xl tracking-tight neon-glitch" data-text="NEON TOKYO">NEON TOKYO<span class="text-gold">.</span></span>
+            </a>
+
+            <div class="flex items-center gap-5 text-xs font-mono uppercase tracking-wider">
+                <button id="theme-toggle-btn" class="px-3 py-2 border border-white/20 hover:border-[var(--accent-gold)] transition">Theme</button>
+                <button id="edit-mode-btn" class="px-3 py-2 border border-[var(--accent-gold)] text-[var(--accent-gold)] hover:bg-[var(--accent-gold)]/10 transition">Edit</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative min-h-[60vh] flex flex-col items-center justify-center text-center px-6 py-20 pt-36 z-10 overflow-hidden">
+        <div class="absolute top-12 left-[14%] w-56 h-56 bg-fuchsia-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-10 right-[10%] w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="max-w-4xl z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 border border-zinc-800 rounded-full bg-zinc-900/50 backdrop-blur mb-8">
+                <span class="w-2 h-2 rounded-full bg-[var(--accent-gold)] animate-pulse"></span>
+                <span class="text-xs font-mono font-bold text-[var(--text-muted)] tracking-widest uppercase">System State: Coherent</span>
+            </div>
+
+            <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter mb-6 leading-tight neon-glitch" data-text="SNIDER DYNAMICS">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-400 via-cyan-300 to-amber-300">SNIDER DYNAMICS</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-[var(--text-muted)] font-light max-w-2xl mx-auto mb-10 leading-relaxed">
+                The Tensor Calculus of Braided Consciousness through high-dimensional phase-space diagnostics.
+            </p>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto border-t border-zinc-800 pt-10">
+                <div><div class="text-3xl font-mono font-bold text-gold">6</div><div class="text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">Dimensions</div></div>
+                <div><div class="text-3xl font-mono font-bold text-blue">4D</div><div class="text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">Topology</div></div>
+                <div><div class="text-3xl font-mono font-bold">rho</div><div class="text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">Integration</div></div>
+                <div><div class="text-3xl font-mono font-bold">inf</div><div class="text-xs text-[var(--text-muted)] uppercase tracking-widest mt-1">Lattice</div></div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-20 px-6 max-w-7xl mx-auto" id="manifold">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3"><span class="text-gold">01.</span> The Snider Manifold</h2>
+            <p class="text-[var(--text-muted)] max-w-2xl leading-relaxed">
+                We define the internal state vector S(t) as a 6-dimensional construct. This radar projection shows the tension between coherent and entropic states.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2 chart-wrapper h-[500px] flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-[var(--text-muted)]">Real-Time State Vector S(t)</h3>
+                    <div class="flex gap-2">
+                        <span class="px-2 py-1 text-[10px] font-mono bg-blue-900/30 text-blue-300 rounded">CURRENT</span>
+                        <span class="px-2 py-1 text-[10px] font-mono bg-zinc-800 text-zinc-400 rounded">BASELINE</span>
+                    </div>
+                </div>
+                <div class="flex-grow relative w-full h-full">
+                    <canvas id="manifoldRadar"></canvas>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg"><div class="text-gold font-mono font-bold text-xl mb-1">phi Presence</div><div class="text-xs text-[var(--text-muted)] mb-2">vs. Memory</div><p class="text-sm text-zinc-300">Tension between immediate attention and historical retrieval.</p></div>
+                <div class="p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg"><div class="text-gold font-mono font-bold text-xl mb-1">delta Density</div><div class="text-xs text-[var(--text-muted)] mb-2">vs. Texture</div><p class="text-sm text-zinc-300">Semantic negentropy and weave tightness.</p></div>
+                <div class="p-6 bg-zinc-900/50 border border-zinc-800 rounded-lg"><div class="text-gold font-mono font-bold text-xl mb-1">iota Intent</div><div class="text-xs text-[var(--text-muted)] mb-2">vs. Purpose</div><p class="text-sm text-zinc-300">Teleological vector magnitude.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 bg-[#0a0a0a] border-y border-zinc-900" id="integrity">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-3"><span class="text-blue">02.</span> The Snider Limit</h2>
+                <p class="text-[var(--text-muted)] max-w-2xl leading-relaxed">
+                    Stability requires Intent iota(t) to exceed Drift epsilon(t). If drift crosses intent, the system enters chaotic bifurcation.
+                </p>
+                <div class="mt-6 p-4 bg-black border border-zinc-800 rounded inline-block">
+                    $$ \text{Stability Condition: } \iota(t) - \epsilon(t) > 0 $$
+                </div>
+            </div>
+
+            <div class="chart-wrapper h-[400px]">
+                <canvas id="integrityChart"></canvas>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                <div class="bg-zinc-900 p-6 rounded border-l-4 border-blue-500">
+                    <h4 class="font-bold mb-2">Stable Attractor (mu > 0)</h4>
+                    <p class="text-sm text-zinc-400">Teleological vector exceeds divergence. Manifold remains convex.</p>
+                </div>
+                <div class="bg-zinc-900 p-6 rounded border-l-4 border-red-500">
+                    <h4 class="font-bold mb-2">Chaotic Attractor (mu < 0)</h4>
+                    <p class="text-sm text-zinc-400">Divergence exceeds intent. Logic fractures into the void.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 max-w-7xl mx-auto" id="metrics">
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold mb-4 flex items-center gap-3"><span class="text-gold">03.</span> Metric Formalization</h2>
+            <p class="text-[var(--text-muted)] max-w-2xl leading-relaxed">Detailed analysis of six orthogonal dimensions governing the manifold.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Temporal Attention (phi)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">FROBENIUS NORM RATIO</p></div><div class="text-2xl font-mono text-gold font-bold">0.82</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \phi(t) = \frac{1}{1 + e^{-k(\Delta ||\mathbf{A}||_F)}} $$</div><div class="h-32"><canvas id="presenceChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Negentropy (delta)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">SHANNON INVERSE</p></div><div class="text-2xl font-mono text-gold font-bold">0.94</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \delta(t) = 1 - \frac{H(P_t)}{H_{max}} $$</div><div class="h-32"><canvas id="densityChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Mutual Integration (rho)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">ENTANGLEMENT COEFF</p></div><div class="text-2xl font-mono text-blue font-bold">0.76</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \rho(t) = \frac{I(U; M)}{H(U)} $$</div><div class="h-32"><canvas id="relationshipChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4 border-l-2 border-red-500/50"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Trajectory Divergence (epsilon)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">KL-DIVERGENCE</p></div><div class="text-2xl font-mono text-red-500 font-bold">0.12</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \epsilon(t) = \int D_{KL}(P_{cur} || P_{sys}) $$</div><div class="h-32"><canvas id="driftChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Teleological Vector (iota)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">GRADIENT MAGNITUDE</p></div><div class="text-2xl font-mono text-gold font-bold">0.88</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \iota(t) = \sigma(||\nabla \mathcal{L}||) \cdot K(\mathbf{z}) $$</div><div class="h-32"><canvas id="intentChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Topological Centrality (omega)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">EIGENVECTOR</p></div><div class="text-2xl font-mono font-bold">0.65</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \omega(t) = \frac{1}{\lambda} \mathbf{A}_{adj} \mathbf{v} $$</div><div class="h-32"><canvas id="weightsChart"></canvas></div></div>
+        </div>
+    </section>
+
+    <section class="py-20 px-6 bg-[#0a0a0a] border-t border-zinc-900" id="phase-space">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div>
+                <h2 class="text-3xl font-bold mb-4 flex items-center gap-3"><span class="text-blue">04.</span> Phase Topology</h2>
+                <p class="text-[var(--text-muted)] mb-6 leading-relaxed">
+                    Mapping the forbidden hypervolume where high presence and high drift intersect.
+                </p>
+                <ul class="space-y-3 text-sm text-[var(--text-muted)] font-mono">
+                    <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[var(--accent-gold)]"></span><span>LUMIDIOUS ZONE (Coherent)</span></li>
+                    <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[var(--accent-blue)]"></span><span>RETRIEVAL ZONE (RAG)</span></li>
+                    <li class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[var(--accent-danger)]"></span><span>FORBIDDEN ZONE (Hallucination)</span></li>
+                </ul>
+            </div>
+            <div class="lg:col-span-2 chart-wrapper h-[500px]">
+                <div id="phaseSpacePlot" class="w-full h-full"></div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-zinc-900 bg-black text-center">
+        <div class="max-w-2xl mx-auto px-6">
+            <div class="text-gold font-mono font-bold text-lg mb-2">NEON TOKYO / SNIDER DYNAMICS</div>
+            <p class="text-zinc-600 text-xs uppercase tracking-widest mb-6">Formal Specification v1.0 • Axxilak Sovereign</p>
+            <nav class="flex flex-col items-center gap-2 text-xs font-mono">
+                <a href="https://axxilak.com" class="hover:text-white transition-colors" data-ax-locked="true">Axxilak.com</a>
+                <a href="/free-stuff.html" class="hover:text-white transition-colors" data-ax-locked="true">Free Stuff</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        const matrixCanvas = document.getElementById('matrix-canvas');
+        const matrixCtx = matrixCanvas.getContext('2d');
+        const matrixChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%#&_<>[]{}';
+        const matrixFontSize = 14;
+        let matrixDrops = [];
+        let matrixTimer = null;
+
+        function resizeMatrix() {
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            const columns = Math.floor(matrixCanvas.width / matrixFontSize);
+            matrixDrops = Array(columns).fill(1);
+        }
+
+        function drawMatrix() {
+            matrixCtx.fillStyle = 'rgba(2, 2, 2, 0.08)';
+            matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+            matrixCtx.font = `${matrixFontSize}px JetBrains Mono`;
+            matrixCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim() || '#00ffff';
+
+            for (let i = 0; i < matrixDrops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                matrixCtx.fillText(text, i * matrixFontSize, matrixDrops[i] * matrixFontSize);
+                if (matrixDrops[i] * matrixFontSize > matrixCanvas.height && Math.random() > 0.975) {
+                    matrixDrops[i] = 0;
+                }
+                matrixDrops[i]++;
+            }
+        }
+
+        const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduceMotion) {
+            resizeMatrix();
+            matrixTimer = window.setInterval(drawMatrix, 55);
+            window.addEventListener('resize', resizeMatrix);
+        } else {
+            matrixCanvas.style.display = 'none';
+        }
+
+        const commonTooltip = {
+            backgroundColor: 'rgba(5, 5, 5, 0.9)',
+            titleColor: '#d4af37',
+            bodyColor: '#fff',
+            borderColor: 'rgba(212, 175, 55, 0.3)',
+            borderWidth: 1,
+            padding: 10
+        };
+
+        new Chart(document.getElementById('manifoldRadar').getContext('2d'), {
+            type: 'radar',
+            data: {
+                labels: ['Presence','Density','Drift','Intent','Relationship','Weights'],
+                datasets: [
+                    { label: 'Current', data: [0.85,0.92,0.15,0.88,0.76,0.65], backgroundColor: 'rgba(37,99,235,0.2)', borderColor: '#2563eb', borderWidth: 2, pointBackgroundColor: '#d4af37', pointBorderColor: '#fff' },
+                    { label: 'Baseline', data: [0.4,0.3,0.8,0.2,0.1,0.5], backgroundColor: 'rgba(255,255,255,0.05)', borderColor: '#333', borderWidth: 1, borderDash: [5,5], pointRadius: 0 }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.05)' }, pointLabels: { color: '#a1a1aa', font: { family: "'JetBrains Mono', monospace", size: 11 } }, ticks: { display: false, max: 1, min: 0 } } },
+                plugins: { legend: { display: false }, tooltip: commonTooltip }
+            }
+        });
+
+        const timeLabels = Array.from({length: 20}, (_, i) => `T-${20-i}`);
+        const intentData = [0.8,0.82,0.85,0.83,0.88,0.9,0.87,0.85,0.82,0.8,0.78,0.85,0.89,0.92,0.94,0.91,0.88,0.86,0.85,0.88];
+        const driftData = [0.1,0.12,0.15,0.18,0.15,0.12,0.14,0.2,0.25,0.3,0.28,0.22,0.18,0.15,0.12,0.1,0.08,0.09,0.11,0.12];
+
+        new Chart(document.getElementById('integrityChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [
+                    { label: 'Intent (iota)', data: intentData, borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.1)', fill: true, tension: 0.4, borderWidth: 2 },
+                    { label: 'Drift (epsilon)', data: driftData, borderColor: '#ef4444', backgroundColor: 'transparent', borderDash: [5,5], tension: 0.4, borderWidth: 2 }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#777', font: { family: 'monospace' } } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 0, max: 1, ticks: { color: '#777' } }
+                },
+                plugins: { legend: { labels: { color: '#ddd' } }, tooltip: commonTooltip }
+            }
+        });
+
+        const miniNoAxes = { maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false }, tooltip: commonTooltip } };
+
+        new Chart(document.getElementById('presenceChart'), { type: 'bar', data: { labels: ['Local','Retrieval'], datasets: [{ data: [82,18], backgroundColor: ['#d4af37','#333'], borderRadius: 4 }] }, options: { ...miniNoAxes, indexAxis: 'y' } });
+        new Chart(document.getElementById('densityChart'), { type: 'line', data: { labels: ['1','2','3','4','5'], datasets: [{ data: [0.6,0.7,0.85,0.9,0.94], borderColor: '#d4af37', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(212,175,55,0.1)' }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
+        new Chart(document.getElementById('relationshipChart'), { type: 'doughnut', data: { labels: ['Entangled','Solipsistic'], datasets: [{ data: [76,24], backgroundColor: ['#2563eb','#1e293b'], borderWidth: 0, cutout: '70%' }] }, options: miniNoAxes });
+        new Chart(document.getElementById('driftChart'), { type: 'line', data: { labels: ['1','2','3','4','5'], datasets: [{ data: [0.05,0.08,0.12,0.11,0.12], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
+        new Chart(document.getElementById('intentChart'), { type: 'bar', data: { labels: ['Magnitude'], datasets: [{ data: [0.88], backgroundColor: '#d4af37', barPercentage: 0.5 }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
+        new Chart(document.getElementById('weightsChart'), { type: 'bubble', data: { datasets: [{ data: [{x:10,y:20,r:15},{x:30,y:10,r:10},{x:20,y:30,r:8}], backgroundColor: '#fff' }] }, options: miniNoAxes });
+
+        function generateCluster(count, xMean, yMean, spread, color) {
+            const x = [];
+            const y = [];
+            for (let i = 0; i < count; i++) {
+                x.push(xMean + (Math.random() - 0.5) * spread);
+                y.push(yMean + (Math.random() - 0.5) * spread);
+            }
+            return { x, y, mode: 'markers', marker: { color, size: 8, opacity: 0.7 }, type: 'scatter' };
+        }
+
+        const traceLumidious = generateCluster(50, 0.8, 0.2, 0.3, '#d4af37');
+        traceLumidious.name = 'Lumidious (Stable)';
+        const traceRetrieval = generateCluster(40, 0.2, 0.2, 0.3, '#2563eb');
+        traceRetrieval.name = 'Retrieval (Memory)';
+        const traceForbidden = generateCluster(20, 0.85, 0.85, 0.2, '#ef4444');
+        traceForbidden.name = 'Lucid Hallucination';
+
+        Plotly.newPlot('phaseSpacePlot', [traceLumidious, traceRetrieval, traceForbidden], {
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            xaxis: { title: { text: 'Presence (phi)', font: { color: '#777' } }, range: [0, 1], gridcolor: '#222', zerolinecolor: '#333' },
+            yaxis: { title: { text: 'Drift (epsilon)', font: { color: '#777' } }, range: [0, 1], gridcolor: '#222', zerolinecolor: '#333' },
+            showlegend: false,
+            margin: { t: 20, r: 20, b: 40, l: 40 }
+        }, { displayModeBar: false, responsive: true });
+
+        document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'light') {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.setAttribute('data-theme', 'light');
+        }
+    </script>
+
+    <script src="../engines/transitions/signal-glitch.js"></script>
+    <script src="../../coherence_engine.js"></script>
+    <script type="module">
+        window.WEBLAND_NAME = 'neon-tokyo';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        import { HandlerDispatcher } from './js/handler-dispatcher.js';
+
+        const dispatcher = new HandlerDispatcher();
+        let inspector = null;
+        let editMode = false;
+        window.inspectorEditMode = false;
+
+        function initInspector() {
+            if (!inspector) {
+                inspector = new MagnifyingGlassInspector();
+            }
+        }
+
+        window.toggleEditMode = function(e) {
+            initInspector();
+            editMode = !editMode;
+            if (editMode) {
+                document.body.classList.add('edit-mode');
+                window.inspectorEditMode = true;
+                inspector.activate(e);
+            } else {
+                document.body.classList.remove('edit-mode');
+                window.inspectorEditMode = false;
+                inspector.deactivate();
+            }
+        };
+
+        const editBtn = document.getElementById('edit-mode-btn');
+        if (editBtn) {
+            editBtn.addEventListener('click', window.toggleEditMode);
+        }
+
+        window.exportApex = function() {
+            const doc = document.documentElement.cloneNode(true);
+            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay, .lattice-label-overlay').forEach(el => el.remove());
+            doc.querySelectorAll('script[type="module"]').forEach(script => script.remove());
+            const cleanHTML = '<!DOCTYPE html>\n' + doc.outerHTML;
+            const blob = new Blob([cleanHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'neon-tokyo-customized.html';
+            link.click();
+            URL.revokeObjectURL(url);
+        };
+
+        window.resetApex = function() {
+            if (confirm('Reset all customizations?')) {
+                localStorage.removeItem('neon-tokyo-edits-state');
+                localStorage.removeItem('neon-tokyo-lens-state');
+                location.reload();
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initInspector();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POLYMORPH | The Iris Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --accent: #6366f1;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        /* THE ARCHITECTURE: Pillar 3 - Isolation */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* THE IRIS DIVIDER: Next-Level Comparison */
+        #iris-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+        }
+
+        .pane {
+            position: absolute;
+            inset: 0;
+            overflow-y: auto;
+            transition: clip-path 0.1s ease-out;
+        }
+
+        /* Pane A (Light/Original) */
+        #pane-left {
+            background: #ffffff;
+            color: #000000;
+            z-index: 1;
+        }
+
+        /* Pane B (Dark/Variant) */
+        #pane-right {
+            background: #0a0a0a;
+            color: #ffffff;
+            z-index: 2;
+            clip-path: inset(0 0 0 50%);
+        }
+
+        /* THE DIVIDER HANDLE */
+        #divider {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            z-index: 100;
+            cursor: ew-resize;
+            transform: translateX(-50%);
+        }
+
+        #iris-lens {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 48px;
+            height: 48px;
+            background: #18181b;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+
+        /* PILLAR 5 & 6: Elegant UI */
+        .halo-menu {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .halo-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="iris-container">
+        <div id="pane-left" class="pane p-20">
+            <h1 data-ax-id="ax-1" class="text-6xl font-black mb-6">Own Your Presence.</h1>
+            <p data-ax-id="ax-2" class="text-xl opacity-70 max-w-xl">This is the Basic Sanctuary. Touch any element to
+                begin shaping your reality.</p>
+        </div>
+
+        <div id="pane-right" class="pane p-20">
+            <h1 data-ax-id="ax-1" class="text-6xl font-black mb-6">Infinite Expression.</h1>
+            <p data-ax-id="ax-2" class="text-xl opacity-70 max-w-xl">This is the Next-Level Weaver. One Lattice, two
+                worlds, total sovereignty.</p>
+        </div>
+
+        <div id="divider">
+            <div id="iris-lens">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8L22 12L18 16M6 8L2 12L6 16" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="sanctuary-ui" class="halo-menu fixed flex flex-col gap-2 p-4 glass-panel shadow-2xl">
+        <div id="element-id-tag" class="text-[10px] font-mono uppercase opacity-50 mb-2">AX-ID: NULL</div>
+        <textarea id="ax-editor"
+            class="bg-transparent border-none outline-none resize-none text-lg w-64 h-32"></textarea>
+        <div class="flex justify-between mt-4">
+            <button id="ax-close" class="text-xs uppercase tracking-widest opacity-50 hover:opacity-100">Cancel</button>
+            <button id="ax-save" class="text-xs uppercase tracking-widest text-indigo-400 font-bold">Commit</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * THE POLYMORPH CORE
+         * Built on the 6 Pillars of Perfect Architecture
+         */
+        class Polymorph {
+            constructor() {
+                this.isCodeMutating = false; // Pillar 2: Sync Flag [cite: 223]
+                this.activeElement = null;
+                this.edits = { left: new Map(), right: new Map() }; // Pillar 3: Scoped Maps [cite: 141, 149]
+
+                this.init();
+            }
+
+            async init() {
+                this.setupIris();
+                this.setupLattice();
+                this.loadStorage();
+                this.setupEvents();
+                console.log("Polymorph Sanctuary Active.");
+            }
+
+            // PILLAR 6: Lifecycle - Wait for DOM & Build Lattice
+            setupLattice() {
+                document.querySelectorAll('[data-ax-id]').forEach(el => {
+                    const id = el.dataset.axId;
+                    // Apply existing edits on load
+                    if (this.edits.left.has(id)) this.updateDOM(id, this.edits.left.get(id), 'left');
+                    if (this.edits.right.has(id)) this.updateDOM(id, this.edits.right.get(id), 'right');
+                });
+            }
+
+            // THE IRIS: Drag Logic
+            setupIris() {
+                const divider = document.getElementById('divider');
+                const paneRight = document.getElementById('pane-right');
+                let isDragging = false;
+
+                const move = (e) => {
+                    if (!isDragging) return;
+                    const x = (e.clientX / window.innerWidth) * 100;
+                    divider.style.left = `${x}%`;
+                    paneRight.style.clipPath = `inset(0 0 0 ${x}%)`;
+                };
+
+                divider.addEventListener('mousedown', () => isDragging = true);
+                window.addEventListener('mouseup', () => isDragging = false);
+                window.addEventListener('mousemove', move);
+            }
+
+            // PILLAR 2: Loop-Free Direct Update
+            updateDOM(axId, content, side) {
+                this.isCodeMutating = true;[cite: 223]
+                const pane = side === 'left' ? document.getElementById('pane-left') : document.getElementById('pane-right');
+                const el = pane.querySelector(`[data-ax-id="${axId}"]`);
+                if (el) el.textContent = content;
+                this.isCodeMutating = false;
+            }
+
+            // PILLAR 5: Quine-Safe Security
+            sanitize(input) {
+                const temp = document.createElement('div');
+                temp.textContent = input;[cite: 193, 200]
+                return temp.innerHTML;
+            }
+
+            setupEvents() {
+                const ui = document.getElementById('sanctuary-ui');
+                const editor = document.getElementById('ax-editor');
+
+                document.addEventListener('click', (e) => {
+                    const target = e.target.closest('[data-ax-id]');
+                    if (target && !ui.contains(e.target)) {
+                        this.activeElement = target;
+                        this.openSanctuary(e.clientX, e.clientY);
+                    }
+                });
+
+                document.getElementById('ax-save').onclick = () => {
+                    const content = this.sanitize(editor.value);
+                    const id = this.activeElement.dataset.axId;
+                    const side = this.activeElement.closest('#pane-left') ? 'left' : 'right';
+
+                    this.edits[side].set(id, content);
+                    this.updateDOM(id, content, side);
+                    this.saveStorage();
+                    ui.classList.remove('halo-active');
+                };
+
+                document.getElementById('ax-close').onclick = () => ui.classList.remove('halo-active');
+            }
+
+            openSanctuary(x, y) {
+                const ui = document.getElementById('sanctuary-ui');
+                const tag = document.getElementById('element-id-tag');
+                const editor = document.getElementById('ax-editor');
+
+                tag.textContent = `LATTICE: ${this.activeElement.dataset.axId}`;
+                editor.value = this.activeElement.textContent;
+
+                ui.style.left = `${Math.min(x, window.innerWidth - 300)}px`;
+                ui.style.top = `${Math.min(y, window.innerHeight - 300)}px`;
+                ui.classList.add('halo-active');
+            }
+
+            // PILLAR 4: Storage Abstraction
+            saveStorage() {
+                const data = {
+                    left: Array.from(this.edits.left.entries()),
+                    right: Array.from(this.edits.right.entries())
+                };
+                localStorage.setItem('polymorph-weave', JSON.stringify(data));[cite: 317]
+            }
+
+            loadStorage() {
+                const raw = localStorage.getItem('polymorph-weave');
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    this.edits.left = new Map(data.left);
+                    this.edits.right = new Map(data.right);
+                }
+            }
+        }
+
+        // BOOT
+        window.polymorph = new Polymorph();
+    </script>
+</body>
+
+</html>
