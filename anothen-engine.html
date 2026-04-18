@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anothen Sovereign Engine</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;300;400&display=swap');
+
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #050508; 
+            color: #fff; 
+            font-family: 'JetBrains Mono', monospace; 
+        }
+        
+        #engine-canvas { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            z-index: 1; 
+            opacity: 0; 
+            transition: opacity 2s ease; 
+        }
+        
+        #overlay { 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100vh; 
+            z-index: 10; 
+            background: rgba(5,5,8,0.95); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            transition: opacity 1s ease; 
+            backdrop-filter: blur(15px); 
+        }
+        
+        .status { 
+            color: #8a8070; 
+            font-size: 13px; 
+            letter-spacing: 0.3em; 
+            text-transform: uppercase; 
+            margin-bottom: 3rem; 
+            animation: pulse 3s infinite; 
+            font-weight: 300;
+            text-align: center;
+        }
+        
+        .slider-container { 
+            --thumb-color: #4a8ac8; 
+            width: 400px; 
+            text-align: center; 
+        }
+        
+        input[type=range] { 
+            width: 100%; 
+            -webkit-appearance: none; 
+            background: transparent; 
+            outline: none;
+        }
+        
+        input[type=range]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            height: 18px; 
+            width: 18px; 
+            border-radius: 50%; 
+            background: var(--thumb-color); 
+            cursor: pointer; 
+            box-shadow: 0 0 15px var(--thumb-color); 
+            transition: transform 0.1s;
+            margin-top: -8px;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 25px var(--thumb-color);
+        }
+        
+        input[type=range]::-webkit-slider-runnable-track { 
+            width: 100%; 
+            height: 2px; 
+            cursor: pointer; 
+            background: #333; 
+            border-radius: 2px;
+        }
+        
+        .readout { 
+            margin-top: 2rem; 
+            font-size: 28px; 
+            color: var(--thumb-color); 
+            letter-spacing: 0.2em; 
+            font-weight: 100;
+            transition: color 0.2s ease;
+        }
+        
+        @keyframes pulse { 
+            0% { opacity: 0.4; text-shadow: none; } 
+            50% { opacity: 1; text-shadow: 0 0 10px rgba(138,128,112,0.5); } 
+            100% { opacity: 0.4; text-shadow: none; } 
+        }
+        
+        .unlocked-text { 
+            position: absolute; 
+            top: 40px; left: 40px; 
+            font-size: 11px; 
+            letter-spacing: 0.3em; 
+            z-index: 20; 
+            opacity: 0; 
+            transition: opacity 3s ease; 
+            line-height: 2;
+        }
+
+        .terminal {
+            position: absolute;
+            z-index: 20;
+            background: rgba(5,5,8,0.5);
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 3s ease;
+            display: flex;
+            flex-direction: column;
+            pointer-events: none;
+        }
+        
+        .terminal-right {
+            right: 40px;
+            top: 40px;
+            width: 380px;
+            height: calc(100vh - 80px);
+            border-left: 1px solid rgba(200,169,110,0.2);
+        }
+        
+        .terminal-left {
+            left: 40px;
+            top: 150px; /* offset to not block telemetry text */
+            width: 380px;
+            height: calc(100vh - 190px);
+            border-right: 1px solid rgba(200,169,110,0.2);
+        }
+        
+        .terminal-header {
+            color: #c8a96e;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(200,169,110,0.2);
+            padding-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        #math-stream {
+            color: #4ac87a;
+            font-size: 11px;
+            line-height: 1.6;
+            flex-grow: 1;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        
+        #analysis-log {
+            color: #e8e0d0;
+            font-size: 11px;
+            line-height: 1.8;
+            flex-grow: 1;
+            overflow-y: auto;
+            scrollbar-width: none;
+            opacity: 0.9;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        #analysis-log::-webkit-scrollbar { display: none; }
+        .log-entry { margin-bottom: 14px; opacity: 0; animation: fadeUp 1s forwards; }
+        .log-entry span { color: #f5dfa0; }
+        
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+<canvas id="engine-canvas"></canvas>
+
+<!-- Top Left: Static Telemetry -->
+<div class="unlocked-text" id="telemetry">
+  Anothen Physical Engine // V.2.0.4<br>
+  Geometry: <span id="geometry-text" style="color:#c8a96e">1 x 1 = 2 (Waveform)</span><br>
+  Manifold Status: <span id="manifold-status" style="color:#c8a96e">ACTIVE</span><br>
+  Strucity Gate Constraint: <span style="color:#c8a96e">ENGAGED</span>
+</div>
+
+<!-- Left Side: Human Readable Log -->
+<div class="terminal terminal-left" id="log-terminal">
+    <div class="terminal-header">STRUCITY GEOMETRY LOG</div>
+    <div id="analysis-log"></div>
+</div>
+
+<!-- Right Side: Raw Math Stream -->
+<div class="terminal terminal-right" id="math-terminal">
+    <div class="terminal-header">RAW WAVEFORM CALCULATION STREAM</div>
+    <div id="math-stream"></div>
+</div>
+
+<div id="overlay">
+    <div class="status" id="lock-status">AWAITING PHASE SHIFT DECRYPTION</div>
+    <div class="slider-container" id="slider-box">
+        <input type="range" id="phase-slider" min="1.000" max="2.000" step="0.001" value="1.000">
+        <div class="readout" id="phase-readout">1.000</div>
+    </div>
+</div>
+
+<script>
+const slider = document.getElementById('phase-slider');
+const readout = document.getElementById('phase-readout');
+const overlay = document.getElementById('overlay');
+const engineCanvas = document.getElementById('engine-canvas');
+const telemetry = document.getElementById('telemetry');
+
+const terminalRight = document.getElementById('math-terminal');
+const terminalLeft = document.getElementById('log-terminal');
+const mathStream = document.getElementById('math-stream');
+const analysisLog = document.getElementById('analysis-log');
+const sliderBox = document.getElementById('slider-box');
+
+let mode = "LOCKED";
+let fakeTimer = null;
+let realTimer = null;
+let isMouseDown = false;
+
+// Mouse mechanics
+slider.addEventListener('mousedown', () => { isMouseDown = true; });
+document.addEventListener('mouseup', () => { 
+    isMouseDown = false;
+    if (realTimer !== null) {
+        clearTimeout(realTimer);
+        realTimer = null;
+    }
+});
+slider.addEventListener('touchstart', () => { isMouseDown = true; });
+document.addEventListener('touchend', () => {
+    isMouseDown = false;
+    if (realTimer !== null) {
+        clearTimeout(realTimer);
+        realTimer = null;
+    }
+});
+
+// Color logic
+function getColor(val) {
+    if (val < 1.2) return '#4a8ac8';
+    if (val < 1.4) return '#4ac87a';
+    if (val < 1.6) return '#f5dfa0';
+    if (val < 1.8) return '#e88a4a';
+    return '#c84a4a';
+}
+
+slider.addEventListener('input', (e) => {
+    let rawVal = parseFloat(e.target.value);
+    let valStr = rawVal.toFixed(3);
+    readout.innerText = valStr;
+    
+    const color = getColor(rawVal);
+    if (sliderBox.style.getPropertyValue('--thumb-color') !== color) {
+        sliderBox.style.setProperty('--thumb-color', color);
+    }
+    
+    if (fakeTimer !== null) { clearTimeout(fakeTimer); fakeTimer = null; }
+    if (realTimer !== null) { clearTimeout(realTimer); realTimer = null; }
+
+    if (valStr === "1.414") {
+        if (isMouseDown) {
+            realTimer = setTimeout(() => {
+                if (isMouseDown && slider.value === "1.414") {
+                    mode = "REAL";
+                    unlockSandbox(mode);
+                }
+            }, 5000);
+        }
+        return;
+    }
+
+    if (valStr === "1.618") {
+        fakeTimer = setTimeout(() => {
+            mode = "FAKE";
+            unlockSandbox(mode);
+        }, 2000);
+    }
+});
+
+let logSequence = [
+    "[SYS] Origin vector initialized [0,0,0]",
+    "[GEO] Computing 1.414 diagonal phase shift...",
+    "[PHYS] Applying radial resonance sine function...",
+    "[PHYS] Intersecting wave fields detected...",
+    "<span>[GEO] Constructive interference nodes mapped...</span>",
+    "<span>[LOGIC] 1x1 interaction yielding 2-dimensional emergent manifold.</span>",
+    "[SYS] Structural integrity (Strucity) stabilized.",
+    "[SYS] Holding resonance."
+];
+
+function triggerTerminal() {
+    terminalRight.style.opacity = '1';
+    terminalLeft.style.opacity = '1';
+    
+    // Fast math stream
+    setInterval(() => {
+        let psi1 = (Math.random() * 2).toFixed(4);
+        let psi2 = (Math.random() * 2).toFixed(4);
+        let ang = (time * 0.1).toFixed(3);
+        let force = (Math.sin(time) * 100).toFixed(2);
+        
+        let newMath = document.createElement('div');
+        newMath.innerText = `> ∫[ψ1(${psi1}) * ψ2(${psi2})] | θ=${ang} | F=${force}`;
+        mathStream.insertBefore(newMath, mathStream.firstChild);
+        
+        if (mathStream.children.length > 35) {
+            mathStream.lastChild.remove();
+        }
+    }, 150);
+
+    // Slow human-readable sequence
+    let logIndex = 0;
+    const dynamicLogs = [
+        "[PHYS] Balancing angular fluid momentum...",
+        "[SYS] Strucity resonance harmonic locked...",
+        "[GEO] Recalibrating node intersection densities...",
+        "[PHYS] Compensating for structural drift...",
+        "[GEO] Wave-state continuity verified.",
+        "<span>[PHYS] Maintaining 1x1 emergent manifold...</span>"
+    ];
+
+    setInterval(() => {
+        let newLog = document.createElement('div');
+        newLog.className = 'log-entry';
+        
+        if (logIndex < logSequence.length) {
+            newLog.innerHTML = logSequence[logIndex];
+        } else {
+            let randStr = dynamicLogs[Math.floor(Math.random() * dynamicLogs.length)];
+            newLog.innerHTML = randStr;
+        }
+        
+        analysisLog.appendChild(newLog);
+        logIndex++;
+        
+        // Smoothly scroll to the bottom automatically
+        analysisLog.scrollTop = analysisLog.scrollHeight;
+        
+        // Prevent infinite DOM lag by culling older history off screen
+        if (analysisLog.children.length > 25) {
+            analysisLog.firstChild.remove();
+        }
+    }, 2800);
+}
+
+function unlockSandbox(unlockMode) {
+    slider.disabled = true;
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    engineCanvas.style.opacity = '1';
+    telemetry.style.opacity = '1';
+    
+    if (unlockMode === "FAKE") {
+        telemetry.innerHTML = `
+          Euclidean Sub-Architecture // ACTIVE<br>
+          Geometry: <span style="color:#e88a4a">Phi ($\Phi$) Interlocking (1.618)</span><br>
+          Manifold Status: <span style="color:#e88a4a">STABLE / FLAT</span><br>
+          Constraint: <span style="color:#c84a4a">UNVERIFIED</span>
+        `;
+    } else {
+        telemetry.innerHTML = `
+          Anothen Physical Engine // V.2.0.4<br>
+          Geometry: <span style="color:#f5dfa0">1 x 1 = 2 (Phase Shift Verified)</span><br>
+          Manifold Status: <span style="color:#f5dfa0">ACTIVE</span><br>
+          Strucity Gate Constraint: <span style="color:#4ac87a">ENGAGED</span>
+        `;
+        triggerTerminal();
+    }
+}
+
+const canvas = engineCanvas;
+const ctx = canvas.getContext('2d');
+let w, h;
+
+function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+let time = 0;
+function drawGeometry() {
+    ctx.fillStyle = 'rgba(5, 5, 8, 0.15)'; 
+    ctx.fillRect(0, 0, w, h);
+    
+    if (mode === "LOCKED") {
+        requestAnimationFrame(drawGeometry);
+        return;
+    }
+    
+    // Slight shift to ensure visual focus remains balanced
+    ctx.translate(w/2, h/2);
+    
+    if (mode === "REAL") {
+        ctx.lineWidth = 1.2;
+        let rings = 12;
+        let radius = 200 + Math.sin(time * 0.5) * 60; 
+        
+        for(let i = 0; i < rings; i++) {
+            ctx.save();
+            
+            // Map each ring to a distinct hue across the spectrum to make rotation visible
+            let hue = (i * (360 / rings)) % 360;
+            ctx.strokeStyle = `hsla(${hue}, 80%, 65%, 0.5)`;
+            
+            ctx.rotate((Math.PI * 2 / rings) * i + time * 0.1);
+            ctx.beginPath();
+            let xOff = Math.sin(time) * 30; 
+            ctx.arc(radius/2 + xOff, 0, radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+    } else if (mode === "FAKE") {
+        ctx.strokeStyle = 'rgba(232, 138, 74, 0.3)';
+        ctx.lineWidth = 1;
+        let size = 200;
+        
+        ctx.save();
+        ctx.rotate(time * 0.2);
+        for(let i = -2; i <= 2; i++) {
+            for(let j = -2; j <= 2; j++) {
+                ctx.strokeRect(i * (size/2) - (size/4), j * (size/2) - (size/4), size/2, size/2);
+            }
+        }
+        ctx.beginPath();
+        ctx.arc(0, 0, size * 1.618, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+    
+    ctx.translate(-w/2, -h/2);
+    time += 0.015;
+    requestAnimationFrame(drawGeometry);
+}
+drawGeometry();
+</script>
+</body>
+</html>
