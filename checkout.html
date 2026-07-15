@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Secure Checkout</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .checkout-container {
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+        }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .lock-icon {
+            font-size: 14px;
+        }
+
+        .checkout-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .form-section {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select,
+        .card-field {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 17, 21, 0.8);
+            border: 1px solid #334155;
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        select:focus,
+        .card-field:focus {
+            outline: none;
+            border-color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #334155;
+        }
+
+        .card-preview {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            border: 1px solid #334155;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .card-number {
+            font-size: 20px;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+            color: #cbd5e1;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .order-summary {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-name {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .item-desc {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .item-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00F0FF;
+        }
+
+        .pricing-breakdown {
+            background: rgba(0, 240, 255, 0.05);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+        }
+
+        .pricing-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .pricing-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .pricing-row .label {
+            color: #94a3b8;
+        }
+
+        .pricing-row .value {
+            color: #cbd5e1;
+        }
+
+        .pricing-row.total {
+            border-top: 1px solid #334155;
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+
+        .pricing-row.total .label,
+        .pricing-row.total .value {
+            font-weight: 700;
+            font-size: 14px;
+            color: #00F0FF;
+        }
+
+        .package-tier {
+            padding: 16px;
+            border: 1px solid #334155;
+            background: rgba(15, 17, 21, 0.5);
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .tier-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+
+        .tier-includes {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .tier-badge {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid #00F0FF;
+            color: #00F0FF;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+        }
+
+        .total-section {
+            margin-top: auto;
+            padding-top: 24px;
+            border-top: 2px solid #334155;
+        }
+
+        .final-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 20px;
+        }
+
+        .guarantee {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #10b981;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .purchase-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 6px;
+            color: #0F1115;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .purchase-button:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .purchase-button:active {
+            transform: scale(0.98);
+        }
+
+        .terms {
+            font-size: 10px;
+            color: #64748b;
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .terms-link {
+            color: #00F0FF;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="checkout-container">
+        <div class="header">
+            <div class="logo">◆ AXXILAK</div>
+            <div class="security-badge">
+                <span class="lock-icon">🔒</span>
+                <span>Secure Checkout • Powered by Gumroad</span>
+            </div>
+        </div>
+
+        <div class="checkout-wrapper">
+            <!-- Billing Form -->
+            <form class="form-section">
+                <div class="section-title">Billing Information</div>
+
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" placeholder="Sarah Anderson" value="Sarah Anderson" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" placeholder="sarah@example.com" value="sarah@example.com" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone (Optional)</label>
+                    <input type="tel" placeholder="+1 (555) 000-0000" />
+                </div>
+
+                <div class="section-title" style="margin-top: 32px;">Payment Method</div>
+
+                <div class="card-section">
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" placeholder="Sarah Anderson" value="Sarah Anderson" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <div class="card-preview">
+                            <div class="card-number">•••• •••• •••• 4242</div>
+                            <div class="card-details">
+                                <span>VISA</span>
+                                <span>Exp: 12/27</span>
+                            </div>
+                        </div>
+                        <input type="text" placeholder="Card number" class="card-field" value="•••• •••• •••• 4242" disabled />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" value="12/27" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVC</label>
+                            <input type="text" placeholder="•••" value="•••" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="terms" checked />
+                    <label for="terms" style="margin: 0; text-transform: none; font-weight: normal; font-size: 11px; color: #94a3b8;">
+                        I agree to the terms of service and privacy policy
+                    </label>
+                </div>
+            </form>
+
+            <!-- Order Summary -->
+            <div class="order-summary">
+                <div class="section-title">Order Summary</div>
+
+                <div class="summary-item">
+                    <div class="item-name">
+                        <div class="item-title">✨ Liquid Gold</div>
+                        <div class="item-desc">Premium Portfolio Template</div>
+                    </div>
+                    <div class="item-price">$49</div>
+                </div>
+
+                <div style="background: rgba(217, 70, 239, 0.05); padding: 16px; border-radius: 6px; margin-bottom: 20px;">
+                    <div style="font-size: 11px; color: #D946EF; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Includes:</div>
+                    <ul style="list-style: none; font-size: 12px; color: #94a3b8; line-height: 1.8;">
+                        <li>✓ Full HTML Template</li>
+                        <li>✓ Visual Editor (No Code)</li>
+                        <li>✓ Responsive Design</li>
+                        <li>✓ Premium Support</li>
+                        <li>✓ Lifetime Ownership</li>
+                        <li>✓ Free Updates</li>
+                    </ul>
+                </div>
+
+                <div class="pricing-breakdown">
+                    <div class="pricing-row">
+                        <span class="label">Liquid Gold Template</span>
+                        <span class="value">$49.00</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span class="label">Tax (0%)</span>
+                        <span class="value">$0.00</span>
+                    </div>
+                    <div class="pricing-row">
+                        <span class="label">Processing Fee</span>
+                        <span class="value">$0.30</span>
+                    </div>
+                    <div class="pricing-row total">
+                        <span class="label">Total Amount</span>
+                        <span class="value">$49.30</span>
+                    </div>
+                </div>
+
+                <div class="guarantee">
+                    ✓ 30-Day Money Back Guarantee • No Questions Asked
+                </div>
+
+                <button class="purchase-button" onclick="completePurchase()">Complete Purchase</button>
+
+                <div class="terms">
+                    By completing this purchase, you agree to our <span class="terms-link">Terms of Service</span> and <span class="terms-link">Privacy Policy</span>
+                </div>
+
+                <div class="total-section" style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #334155;">
+                    <div style="font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">After Purchase:</div>
+                    <ul style="list-style: none; font-size: 12px; color: #cbd5e1; line-height: 2;">
+                        <li>📧 Instant email confirmation</li>
+                        <li>🎨 Access to visual editor</li>
+                        <li>💾 Download final HTML</li>
+                        <li>🌍 Deploy anywhere</li>
+                        <li>♾️ Own forever</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 11px; color: #64748b; margin-top: 40px; padding-top: 24px; border-top: 1px solid #334155;">
+            Questions? <span style="color: #00F0FF; cursor: pointer;">Contact Support</span> • Secure payment processed by Gumroad
+        </div>
+    </div>
+
+    <script>
+        function completePurchase() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = 'Processing...';
+
+            setTimeout(() => {
+                // In real implementation, this would call Gumroad API
+                alert('✓ Purchase Complete!\n\nYou now have access to the Liquid Gold editor.\n\nCheck your email for download link and editor access.');
+
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'customer_dashboard.html';
+                }, 1000);
+            }, 1500);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // My Account</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #D946EF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logout-button {
+            padding: 10px 20px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .logout-button:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .welcome-section {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .welcome-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 12px;
+        }
+
+        .welcome-text {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .welcome-highlight {
+            display: inline-block;
+            background: rgba(0, 240, 255, 0.1);
+            border-left: 3px solid #00F0FF;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 24px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .purchases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .purchase-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .purchase-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .purchase-header {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            padding: 24px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .purchase-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .purchase-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .purchase-content {
+            padding: 24px;
+        }
+
+        .purchase-status {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            padding: 6px 12px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #10b981;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+        }
+
+        .purchase-date {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .purchase-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-button {
+            padding: 10px 16px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            text-align: center;
+        }
+
+        .action-button:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .action-button-primary {
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border-color: #00F0FF;
+            color: #0F1115;
+        }
+
+        .action-button-primary:hover {
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.5);
+        }
+
+        .action-button-secondary {
+            border-color: #D946EF;
+            color: #D946EF;
+        }
+
+        .action-button-secondary:hover {
+            border-color: #D946EF;
+            color: #D946EF;
+            box-shadow: 0 0 12px rgba(217, 70, 239, 0.3);
+        }
+
+        .files-section {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: rgba(15, 17, 21, 0.5);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .file-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-icon {
+            font-size: 24px;
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .file-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .file-meta {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-button {
+            padding: 6px 12px;
+            border: 1px solid #334155;
+            background: transparent;
+            color: #cbd5e1;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .file-button:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+
+        .activity-log {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 24px;
+            border-radius: 8px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .activity-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .activity-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .activity-time {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid #334155;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .footer-link {
+            color: #00F0FF;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .purchases-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">My Account</div>
+            <button class="logout-button" onclick="logout()">← Back to Marketplace</button>
+        </div>
+
+        <div class="welcome-section">
+            <div class="welcome-title">Welcome back, Sarah! 👋</div>
+            <div class="welcome-text">
+                You have 1 active webling in your library. All your customizations are saved and ready to download anytime.
+            </div>
+            <div class="welcome-highlight">
+                💡 Tip: You can edit and re-export your customizations at any time. Your files are yours forever.
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">1</div>
+                <div class="stat-label">Weblings Owned</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Exports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">Saved Versions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">∞</div>
+                <div class="stat-label">Time to Keep</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <div class="section-title">Your Weblings</div>
+
+            <div class="purchases-grid">
+                <div class="purchase-card">
+                    <div class="purchase-header">
+                        <div class="purchase-icon">✨</div>
+                        <div class="purchase-name">Liquid Gold</div>
+                    </div>
+                    <div class="purchase-content">
+                        <div class="purchase-status">Active & Ready</div>
+                        <div class="purchase-date">Purchased on January 22, 2025</div>
+
+                        <div class="purchase-actions">
+                            <button class="action-button action-button-primary" onclick="openEditor('liquid-gold')">🎨 Open Editor</button>
+                            <button class="action-button action-button-secondary" onclick="downloadLatest()">↓ Download Latest</button>
+                            <button class="action-button" onclick="viewDetails()">📋 View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+            <div class="section-title">Download & Access</div>
+
+            <div class="files-section">
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">liquid-gold-custom-v3.html</div>
+                            <div class="file-meta">Latest • 2.4 MB • Updated 2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-button" onclick="download('liquid-gold-custom-v3.html')">Download</button>
+                        <button class="file-button" onclick="editFile('liquid-gold-custom-v3.html')">Edit</button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">liquid-gold-custom-v2.html</div>
+                            <div class="file-meta">Previous • 2.3 MB • Updated 1 day ago</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-button" onclick="download('liquid-gold-custom-v2.html')">Download</button>
+                        <button class="file-button" onclick="editFile('liquid-gold-custom-v2.html')">Edit</button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-info">
+                        <div class="file-icon">📄</div>
+                        <div class="file-details">
+                            <div class="file-name">liquid-gold-original.html</div>
+                            <div class="file-meta">Original • 2.1 MB • Purchased date</div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-button" onclick="download('liquid-gold-original.html')">Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;">
+            <div>
+                <div class="section-title">Quick Actions</div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <button class="action-button action-button-primary" onclick="openEditor('liquid-gold')" style="padding: 14px;">
+                        🎨 Edit in Visual Editor
+                    </button>
+                    <button class="action-button" onclick="preview()" style="padding: 14px;">
+                        👁️ Preview Website
+                    </button>
+                    <button class="action-button" onclick="duplicate()" style="padding: 14px;">
+                        📋 Duplicate & Customize
+                    </button>
+                    <button class="action-button" onclick="viewGuide()" style="padding: 14px;">
+                        📖 View Setup Guide
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <div class="section-title">Recent Activity</div>
+
+                <div class="activity-log">
+                    <div class="activity-item">
+                        <div class="activity-icon">✏️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Edited and exported v3</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon">🎨</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Changed color scheme to Neon Tokyo</div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon">📥</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Downloaded v2 customization</div>
+                            <div class="activity-time">2 days ago</div>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon">💳</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Purchased Liquid Gold</div>
+                            <div class="activity-time">5 days ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="border: 2px dashed #334155; padding: 24px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 14px; color: #cbd5e1; margin-bottom: 12px;">Love your webling? Share the love! 💚</div>
+            <button class="action-button" style="padding: 10px 24px; max-width: 200px;" onclick="share()">📤 Share & Earn 20%</button>
+        </div>
+
+        <div class="footer">
+            <div style="margin-bottom: 12px;">Questions? <span class="footer-link" onclick="support()">Contact Support</span> • <span class="footer-link" onclick="docs()">View Documentation</span></div>
+            <div>Your data is yours forever. <span class="footer-link" onclick="privacy()">Privacy Policy</span> • <span class="footer-link" onclick="terms()">Terms of Service</span></div>
+        </div>
+    </div>
+
+    <script>
+        function openEditor(webling) {
+            alert(`Opening editor for ${webling}...\n\nRedirecting to visual editor`);
+            window.location.href = 'webling_editor.html';
+        }
+
+        function downloadLatest() {
+            alert('Downloading: liquid-gold-custom-v3.html');
+        }
+
+        function download(filename) {
+            alert(`Downloading: ${filename}`);
+        }
+
+        function editFile(filename) {
+            alert(`Opening editor with: ${filename}`);
+        }
+
+        function viewDetails() {
+            alert('Viewing webling details...');
+        }
+
+        function preview() {
+            alert('Opening live preview...');
+        }
+
+        function duplicate() {
+            alert('Creating duplicate for further customization...');
+        }
+
+        function viewGuide() {
+            alert('Opening setup guide...');
+        }
+
+        function share() {
+            alert('Opening referral program...\n\nEarn 20% commission on each sale!');
+        }
+
+        function support() {
+            alert('Opening support chat...');
+        }
+
+        function docs() {
+            alert('Opening documentation...');
+        }
+
+        function privacy() {
+            alert('Opening privacy policy...');
+        }
+
+        function terms() {
+            alert('Opening terms of service...');
+        }
+
+        function logout() {
+            window.location.href = 'discovery_gateway.html';
+        }
+    </script>
+</body>
+
+</html>

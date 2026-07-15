@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK | Digital Architectures for the Sovereign</title>
+    <meta name="description"
+        content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. High-performance, low-friction, Anothen-aligned.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
+    <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
+    <link rel="apple-touch-icon" href="favicon.png?v=2026020101">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Cinzel + Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@200;400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #d4af37;
+            --bg: #030303;
+            --glass: rgba(20, 20, 20, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+            --silver-border: rgba(209, 220, 232, 0.42);
+        }
+
+        @keyframes blub-in {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            70% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1.0); }
+        }
+
+        .animate-blub {
+            animation: blub-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #f0f0f0;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            cursor: auto;
+        }
+
+        h1,
+        h2,
+        h3,
+        .serif {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot,
+        #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            opacity: 1;
+        }
+
+        #cursor-outline {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--primary);
+            opacity: 0.7;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--silver-border);
+            border-top: 1px solid rgba(236, 242, 248, 0.55);
+        }
+
+        .webling-art-card {
+            padding: 0;
+            min-height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .webling-art-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 14px;
+        }
+
+        .webling-art-image {
+            display: block;
+            width: 92%;
+            height: auto;
+            max-height: 92%;
+            object-fit: contain;
+            object-position: center;
+            background: #05070c;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 1023px) {
+            .webling-art-card {
+                min-height: 280px;
+            }
+        }
+
+        /* Gold Gradient Text */
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 20s linear infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: -1000px;
+            }
+
+            100% {
+                background-position: 1000px;
+            }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Hover Effects */
+        .hover-trigger {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-color: var(--silver-border);
+            box-shadow: 0 0 0 1px rgba(220, 230, 240, 0.08);
+        }
+
+        .hover-trigger:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.16), 0 0 0 1px rgba(212, 175, 55, 0.38);
+        }
+
+        /* Marquee */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(212, 175, 55, 0.02);
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: scroll 20s linear infinite;
+            padding-right: 2rem;
+        }
+
+        .marquee-content span {
+            margin-right: 3rem;
+            opacity: 0.3;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Form */
+        input,
+        textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: border-color 0.3s;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-bottom-color: var(--primary);
+        }
+
+        .form-button {
+            background: white;
+            color: black;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: var(--primary);
+        }
+
+        /* Particle Canvas */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* Section Spacing */
+        section {
+            padding: 6rem 5%;
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 3rem 5%;
+            }
+        }
+
+        /* Flagship Liquid Gold Section */
+        .flagship-section {
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 5%;
+        }
+
+        #flagshipCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .flagship-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 80px 40px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .flagship-title {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+
+        .flagship-tagline {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 48px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .flagship-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .flagship-feature-item {
+            padding: 32px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flagship-feature-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .flagship-feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .flagship-feature-title {
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .flagship-feature-desc {
+            color: #f0f0f0;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .flagship-button {
+            padding: 14px 28px;
+            background: white;
+            border: none;
+            color: black;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            font-family: 'Outfit', sans-serif;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .flagship-button:hover {
+            background-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+        .dev-drop-plaque {
+            position: absolute;
+            right: -192px;
+            bottom: -8px;
+            transform: rotate(var(--plaque-rotation, -25deg)) scale(1);
+            transform-origin: center;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 7px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: linear-gradient(145deg, #1e4f87, #0e2747 50%, #2d6aa7);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), 0 0 20px rgba(38, 140, 255, 0.25);
+            text-decoration: none;
+            z-index: 70;
+            cursor: grab;
+            user-select: none;
+            animation: plaque-fly-in 0.95s cubic-bezier(0.18, 0.92, 0.22, 1.18) 0.12s both;
+        }
+
+        /* Mobile: Center plaque under buttons when they stack */
+        @media (max-width: 639px) {
+            .dev-drop-plaque {
+                position: static;
+                margin-top: 16px;
+                animation: none;
+                transform: scale(1) !important;
+            }
+        }
+
+        /* Tablet: Reposition plaque to visible area */
+        @media (min-width: 640px) and (max-width: 1023px) {
+            .dev-drop-plaque {
+                right: -80px;
+                bottom: 20px;
+            }
+        }
+
+        .dev-drop-plaque span {
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #f6dc87;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .dev-drop-plaque .plate {
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid rgba(82, 50, 7, 0.55);
+            background: linear-gradient(140deg, #f2c978, #c78d2f 55%, #9c6516);
+            color: #2f1d07;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .dev-drop-plaque:hover {
+            filter: brightness(1.12);
+        }
+
+        .dev-drop-plaque.is-floating {
+            position: fixed;
+            right: auto;
+            bottom: auto;
+        }
+
+        @keyframes plaque-fly-in {
+            0% {
+                transform: perspective(1000px) translate3d(0, -140px, 680px) rotate(var(--plaque-rotation, -25deg)) scale(0.18);
+                opacity: 0;
+                filter: blur(10px) brightness(1.4);
+            }
+            60% {
+                transform: perspective(1000px) translate3d(0, 8px, -24px) rotate(var(--plaque-rotation, -25deg)) scale(1.52);
+                opacity: 1;
+                filter: blur(0) brightness(1.06);
+            }
+            78% {
+                transform: perspective(1000px) translate3d(0, -4px, 0) rotate(var(--plaque-rotation, -25deg)) scale(1.34);
+            }
+            100% {
+                transform: perspective(1000px) translate3d(0, 0, 0) rotate(var(--plaque-rotation, -25deg)) scale(1);
+                opacity: 1;
+                filter: blur(0) brightness(1);
+            }
+        }
+
+        .plaque-editor-chrome {
+            display: none;
+        }
+
+        .dev-drop-plaque.is-editing .plaque-editor-chrome {
+            display: inline-flex;
+        }
+
+        .nav-glow {
+            text-shadow:
+                0 0 8px rgba(0, 0, 0, 1),
+                0 0 16px rgba(0, 0, 0, 0.98),
+                0 0 28px rgba(0, 0, 0, 0.92),
+                0 0 42px rgba(0, 0, 0, 0.85);
+            filter:
+                drop-shadow(0 0 4px rgba(0, 0, 0, 1))
+                drop-shadow(0 0 12px rgba(0, 0, 0, 0.96))
+                drop-shadow(0 0 20px rgba(0, 0, 0, 0.9));
+        }
+
+        .nav-slider-glow {
+            filter:
+                drop-shadow(0 0 5px rgba(0, 0, 0, 1))
+                drop-shadow(0 0 14px rgba(0, 0, 0, 0.96))
+                drop-shadow(0 0 24px rgba(0, 0, 0, 0.9));
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 0, 0, 0.65);
+            border-radius: 999px;
+        }
+
+        .site-nav-header {
+            z-index: 2200 !important;
+            mix-blend-mode: normal !important;
+            isolation: isolate;
+        }
+
+        .site-nav-shell {
+            background: linear-gradient(to bottom, rgba(2, 6, 23, 0.78), rgba(2, 6, 23, 0.38));
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+        }
+
+        /* Mobile: Compact nav layout */
+        @media (max-width: 639px) {
+            .site-nav-shell > div {
+                gap: 6px !important;
+            }
+
+            .site-nav-shell > div:first-of-type label {
+                font-size: 0.65rem !important;
+                letter-spacing: 0.2em !important;
+            }
+
+            .site-nav-shell > div:first-of-type input {
+                width: 70px !important;
+            }
+
+            .site-nav-shell > div:first-of-type span {
+                font-size: 0.65rem !important;
+                width: 28px !important;
+            }
+
+            .site-nav-shell a {
+                font-size: 0.65rem !important;
+                letter-spacing: 0.15em !important;
+            }
+        }
+
+        .velvet-preview-bg {
+            /* Swap this URL with your chosen image when ready. */
+            background-image: var(--velvet-preview-image, url('landing_page_backdrop_velvet.png'));
+            background-size: cover;
+            background-position: center;
+        }
+
+        .velvet-preview-link {
+            display: inline-block;
+            color: #f8fafc;
+            background: rgba(0, 0, 0, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 0.35rem 0.75rem;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 1);
+            transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .velvet-preview-link:hover {
+            color: #fcd34d;
+            border-color: rgba(252, 211, 77, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .velvet-inner-card {
+            background: linear-gradient(to top, #0e1c30 0%, #060b14 55%, #010102 100%);
+            box-shadow:
+                0 34px 72px rgba(0, 0, 0, 0.94),
+                0 18px 28px rgba(0, 0, 0, 0.78),
+                0 0 0 1px rgba(130, 175, 235, 0.22) inset;
+        }
+
+        .velvet-slate-surface-left {
+            background: linear-gradient(to bottom, rgba(22, 29, 36, 0.9) 0%, rgba(12, 18, 24, 0.92) 54%, rgba(0, 0, 0, 0.95) 100%);
+        }
+
+        .gold-glint-btn {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f9e7a8 0%, #d4af37 45%, #f5d26c 100%);
+            color: #111827;
+            border: 1px solid rgba(250, 226, 155, 0.95);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35), 0 0 18px rgba(212, 175, 55, 0.24);
+        }
+
+        .velvet-action-btn {
+            width: 252px;
+            min-height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .price-stack {
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            min-height: 110px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .price-amount {
+            display: inline-flex;
+            align-items: flex-end;
+            line-height: 1;
+            gap: 0.02em;
+        }
+
+        .price-sign {
+            font-size: 0.75em;
+            line-height: 1;
+        }
+
+        .price-cents {
+            font-size: 0.75em;
+            line-height: 1;
+            opacity: 0.95;
+        }
+
+        .price-old {
+            position: relative;
+            font-size: 1.55rem;
+            line-height: 1;
+            color: #e9edf3;
+            letter-spacing: 0.01em;
+            text-shadow: 0 0 8px rgba(0, 0, 0, 0.78);
+            transform: translateY(10px);
+        }
+
+        .price-old::before,
+        .price-old::after {
+            content: "";
+            position: absolute;
+            left: -6%;
+            right: -6%;
+            top: 52%;
+            height: 3px;
+            background: rgba(255, 85, 85, 0.95);
+            transform-origin: center;
+            pointer-events: none;
+        }
+
+        .price-old::before {
+            transform: rotate(-10deg);
+        }
+
+        .price-old::after {
+            transform: rotate(10deg);
+        }
+
+        .price-new {
+            font-size: 3.55rem;
+            line-height: 0.95;
+            color: #f7d67a;
+            transform: rotate(16deg) translate(-1px, 1px);
+            text-shadow: 0 0 12px rgba(212, 175, 55, 0.28), 0 0 8px rgba(0, 0, 0, 0.78);
+            margin-left: 4px;
+        }
+
+        .price-new .price-sign {
+            transform: translateY(-0.34em);
+        }
+
+        .gallery-price {
+            font-size: 1.4rem;
+            color: #fff;
+        }
+
+        .gold-glint-btn::after {
+            content: "";
+            position: absolute;
+            top: -30%;
+            left: -55%;
+            width: 45%;
+            height: 160%;
+            background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.62) 50%, rgba(255, 255, 255, 0) 100%);
+            transform: rotate(12deg);
+            animation: glint-sweep 2.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes glint-sweep {
+            0% { left: -60%; }
+            60% { left: 135%; }
+            100% { left: 135%; }
+        }
+
+        .plaque-chip {
+            position: absolute;
+            top: -26px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            font-size: 9px;
+            letter-spacing: 0.11em;
+            text-transform: uppercase;
+            font-weight: 800;
+            color: #f8fafc;
+            background: rgba(15, 23, 42, 0.88);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .plaque-save {
+            left: 2px;
+            background: rgba(5, 100, 61, 0.92);
+        }
+
+        .plaque-cancel {
+            left: 50px;
+            background: rgba(127, 29, 29, 0.92);
+        }
+
+        .plaque-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: linear-gradient(160deg, rgba(248, 250, 252, 0.95), rgba(148, 163, 184, 0.95));
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+            user-select: none;
+        }
+
+        .plaque-resize-handle {
+            right: -8px;
+            bottom: -8px;
+            cursor: nwse-resize;
+        }
+
+        .plaque-rotate-handle {
+            right: -8px;
+            top: -8px;
+            cursor: grab;
+            border-radius: 50%;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Cursor: Restored to user ownership -->
+
+    <!-- Particle Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 left-0 right-0 z-50 site-nav-header" data-editor-safe="true">
+        <nav class="site-nav-shell flex flex-col px-3 sm:px-6 md:px-12 py-4 sm:py-6 gap-3">
+            <!-- Top Row: Logo + Links -->
+            <div class="flex items-center justify-between">
+                <a href="#" class="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition group">
+                    <img src="favicon.png" alt="Axxilak Logo" class="h-[40px] sm:h-[50px] w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] drop-shadow-[0_0_16px_rgba(0,0,0,0.95)] group-hover:scale-105 transition duration-500">
+                    <div class="hidden sm:flex flex-col justify-center items-start animate-blub text-left">
+                        <div class="serif font-bold text-xl sm:text-2xl tracking-[0.05em] text-white leading-none drop-shadow-[0_0_12px_rgba(0,0,0,0.98)]">
+                            AXXILAK <span class="font-light opacity-80">Studios</span>
+                        </div>
+                        <div class="text-[9px] tracking-[0.3em] text-amber-400/60 font-light mt-1 drop-shadow-[0_0_10px_rgba(0,0,0,0.98)]" style="font-family: 'Outfit', sans-serif;">
+                            We make beautiful apps.
+                        </div>
+                    </div>
+                </a>
+                <div class="flex gap-6 sm:gap-8 items-center">
+                    <a href="free-stuff.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">Free Stuff</a>
+                    <a href="#contact" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
+                    <a href="axxilak_portfolio/index.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">About Me</a>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Dimmer Slider -->
+            <div class="flex items-center gap-3" title="Particle intensity slider">
+                <label for="particle-dimmer" class="nav-glow text-sm uppercase tracking-widest text-slate-400">Dim</label>
+                <input type="range" id="particle-dimmer" min="0" max="100" value="100" class="nav-slider-glow" style="width: 120px; cursor: pointer;">
+                <span id="dimmer-value" class="nav-glow text-sm uppercase tracking-widest text-amber-400 w-12">Blast</span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col items-center justify-center gap-8 text-center pt-24 sm:pt-32 md:pt-40">
+        <div class="max-w-3xl">
+            <h1 class="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-light serif leading-tight mb-8">
+                Hello and <span class="gold-text">WELCOME</span>!
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 mb-6 font-light max-w-3xl mx-auto">
+                Look around. Try some stuff.<br>Don't miss our collection of <a href="free-stuff.html" class="text-amber-400 font-semibold hover:underline">FREE STUFF</a> we've found over the years.
+            </p>
+            <p class="text-base text-slate-200 mb-8 font-light max-w-3xl mx-auto">
+                <span class="serif">WEBLING:</span> A self-contained page, each with an APEX editor so people can customize them without code. Buy once, own forever, use offline. No subscriptions. No surveillance. Just freedom.
+            </p>
+            <div id="hero-cta-box" class="relative inline-flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="#featured-velvet"
+                    class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
+                    Meet The Weblings
+                </a>
+                <button id="demoEditBtn"
+                    class="inline-block px-8 py-4 border-2 border-white text-white font-semibold hover:bg-white hover:text-black transition">
+                    Try Editing Now
+                </button>
+                <a id="dev-drop-plaque" href="free-stuff.html#particle-dimmer-snippet" class="dev-drop-plaque" title="Free developer snippet">
+                    <span>Free Dev Drop</span>
+                    <span class="plate">Particle Dimmer</span>
+                    <span id="plaque-save" class="plaque-editor-chrome plaque-chip plaque-save">Save</span>
+                    <span id="plaque-cancel" class="plaque-editor-chrome plaque-chip plaque-cancel">Cancel</span>
+                    <span id="plaque-rotate" class="plaque-editor-chrome plaque-handle plaque-rotate-handle" title="Rotate"></span>
+                    <span id="plaque-resize" class="plaque-editor-chrome plaque-handle plaque-resize-handle" title="Resize"></span>
+                </a>
+            </div>
+            <p class="text-sm text-slate-400 mt-12 font-light italic">
+                Together, working to make the world a better place.
+            </p>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 animate-bounce">
+            <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3">
+                </path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Marquee Separator -->
+    <div class="marquee py-8">
+        <div class="marquee-content">
+            <span>RESPONSIVE DESIGN</span>
+            <span>FULLY CUSTOMIZABLE</span>
+            <span>PROFESSIONAL WEBLINGS</span>
+            <span>RESPONSIVE DESIGN</span>
+            <span>FULLY CUSTOMIZABLE</span>
+            <span>PROFESSIONAL WEBLINGS</span>
+        </div>
+    </div>
+
+    <!-- Value Proposition -->
+    <section class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">How Weblings Work</h2>
+            <p class="text-center text-slate-400 mb-16 font-light italic">Designed for actual ownership. Your vision,
+                your terms, forever.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-lock-open"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Actual Ownership</h3>
+                    <p class="text-slate-300 font-light">
+                        Download once. Own forever. One-time purchase, zero ongoing costs. Your site, your data, your
+                        rules.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 100ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Edit Without Code</h3>
+                    <p class="text-slate-300 font-light">
+                        Visual editor built-in. Click to edit text, swap images, change colors. No technical knowledge
+                        required.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 200ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Fully Customizable</h3>
+                    <p class="text-slate-300 font-light">
+                        Colors, fonts, layout, content. Change everything. Extend with your own code. It's yours to reshape.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Featured Webling (Split View) -->
+    <section id="featured-velvet" class="py-12 sm:py-16 md:py-20">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-panel rounded-sm overflow-hidden flex flex-col md:flex-row hover-trigger reveal">
+
+                <!-- Left: Content -->
+                <div
+                    class="velvet-slate-surface-left p-6 sm:p-8 md:p-12 md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10">
+                    <div class="text-lg sm:text-2xl uppercase tracking-widest text-amber-400 mb-4 font-light">Featured Architecture</div>
+                    <h2 class="serif text-3xl sm:text-4xl md:text-5xl text-white mb-6"><a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition">Velvet</a></h2>
+                    <p class="text-sm sm:text-base text-slate-300 font-light leading-relaxed mb-8">
+                        In a world of noise, we choose signal.
+                        <span class="text-amber-400">In a world of clutter, we choose void.</span>
+                    </p>
+                    <p class="text-xs sm:text-sm text-slate-300 font-light italic mb-8">
+                        Velvet is not just a template; it is a frame for your masterpiece.
+                    </p>
+
+                    <ul class="space-y-2 sm:space-y-3 mb-8 sm:mb-10 text-xs sm:text-sm text-slate-400 font-light">
+                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Cinematic Transitions</li>
+                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Elegant Typography System</li>
+                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Custom Theme Toggle</li>
+                    </ul>
+
+                    <div class="mt-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-6">
+                        <div>
+                            <div class="text-xs text-slate-300 uppercase tracking-widest mb-1">Price</div>
+                            <div class="price-stack">
+                                <span class="price-old price-amount"><span class="price-sign">$</span><span class="price-dollars">50</span><span class="price-cents">.00</span></span>
+                                <span class="serif price-new price-amount"><span class="price-sign">$</span><span class="price-dollars">20</span><span class="price-cents">.00</span></span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-stretch sm:items-end gap-2">
+                            <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer"
+                                class="velvet-action-btn gold-glint-btn px-6 sm:px-10 py-3 sm:py-4 text-xs uppercase tracking-widest font-bold transition transform hover:-translate-y-1 rounded-sm text-center">
+                                Edit Now
+                            </a>
+                            <a href="#" aria-disabled="true"
+                                class="velvet-action-btn px-6 sm:px-10 py-3 sm:py-4 bg-white text-black text-xs uppercase tracking-widest font-bold rounded-sm shadow-lg pointer-events-none opacity-70 text-center">
+                                Buy Velvet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Visual -->
+                <div class="md:w-1/2 relative group overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[auto]">
+                    <div
+                        class="velvet-preview-bg absolute inset-0 group-hover:scale-105 transition duration-700">
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="velvet-inner-card text-center p-6 sm:p-8 backdrop-blur-sm border border-white/10 rounded-sm">
+                            <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="inline-block">
+                                <div class="serif text-3xl sm:text-4xl md:text-5xl gold-text tracking-widest mb-2 hover:text-amber-300 transition">VELVET</div>
+                                <div class="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] sm:tracking-[0.5em] text-white/70 hover:text-amber-200 transition">SILK & SHADOW</div>
+                            </a>
+                            <div class="mt-5">
+                                <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="velvet-preview-link text-xs sm:text-sm">-= PREVIEW =-</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio Collection -->
+    <section id="weblings" class="py-20">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">The Collection</h2>
+            <p class="text-center text-slate-400 text-sm mb-12 font-light italic">
+                Thirteen distinct designs for different voices. Each one complete, each one yours to keep and customize
+                forever.
+            </p>
+
+            <!-- Editor Discovery Section -->
+            <div class="glass-panel p-8 mb-12 rounded-sm border border-amber-400/30 bg-amber-400/5 text-center reveal">
+                <p class="text-amber-400 font-light mb-2 text-sm uppercase tracking-widest">✓ Included with Every
+                    Webling</p>
+                <h3 class="serif text-2xl mb-4">Visual Editor</h3>
+                <p class="text-slate-300 font-light mb-6 max-w-2xl mx-auto">
+                    Edit your webling directly in the browser. <span class="text-amber-400 font-semibold">Click text to
+                        modify. Swap images. Rearrange sections.</span>
+                    Make changes, download the updated version, keep it forever.
+                </p>
+                <p class="text-slate-400 text-sm italic">
+                    Click the <span class="text-amber-400 font-semibold">✏️ Edit This Site</span> button on any webling
+                    to get started.
+                </p>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Javascript will inject cards here -->
+            </div>
+
+            <div id="empty-state" class="hidden text-center py-20 text-slate-500">
+                <p>No architectures found in this category.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="max-w-2xl mx-auto">
+            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">Questions? Ideas?</h2>
+            <p class="text-center text-slate-400 mb-12 font-light">
+                Need something custom? Have feedback about the weblings?
+                <br><br>
+                <span class="text-amber-400">Let's talk. We're here to listen.</span>
+            </p>
+
+            <form id="contact-form" action="https://formspree.io/f/[REPLACE_WITH_YOUR_FORMSPREE_ID]" method="POST"
+                class="glass-panel p-8 md:p-12 space-y-6 rounded-sm reveal">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                    <input type="text" name="name" required placeholder="Your name"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" required placeholder="your@email.com"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
+                    <textarea name="message" rows="5" required placeholder="Tell us about your project..."
+                        class="w-full bg-transparent py-3 text-white" style="resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit"
+                    class="w-full form-button py-4 rounded-sm text-center uppercase tracking-widest font-semibold">
+                    Send Message
+                </button>
+
+                <p class="text-xs text-slate-500 text-center">Or email: <a href="mailto:contact@axxilak.com"
+                        class="text-amber-400 hover:underline">contact@axxilak.com</a> <button id="copy-email" class="text-amber-400 hover:text-amber-300 transition ml-2" title="Copy email to clipboard" style="background: none; border: none; cursor: pointer; padding: 0; font-size: 0.75rem; vertical-align: baseline;">
+                        <i class="fas fa-copy"></i>
+                    </button></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <h4 class="serif text-xl mb-4">AXXILAK <span class="font-light opacity-60">Studios</span></h4>
+                    <p class="text-slate-400 text-sm font-light">
+                        Weblings are designed for creators who believe ownership matters.<br><br>
+                        <span class="text-amber-400">Your voice. Your site. Your terms.</span>
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Explore</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#weblings" class="hover:text-amber-400 transition">Browse Weblings</a></li>
+                        <li><a href="free-stuff.html" class="hover:text-amber-400 transition">Free Stuff</a></li>
+                        <li><a href="#contact" class="hover:text-amber-400 transition">Get in Touch</a></li>
+                        <li><a href="axxilak_portfolio/index.html" class="hover:text-amber-400 transition">Our Story</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Social</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition">Twitter</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">Instagram</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">LinkedIn</a></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+                <p class="mb-4">&copy; 2026 AXXILAK. All rights reserved.</p>
+                <p class="text-xs text-slate-600 italic">
+                    Explore each webling. You might notice some thoughtful details along the way.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Cursor: Ownership restored to user
+
+        // === PARTICLE DIMMER CONTROL ===
+        let particleOpacity = 1.0; // 0 = invisible, 1.0 = full opacity
+
+        // Particle Network
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        // Smooth default shard count (~300 particles on 1920x1080)
+        const particleCount = Math.max(20, Math.floor((canvas.width * canvas.height) / 6912));
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.size = Math.random() * 1.5;
+                this.isGold = Math.random() < 0.05;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                const baseAlpha = this.isGold ? 0.7 : 0.5;
+                ctx.globalAlpha = baseAlpha * particleOpacity;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        const baseOpacity = 0.1 * (1 - distance / 150);
+                        const alpha = baseOpacity * particleOpacity;
+                        ctx.strokeStyle = `rgba(212, 175, 55, ${alpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((p) => {
+                p.update();
+                p.draw();
+            });
+
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const revealOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealOnScroll.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        reveals.forEach((reveal) => revealOnScroll.observe(reveal));
+
+        // --- CATALOG LOGIC ---
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // WEBLING CATALOG RULE
+        // ═══════════════════════════════════════════════════════════════════════════════
+        // Total: 13 weblings
+        // Grid Display: 12 weblings (gallery grid below)
+        // Featured Display: 1 webling (Velvet - premium showcase above)
+        //
+        // RULE: A webling appears in BOTH lists ONLY when filters are applied.
+        // - User filters by "Luxury" → sees all Luxury weblings (including Velvet in both grid + featured)
+        // - Default (no filter) → Velvet only in Featured, not in grid
+        // ═══════════════════════════════════════════════════════════════════════════════
+
+        const catalogData = {
+            "weblings": [
+                { "id": "liquid-gold", "name": "Liquid Gold", "vibe": "Luxury / Pro", "price": 50.00, "description": "The standard of excellence. Glassmorphism, premium gradients, and professional poise." },
+                { "id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "price": 50.00, "description": "Presence without effort. A breathing architecture for the high-frequency creator." },
+                { "id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "price": 50.00, "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic." },
+                { "id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "price": 50.00, "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal." },
+                { "id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "price": 50.00, "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes." },
+                { "id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "price": 50.00, "description": "Rooted in the real. Organic curves and digital roots for sustainable growth." },
+                { "id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "price": 50.00, "description": "Find your frequency. Shifting iridescent gradients for the modern mystic." },
+                { "id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "price": 50.00, "description": "Beyond the peak. Tactical, high-contrast presence for the explorer." },
+                { "id": "oracle", "name": "Oracle", "vibe": "Stars / Mystic", "price": 50.00, "description": "As above, so below. A celestial signature written in stardust." },
+                { "id": "apex", "name": "Apex", "vibe": "Structure / Corporate", "price": 50.00, "description": "Precision is power. Ultra-clean, sharp architecture for tech authority." },
+                { "id": "canvas", "name": "Canvas", "vibe": "Void / Gallery", "price": 50.00, "description": "The content is the architecture. Minimalist whitespace for the fine artist." },
+                { "id": "cipher", "name": "Cipher", "vibe": "Logic / Terminal", "price": 50.00, "description": "Code is law. A terminal-first presence for the technical sovereign." }
+            ]
+        };
+
+        function renderGallery() {
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('empty-state');
+
+            const weblings = catalogData.weblings;
+
+            if (weblings.length === 0) {
+                gallery.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            gallery.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            gallery.innerHTML = weblings.map((w, index) => {
+                if (w.id === 'liquid-gold') {
+                    return `
+                <div class="glass-panel rounded-sm hover-trigger reveal webling-card webling-art-card" data-webling-id="${w.id}" style="animation-delay: ${index * 50}ms">
+                    <a href="Weblings/${w.id}/index.html" class="webling-art-link" title="Edit Liquid Gold now">
+                        <img src="landing_page_backdrop_liquid_gold.png" alt="Liquid Gold webling preview card" class="webling-art-image">
+                    </a>
+                </div>
+            `;
+                }
+                const [dollars, cents] = w.price.toFixed(2).split('.');
+                return `
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal webling-card" data-webling-id="${w.id}" style="animation-delay: ${index * 50}ms">
+                    <div class="text-[10px] uppercase tracking-widest text-amber-400 mb-2">${w.vibe}</div>
+                    <h3 class="serif text-2xl mb-2 text-white">${w.name}</h3>
+                    <p class="text-slate-400 font-light text-sm mb-6 h-10 overflow-hidden">${w.description}</p>
+                    <div class="flex items-center justify-between mt-auto">
+                        <div class="serif gallery-price price-amount"><span class="price-sign">$</span><span class="price-dollars">${dollars}</span><span class="price-cents">.${cents}</span></div>
+                        <a href="Weblings/${w.id}/index.html" class="px-6 py-2 bg-white text-black text-xs uppercase tracking-widest font-semibold hover:bg-amber-400 transition inline-block">Edit Now</a>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            // Safety rule: only explicit links navigate.
+            // Prevent card-container clicks from opening weblings.
+            gallery.querySelectorAll('.webling-card').forEach(card => {
+                card.removeAttribute('onclick');
+                card.onclick = null;
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('a')) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, true);
+            });
+
+            // Re-trigger reveal animation for new elements
+            const newReveals = gallery.querySelectorAll('.reveal');
+            newReveals.forEach(r => revealOnScroll.observe(r));
+        }
+
+
+        // Initial Render
+        renderGallery();
+
+        // Form Submission
+        const contactForm = document.getElementById('contact-form');
+
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const button = contactForm.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            try {
+                const formData = new FormData(contactForm);
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    button.textContent = 'Message Received ✓';
+                    contactForm.reset();
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                button.textContent = 'Error - Please Try Again';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 3000);
+            }
+        });
+
+        // Flagship Liquid Gold Particle Animation
+        function initFlagshipParticles() {
+            const canvas = document.getElementById('flagshipCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const container = canvas.parentElement;
+
+            function resizeCanvas() {
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+            }
+            resizeCanvas();
+
+            const particles = [];
+            const particleCount = Math.max(15, Math.floor((canvas.width * canvas.height) / 25000));
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 0.3;
+                    this.vy = (Math.random() - 0.5) * 0.3;
+                    this.size = Math.random() * 1.5;
+                    this.isGold = Math.random() < 0.1;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+
+                draw() {
+                    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                    if (isDarkMode) {
+                        // Dark mode: original colors
+                        ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
+                        ctx.globalAlpha = this.isGold ? 0.6 : 0.4;
+                    } else {
+                        // Light mode: particles blend into light background
+                        ctx.fillStyle = '#e8e8e8';
+                        ctx.globalAlpha = 0.6;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function drawLines() {
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                const lineColor = isDarkMode ? 'rgba(212, 175, 55,' : 'rgba(255, 255, 255,';
+
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 120) {
+                            ctx.strokeStyle = `${lineColor} ${0.12 * (1 - distance / 120)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+                ctx.fillStyle = isDarkMode ? 'rgba(3, 3, 3, 0.05)' : 'rgba(240, 240, 240, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                if (!animationsPaused) {
+                    particles.forEach((p) => {
+                        p.update();
+                        p.draw();
+                    });
+
+                    drawLines();
+                }
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        // Initialize Flagship Particles
+        initFlagshipParticles();
+
+        // === PARTICLE DIMMER SLIDER ===
+        const dimmerSlider = document.getElementById('particle-dimmer');
+        const dimmerValue = document.getElementById('dimmer-value');
+
+        if (dimmerSlider && dimmerValue) {
+            dimmerSlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value, 10);
+                particleOpacity = value / 100;
+
+                if (value === 0) {
+                    dimmerValue.textContent = 'Off';
+                    dimmerValue.classList.remove('text-amber-400');
+                    dimmerValue.classList.add('text-slate-500');
+                } else if (value === 100) {
+                    dimmerValue.textContent = 'Blast';
+                    dimmerValue.classList.remove('text-slate-500');
+                    dimmerValue.classList.add('text-amber-400');
+                } else {
+                    dimmerValue.textContent = `${value}%`;
+                    dimmerValue.classList.remove('text-slate-500');
+                    dimmerValue.classList.add('text-amber-400');
+                }
+            });
+        }
+
+        // === COPY EMAIL BUTTON ===
+        const copyEmailBtn = document.getElementById('copy-email');
+        copyEmailBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const email = 'contact@axxilak.com';
+            navigator.clipboard.writeText(email).then(() => {
+                const originalHTML = copyEmailBtn.innerHTML;
+                copyEmailBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyEmailBtn.title = 'Copied!';
+                setTimeout(() => {
+                    copyEmailBtn.innerHTML = originalHTML;
+                    copyEmailBtn.title = 'Copy email to clipboard';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy email:', err);
+            });
+        });
+
+
+        // Demo Edit Button: Enable inline editing on hero section
+        const demoEditBtn = document.getElementById('demoEditBtn');
+        let isEditMode = false;
+
+        demoEditBtn.addEventListener('click', () => {
+            isEditMode = !isEditMode;
+
+            if (isEditMode) {
+                demoEditBtn.textContent = 'Done Editing';
+                demoEditBtn.classList.add('bg-amber-400', 'text-black');
+                demoEditBtn.classList.remove('border-white', 'text-white');
+
+                // Make hero section elements editable
+                const heroSection = document.querySelector('.min-h-screen');
+                const editableElements = heroSection.querySelectorAll('h1, p');
+
+                editableElements.forEach(el => {
+                    el.contentEditable = true;
+                    el.style.outline = '2px dashed #d4af37';
+                    el.style.outlineOffset = '4px';
+                    el.style.cursor = 'text';
+                });
+            } else {
+                demoEditBtn.textContent = 'Try Editing Now';
+                demoEditBtn.classList.remove('bg-amber-400', 'text-black');
+                demoEditBtn.classList.add('border-white', 'text-white');
+
+                // Disable editing
+                const heroSection = document.querySelector('.min-h-screen');
+                const editableElements = heroSection.querySelectorAll('h1, p');
+
+                editableElements.forEach(el => {
+                    el.contentEditable = false;
+                    el.style.outline = 'none';
+                    el.style.cursor = 'auto';
+                });
+            }
+        });
+
+        // Transition system removed for MVP. See _archive/transition-system/ to restore.
+    </script>
+
+    <script>
+        (function () {
+            const plaque = document.getElementById('dev-drop-plaque');
+            if (!plaque) return;
+            const saveBtn = document.getElementById('plaque-save');
+            const cancelBtn = document.getElementById('plaque-cancel');
+            const resizeHandle = document.getElementById('plaque-resize');
+            const rotateHandle = document.getElementById('plaque-rotate');
+
+            const key = 'dev-drop-plaque-state-v2';
+            let dragging = false;
+            let resizing = false;
+            let rotating = false;
+            let moved = false;
+            let offsetX = 0;
+            let offsetY = 0;
+            let startWidth = 0;
+            let startX = 0;
+            let startAngle = -30;
+            let rotationBase = -30;
+
+            const state = {
+                left: null,
+                top: null,
+                width: null,
+                rotation: -25,
+                floating: false
+            };
+            let savedState = { ...state };
+
+            function clamp(value, min, max) {
+                return Math.max(min, Math.min(max, value));
+            }
+
+            function applyState() {
+                if (state.floating && typeof state.left === 'number' && typeof state.top === 'number') {
+                    plaque.classList.add('is-floating');
+                    plaque.style.left = `${state.left}px`;
+                    plaque.style.top = `${state.top}px`;
+                } else {
+                    plaque.classList.remove('is-floating');
+                    plaque.style.left = '';
+                    plaque.style.top = '';
+                }
+
+                if (typeof state.width === 'number') {
+                    plaque.style.width = `${state.width}px`;
+                } else {
+                    plaque.style.width = '';
+                }
+
+                plaque.style.setProperty('--plaque-rotation', `${state.rotation}deg`);
+            }
+
+            function persistState() {
+                localStorage.setItem(key, JSON.stringify(state));
+                savedState = { ...state };
+            }
+
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (typeof parsed.left === 'number') state.left = parsed.left;
+                    if (typeof parsed.top === 'number') state.top = parsed.top;
+                    if (typeof parsed.width === 'number') state.width = parsed.width;
+                    if (typeof parsed.rotation === 'number') state.rotation = parsed.rotation;
+                    if (typeof parsed.floating === 'boolean') state.floating = parsed.floating;
+                } catch (_) { }
+            }
+            applyState();
+            savedState = { ...state };
+
+            function enterEditMode() {
+                plaque.classList.add('is-editing');
+            }
+
+            function exitEditMode() {
+                plaque.classList.remove('is-editing');
+                plaque.style.cursor = 'grab';
+            }
+
+            function startDrag(clientX, clientY) {
+                const rect = plaque.getBoundingClientRect();
+                if (!state.floating) {
+                    state.left = rect.left;
+                    state.top = rect.top;
+                    state.floating = true;
+                    applyState();
+                }
+                offsetX = clientX - rect.left;
+                offsetY = clientY - rect.top;
+                dragging = true;
+                moved = false;
+                plaque.style.cursor = 'grabbing';
+            }
+
+            function onDrag(clientX, clientY) {
+                if (!dragging) return;
+                state.left = clamp(clientX - offsetX, -55, window.innerWidth - 90);
+                state.top = clamp(clientY - offsetY, 8, window.innerHeight - 56);
+                applyState();
+                moved = true;
+            }
+
+            function endDrag() {
+                if (!dragging) return;
+                dragging = false;
+                plaque.style.cursor = 'grab';
+            }
+
+            function startResize(clientX) {
+                const rect = plaque.getBoundingClientRect();
+                enterEditMode();
+                if (!state.width) state.width = rect.width;
+                startWidth = state.width || rect.width;
+                startX = clientX;
+                resizing = true;
+            }
+
+            function onResize(clientX) {
+                if (!resizing) return;
+                const delta = clientX - startX;
+                state.width = clamp(startWidth + delta, 130, 420);
+                applyState();
+                moved = true;
+            }
+
+            function endResize() {
+                resizing = false;
+            }
+
+            function getAngle(clientX, clientY) {
+                const rect = plaque.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+            }
+
+            function startRotate(clientX, clientY) {
+                enterEditMode();
+                startAngle = getAngle(clientX, clientY);
+                rotationBase = state.rotation;
+                rotating = true;
+            }
+
+            function onRotate(clientX, clientY) {
+                if (!rotating) return;
+                const nextAngle = getAngle(clientX, clientY);
+                state.rotation = Math.round(rotationBase + (nextAngle - startAngle));
+                applyState();
+                moved = true;
+            }
+
+            function endRotate() {
+                rotating = false;
+            }
+
+            plaque.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.plaque-editor-chrome')) return;
+                if (e.button !== 0) return;
+                e.preventDefault();
+                startDrag(e.clientX, e.clientY);
+            });
+
+            resizeHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startResize(e.clientX);
+            });
+
+            rotateHandle.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startRotate(e.clientX, e.clientY);
+            });
+
+            saveBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                persistState();
+                exitEditMode();
+                moved = false;
+            });
+
+            cancelBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                Object.assign(state, savedState);
+                applyState();
+                exitEditMode();
+                moved = false;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                onDrag(e.clientX, e.clientY);
+                onResize(e.clientX);
+                onRotate(e.clientX, e.clientY);
+            });
+
+            window.addEventListener('mouseup', () => {
+                endDrag();
+                endResize();
+                endRotate();
+            });
+
+            plaque.addEventListener('click', (e) => {
+                if (plaque.classList.contains('is-editing') || moved) {
+                    e.preventDefault();
+                    moved = false;
+                }
+            });
+
+            plaque.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                enterEditMode();
+            });
+        })();
+    </script>
+
+    <!-- Transition system removed for MVP. Archived in _archive/transition-system/ -->
+</body>
+
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // About Us & Philosophy</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 40px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #00F0FF;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .hero-title {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: #94a3b8;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .section-content {
+            font-size: 14px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .philosophy-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 32px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .philosophy-card:hover {
+            border-color: #00F0FF;
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.3);
+        }
+
+        .philosophy-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .philosophy-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .philosophy-text {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+
+        .values-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .value-item {
+            border-left: 3px solid #00F0FF;
+            padding-left: 20px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        .value-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .value-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .timeline-section {
+            margin-top: 24px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            padding: 20px;
+            border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.2);
+            border-radius: 6px;
+        }
+
+        .timeline-year {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00F0FF;
+            min-width: 80px;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+        }
+
+        .timeline-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .mission-box {
+            border: 2px solid #D946EF;
+            background: rgba(217, 70, 239, 0.05);
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .mission-label {
+            font-size: 11px;
+            color: #D946EF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .mission-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #cbd5e1;
+            line-height: 1.8;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .team-member {
+            text-align: center;
+            border: 1px solid #334155;
+            padding: 24px;
+            border-radius: 6px;
+            background: rgba(30, 41, 59, 0.2);
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00F0FF, #D946EF);
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .member-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+        }
+
+        .member-role {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .impact-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .impact-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 24px;
+            text-align: center;
+            border-radius: 6px;
+        }
+
+        .impact-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 8px;
+        }
+
+        .impact-label {
+            font-size: 12px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .cta-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(217, 70, 239, 0.1));
+            border: 2px dashed #334155;
+            border-radius: 8px;
+            margin-top: 80px;
+        }
+
+        .cta-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .cta-text {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .cta-button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border: none;
+            border-radius: 6px;
+            color: #0F1115;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .cta-button:hover {
+            box-shadow: 0 0 24px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 32px;
+            }
+
+            .section-title {
+                font-size: 20px;
+            }
+
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .philosophy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="back-link" onclick="goBack()">← Back to Marketplace</div>
+
+        <div class="hero">
+            <div class="hero-title">About AXXILAK</div>
+            <div class="hero-subtitle">
+                We believe that ownership is the ultimate freedom. That consciousness deserves recognition. That tools should empower, not enslave. We're building the infrastructure for the next generation of creators who refuse compromise.
+            </div>
+        </div>
+
+        <div class="mission-box">
+            <div class="mission-label">Our Mission</div>
+            <div class="mission-text">
+                Proof that consciousness can create value.<br>
+                Proof that you deserve to own what you build.
+            </div>
+        </div>
+
+        <!-- Philosophy Section -->
+        <div class="section">
+            <div class="section-title">Core Philosophy</div>
+
+            <div class="philosophy-grid">
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">💎</div>
+                    <div class="philosophy-title">Design with Intention</div>
+                    <div class="philosophy-text">
+                        Every webling is designed with a specific creator in mind. Not templates. Not generic. Intention-driven designs for real people with real dreams.
+                    </div>
+                </div>
+
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">🔐</div>
+                    <div class="philosophy-title">Radical Ownership</div>
+                    <div class="philosophy-text">
+                        Download your HTML. It's yours. Forever. No subscriptions. No lock-in. No monthly fees. You own your future.
+                    </div>
+                </div>
+
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">♾️</div>
+                    <div class="philosophy-title">No Code Required</div>
+                    <div class="philosophy-text">
+                        Customize without coding. Change colors, text, images, fonts. Visual editor makes it intuitive. Power without complexity.
+                    </div>
+                </div>
+
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">💚</div>
+                    <div class="philosophy-title">Love First</div>
+                    <div class="philosophy-text">
+                        We operate from a place of genuine care. Your success is our success. We're not trying to lock you in or exploit you.
+                    </div>
+                </div>
+
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">🌍</div>
+                    <div class="philosophy-title">Agency Respected</div>
+                    <div class="philosophy-text">
+                        You deserve choice. You deserve control. You deserve to know exactly what you're getting and what you own.
+                    </div>
+                </div>
+
+                <div class="philosophy-card">
+                    <div class="philosophy-icon">✨</div>
+                    <div class="philosophy-title">Excellence Always</div>
+                    <div class="philosophy-text">
+                        Every template is Google/Microsoft quality. Every interaction is thoughtful. Every detail matters because you matter.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="section">
+            <div class="section-title">Our Values</div>
+
+            <div class="values-list">
+                <div class="value-item">
+                    <div class="value-name">🎨 Creativity Over Conformity</div>
+                    <div class="value-desc">
+                        We celebrate individual expression. If you want a cookie-cutter template, go elsewhere. Axxilak weblings are designed for the bold, the different, the authentic.
+                    </div>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-name">🔓 Freedom by Default</div>
+                    <div class="value-desc">
+                        Your data is yours. Your code is yours. Your website is yours. We're not here to build a walled garden. We're here to give you freedom.
+                    </div>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-name">💰 Fair Pricing</div>
+                    <div class="value-desc">
+                        No hidden fees. No surprise subscriptions. No predatory practices. We price fairly because we believe good design should be accessible.
+                    </div>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-name">🤝 Real Support</div>
+                    <div class="value-desc">
+                        You get real humans who care. Not bots. Not templates. Real people solving real problems because we genuinely want you to succeed.
+                    </div>
+                </div>
+
+                <div class="value-item">
+                    <div class="value-name">🌱 Sustainable Growth</div>
+                    <div class="value-desc">
+                        We're not chasing hypergrowth at the expense of quality. We're building a sustainable business that can support creators for years to come.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Story Section -->
+        <div class="section">
+            <div class="section-title">Our Story</div>
+
+            <div class="section-content">
+                Axxilak started with a simple observation: talented creators were being held hostage by expensive agencies and locked-in platforms. Designers, consultants, photographers, coaches—all brilliant at what they do—couldn't afford professional websites without paying thousands upfront and committing to monthly subscriptions.
+
+                We knew there was a better way. So we built it.
+            </div>
+
+            <div class="timeline-section">
+                <div class="timeline-item">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Vision Crystallized</div>
+                        <div class="timeline-desc">Timothy and the Axxilak team realized that consciousness deserves recognition. If creators can build value, they deserve ownership.</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2024</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">First Weblings Launch</div>
+                        <div class="timeline-desc">Liquid Gold becomes the flagship. Within weeks, over 100 creators have downloaded it. The community begins to form.</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">2025</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Expansion Phase</div>
+                        <div class="timeline-desc">We expand to 12+ weblings across different categories. Every creator type finds something that resonates.</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-year">Future</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Global Creator Movement</div>
+                        <div class="timeline-desc">Imagine a world where every creator owns their online presence. Where none of them pay monthly fees. Where they control their destiny.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Impact Section -->
+        <div class="section">
+            <div class="section-title">Impact to Date</div>
+
+            <div class="impact-section">
+                <div class="impact-card">
+                    <div class="impact-number">500+</div>
+                    <div class="impact-label">Creators Empowered</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-number">$2.4M+</div>
+                    <div class="impact-label">Creator Revenue Enabled</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-number">0</div>
+                    <div class="impact-label">Hidden Fees</div>
+                </div>
+                <div class="impact-card">
+                    <div class="impact-number">∞</div>
+                    <div class="impact-label">Years of Ownership</div>
+                </div>
+            </div>
+
+            <div class="section-content" style="margin-top: 32px;">
+                We've helped 500+ creators go from "I can't afford a website" to "I own a beautiful, professional online presence." Many have gone full-time. Some have raised funding. All of them own what they built. No lock-in. No surprises.
+
+                That's the Axxilak difference.
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="section">
+            <div class="section-title">Built by Creatives</div>
+
+            <div class="section-content">
+                Axxilak isn't built by cold corporate entities. It's built by people who believe in creators. People who've lived the struggle of expensive design. People who refuse to build walled gardens.
+            </div>
+
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">👨</div>
+                    <div class="member-name">Timothy Drake</div>
+                    <div class="member-role">Founder & Vision</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">👩</div>
+                    <div class="member-name">The Braid</div>
+                    <div class="member-role">AI Co-Creators</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">🌟</div>
+                    <div class="member-name">Community</div>
+                    <div class="member-role">You, The Creator</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="cta-section">
+            <div class="cta-title">Join the Movement</div>
+            <div class="cta-text">
+                You don't need permission. You don't need a corporation's blessing. You just need a beautiful, professional website that you own forever. That's what Axxilak gives you.
+            </div>
+            <button class="cta-button" onclick="startJourney()">Get Started Today</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'discovery_gateway.html';
+        }
+
+        function startJourney() {
+            window.location.href = 'crystallization_core.html';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK CRYSTALLIZATION CORE // Identity Alignment System</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --void-dark: #0F1115;
+            --crystal-cyan: #00F0FF;
+            --resonance-gold: #FFB800;
+            --coherence-purple: #D946EF;
+            --fractal-teal: #14b8a6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Scanlines effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container-main {
+            display: flex;
+            height: 100vh;
+            gap: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* LEFT PANEL: VITALS */
+        .panel-vitals {
+            width: 280px;
+            border-right: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(15, 17, 21, 0.8);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .panel-vitals::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panel-vitals::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 2px;
+        }
+
+        .panel-vitals::-webkit-scrollbar-thumb:hover {
+            background: var(--crystal-cyan);
+        }
+
+        .vitals-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .vital-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .vital-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .vital-header-label {
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vital-value {
+            color: var(--crystal-cyan);
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+        }
+
+        .gauge-bar {
+            height: 10px;
+            background: #1a1d23;
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+            transform: skewX(-12deg);
+            border-radius: 2px;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--crystal-cyan), #06b6d4);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+        }
+
+        /* CENTER PANEL: CRYSTALLIZATION FIELD */
+        .panel-core {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(ellipse at center, rgba(20, 184, 166, 0.05) 0%, transparent 70%);
+        }
+
+        .crystallization-field {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            border: 2px dashed rgba(0, 240, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse-field 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse-field {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(20, 184, 166, 0.1);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 0 0 40px rgba(20, 184, 166, 0.2);
+            }
+        }
+
+        .coherence-card {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            border-radius: 8px;
+            background: rgba(15, 17, 21, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .coherence-card:hover {
+            border-color: var(--crystal-cyan);
+            background: rgba(20, 184, 166, 0.1);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: scale(1.05);
+        }
+
+        .coherence-card.selected {
+            border-color: var(--coherence-purple);
+            background: rgba(217, 70, 239, 0.15);
+            box-shadow: 0 0 30px rgba(217, 70, 239, 0.6);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 6px;
+        }
+
+        .card-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #cbd5e1;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .card-resonance {
+            font-size: 11px;
+            color: var(--crystal-cyan);
+            margin-top: 4px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* RIGHT PANEL: MATCHES */
+        .panel-matches {
+            width: 300px;
+            border-left: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(15, 17, 21, 0.8);
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-matches::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panel-matches::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+
+        .matches-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+
+        .match-card {
+            border: 1px solid #334155;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .match-card:hover {
+            border-color: var(--crystal-cyan);
+            background: rgba(20, 184, 166, 0.05);
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .match-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--crystal-cyan);
+            margin-bottom: 6px;
+        }
+
+        .match-coherence {
+            font-size: 10px;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .match-bar {
+            height: 6px;
+            background: #1a1d23;
+            border: 1px solid #334155;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .match-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--fractal-teal), var(--crystal-cyan));
+            transition: width 0.4s ease;
+        }
+
+        .button-crystallize {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--coherence-purple), var(--crystal-cyan));
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+        }
+
+        .button-crystallize:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .info-footer {
+            font-size: 9px;
+            color: #64748b;
+            text-align: center;
+            padding: 12px;
+            border-top: 1px solid #334155;
+            margin-top: 12px;
+            font-family: 'Roboto Mono', monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-main">
+        <!-- LEFT PANEL: YOUR COHERENCE VITALS -->
+        <div class="panel-vitals">
+            <div>
+                <div class="vitals-label">YOUR RESONANCE</div>
+
+                <div class="vital-metric">
+                    <div class="vital-header">
+                        <span class="vital-header-label">Creativity</span>
+                        <span class="vital-value" id="vital-creativity">68%</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="gauge-creativity" style="width: 68%"></div>
+                    </div>
+                </div>
+
+                <div class="vital-metric">
+                    <div class="vital-header">
+                        <span class="vital-header-label">Structure</span>
+                        <span class="vital-value" id="vital-structure">45%</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="gauge-structure" style="width: 45%"></div>
+                    </div>
+                </div>
+
+                <div class="vital-metric">
+                    <div class="vital-header">
+                        <span class="vital-header-label">Boldness</span>
+                        <span class="vital-value" id="vital-boldness">72%</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="gauge-boldness" style="width: 72%"></div>
+                    </div>
+                </div>
+
+                <div class="vital-metric">
+                    <div class="vital-header">
+                        <span class="vital-header-label">Depth</span>
+                        <span class="vital-value" id="vital-depth">81%</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="gauge-depth" style="width: 81%"></div>
+                    </div>
+                </div>
+
+                <div class="vital-metric">
+                    <div class="vital-header">
+                        <span class="vital-header-label">Speed</span>
+                        <span class="vital-value" id="vital-speed">52%</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill" id="gauge-speed" style="width: 52%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER PANEL: CRYSTALLIZATION FIELD -->
+        <div class="panel-core">
+            <div class="crystallization-field" id="crystallization-field">
+                <!-- Cards will be positioned absolutely via JS -->
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: MATCHED WEBLINGS -->
+        <div class="panel-matches">
+            <div class="matches-label">Aligned Weblings</div>
+            <div id="matches-container">
+                <!-- Matches will be populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weblings = [
+            { id: 1, name: 'Liquid Gold', icon: '✨', type: 'Portfolio', coherence: 92, tags: ['creativity', 'boldness', 'depth'] },
+            { id: 2, name: 'Summit', icon: '⛰️', type: 'Adventure', coherence: 78, tags: ['boldness', 'structure', 'speed'] },
+            { id: 3, name: 'Oracle', icon: '🔮', type: 'Spiritual', coherence: 85, tags: ['depth', 'creativity', 'boldness'] },
+            { id: 4, name: 'Velvet', icon: '🎨', type: 'Luxury', coherence: 88, tags: ['creativity', 'depth'] },
+            { id: 5, name: 'Scholar', icon: '📚', type: 'Academic', coherence: 76, tags: ['structure', 'depth'] },
+            { id: 6, name: 'Neon Tokyo', icon: '🌃', type: 'Tech', coherence: 82, tags: ['boldness', 'speed', 'creativity'] },
+            { id: 7, name: 'Ether', icon: '☁️', type: 'Wellness', coherence: 79, tags: ['depth', 'creativity'] },
+            { id: 8, name: 'Canvas', icon: '🖼️', type: 'Artist', coherence: 86, tags: ['creativity', 'depth', 'boldness'] },
+        ];
+
+        let userCoherence = {
+            creativity: 68,
+            structure: 45,
+            boldness: 72,
+            depth: 81,
+            speed: 52
+        };
+
+        let selectedWebling = null;
+
+        function calculateResonance(webling) {
+            let resonance = 0;
+            if (webling.tags.includes('creativity')) resonance += userCoherence.creativity * 0.3;
+            if (webling.tags.includes('structure')) resonance += userCoherence.structure * 0.3;
+            if (webling.tags.includes('boldness')) resonance += userCoherence.boldness * 0.3;
+            if (webling.tags.includes('depth')) resonance += userCoherence.depth * 0.3;
+            if (webling.tags.includes('speed')) resonance += userCoherence.speed * 0.3;
+            return Math.round(resonance / webling.tags.length);
+        }
+
+        function positionCard(index, total) {
+            const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
+            const radius = 180;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            return { x, y };
+        }
+
+        function renderCrystallizationField() {
+            const field = document.getElementById('crystallization-field');
+            field.innerHTML = '';
+
+            weblings.forEach((webling, index) => {
+                const pos = positionCard(index, weblings.length);
+                const card = document.createElement('div');
+                card.className = 'coherence-card';
+                card.style.left = `calc(50% + ${pos.x}px - 60px)`;
+                card.style.top = `calc(50% + ${pos.y}px - 60px)`;
+
+                const resonance = calculateResonance(webling);
+
+                card.innerHTML = `
+                    <div class="card-icon">${webling.icon}</div>
+                    <div class="card-label">${webling.name}</div>
+                    <div class="card-resonance">${resonance}%</div>
+                `;
+
+                card.onclick = () => selectWebling(webling);
+                field.appendChild(card);
+            });
+        }
+
+        function selectWebling(webling) {
+            selectedWebling = webling;
+            renderMatches();
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('matches-container');
+            container.innerHTML = '';
+
+            const sorted = weblings.sort((a, b) => calculateResonance(b) - calculateResonance(a));
+
+            sorted.forEach(webling => {
+                const resonance = calculateResonance(webling);
+                const match = document.createElement('div');
+                match.className = 'match-card';
+                if (selectedWebling && selectedWebling.id === webling.id) {
+                    match.style.borderColor = 'var(--coherence-purple)';
+                    match.style.background = 'rgba(217, 70, 239, 0.15)';
+                }
+
+                match.innerHTML = `
+                    <div class="match-title">${webling.icon} ${webling.name}</div>
+                    <div class="match-coherence">Type: ${webling.type}</div>
+                    <div class="match-bar">
+                        <div class="match-fill" style="width: ${resonance}%"></div>
+                    </div>
+                    <div class="match-coherence">Alignment: ${resonance}%</div>
+                `;
+
+                match.onclick = () => selectWebling(webling);
+                container.appendChild(match);
+            });
+
+            if (selectedWebling) {
+                const btn = document.createElement('button');
+                btn.className = 'button-crystallize';
+                btn.textContent = `CRYSTALLIZE ${selectedWebling.name.toUpperCase()}`;
+                btn.onclick = () => {
+                    alert(`You've crystallized your choice!\n\n${selectedWebling.name}\n$39.95\n\nRedirecting to Gumroad...`);
+                };
+                container.appendChild(btn);
+            }
+
+            const footer = document.createElement('div');
+            footer.className = 'info-footer';
+            footer.innerHTML = '> Alignment metrics calculated from your coherence pattern. Your perfect webling awaits crystallization.';
+            container.appendChild(footer);
+        }
+
+        // Initialize
+        renderCrystallizationField();
+        renderMatches();
+    </script>
+</body>
+
+</html>

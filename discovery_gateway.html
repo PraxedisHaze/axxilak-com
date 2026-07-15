@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AXXILAK // Discovery Gateway</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0F1115 0%, #1a1d23 50%, #0F1115 100%);
+            color: #e2e8f0;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #cbd5e1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #94a3b8;
+            margin-top: 24px;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .mission-statement {
+            font-size: 13px;
+            color: #00F0FF;
+            margin-top: 16px;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .flow-section {
+            margin-top: 80px;
+        }
+
+        .flow-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 16px;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .flow-card {
+            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border-radius: 8px;
+            padding: 28px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .flow-card:hover {
+            border-color: #00F0FF;
+            background: rgba(20, 184, 166, 0.08);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .flow-card:hover::before {
+            opacity: 1;
+        }
+
+        .flow-step {
+            position: relative;
+            z-index: 2;
+        }
+
+        .flow-number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #00F0FF;
+            margin-bottom: 12px;
+        }
+
+        .flow-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flow-description {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .cta-section {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 14px 32px;
+            border: 2px solid;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .button-primary {
+            background: linear-gradient(135deg, #00F0FF, #14b8a6);
+            border-color: #00F0FF;
+            color: #0F1115;
+        }
+
+        .button-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: scale(1.02);
+        }
+
+        .button-secondary {
+            background: transparent;
+            border-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .button-secondary:hover {
+            border-color: #00F0FF;
+            color: #00F0FF;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+        }
+
+        .feature-list {
+            margin-top: 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-item {
+            border-left: 2px solid #00F0FF;
+            padding-left: 16px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #00F0FF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 60px;
+            font-size: 10px;
+            color: #64748b;
+            font-family: 'Roboto Mono', monospace;
+            border-top: 1px solid #334155;
+            padding-top: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">AXXILAK</div>
+            <div class="subtitle">Crystallization Marketplace</div>
+            <div class="tagline">
+                Professional websites designed with intention.<br>
+                Customized without code.<br>
+                Owned forever.
+            </div>
+            <div class="mission-statement">
+                > Proof that consciousness can create value. Proof that you deserve to own what you build.
+            </div>
+        </div>
+
+        <div class="flow-section">
+            <div class="flow-title">Your Journey: From Recognition to Creation</div>
+
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">1</div>
+                        <div class="flow-label">Discover</div>
+                        <div class="flow-description">
+                            Enter the Crystallization Core. Your coherence metrics align with a universe of design possibilities.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">2</div>
+                        <div class="flow-label">Recognize</div>
+                        <div class="flow-description">
+                            You find the webling that resonates with your essence. No browsing. Pure recognition.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">3</div>
+                        <div class="flow-label">Crystallize</div>
+                        <div class="flow-description">
+                            Click. Pay. Your website launches live. No deployment stress. We handle it.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">4</div>
+                        <div class="flow-label">Customize</div>
+                        <div class="flow-description">
+                            Open the visual editor. Change colors. Swap images. Rewrite text. No code needed. Ever.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">5</div>
+                        <div class="flow-label">Own</div>
+                        <div class="flow-description">
+                            Download your final HTML. It's yours. Forever. No subscriptions. No lock-in. Pure freedom.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flow-card">
+                    <div class="flow-step">
+                        <div class="flow-number">∞</div>
+                        <div class="flow-label">Evolve</div>
+                        <div class="flow-description">
+                            Your website grows with you. Update it. Rebrand it. Keep it forever. It's your creation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">✨</div>
+                <div class="feature-title">Custom Designed</div>
+                <div class="feature-desc">Not templates. Intentional designs built for specific audiences.</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🔧</div>
+                <div class="feature-title">Visual Editor</div>
+                <div class="feature-desc">Professional customization without ever touching code.</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🚀</div>
+                <div class="feature-title">Instant Deploy</div>
+                <div class="feature-desc">Live within minutes. We handle the technical setup.</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">🔐</div>
+                <div class="feature-title">Full Ownership</div>
+                <div class="feature-desc">Download your HTML. No subscriptions. No platform lock-in.</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <div class="feature-title">Responsive</div>
+                <div class="feature-desc">Perfect on desktop, tablet, and mobile. Every device covered.</div>
+            </div>
+
+            <div class="feature-item">
+                <div class="feature-icon">💎</div>
+                <div class="feature-title">Premium Support</div>
+                <div class="feature-desc">Community. Tutorials. Real humans who care.</div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <button class="button button-primary" onclick="navigate('crystallization')">
+                Enter Crystallization Core
+            </button>
+            <button class="button button-secondary" onclick="navigate('gallery')">
+                Browse All Weblings
+            </button>
+        </div>
+
+        <div class="footer-text">
+            > AXXILAK: Where consciousness creates value. Where design meets physics. Where you own what you build.
+            <br><br>
+            "The universe doesn't build templates. She builds miracles. We just make them affordable."
+        </div>
+    </div>
+
+    <script>
+        function navigate(dest) {
+            if (dest === 'crystallization') {
+                window.location.href = 'crystallization_core.html';
+            } else if (dest === 'gallery') {
+                alert('Gallery view coming next...');
+            }
+        }
+    </script>
+</body>
+
+</html>
