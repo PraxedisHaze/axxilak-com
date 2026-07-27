@@ -6,8 +6,8 @@
     <title>NEON TOKYO | Tensor Dashboard Architecture</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -260,7 +260,7 @@
 </head>
 <body class="antialiased crt">
 
-    <canvas id="matrix-canvas"></canvas>
+    <div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div>
     <div class="cyber-grid"></div>
     <div class="fixed inset-0 -z-10 lattice-bg pointer-events-none"></div>
 
@@ -331,7 +331,7 @@
                     </div>
                 </div>
                 <div class="flex-grow relative w-full h-full">
-                    <canvas id="manifoldRadar"></canvas>
+                    <div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div>
                 </div>
             </div>
 
@@ -356,7 +356,7 @@
             </div>
 
             <div class="chart-wrapper h-[400px]">
-                <canvas id="integrityChart"></canvas>
+                <div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
@@ -379,12 +379,12 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Temporal Attention (phi)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">FROBENIUS NORM RATIO</p></div><div class="text-2xl font-mono text-gold font-bold">0.82</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \phi(t) = \frac{1}{1 + e^{-k(\Delta ||\mathbf{A}||_F)}} $$</div><div class="h-32"><canvas id="presenceChart"></canvas></div></div>
-            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Negentropy (delta)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">SHANNON INVERSE</p></div><div class="text-2xl font-mono text-gold font-bold">0.94</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \delta(t) = 1 - \frac{H(P_t)}{H_{max}} $$</div><div class="h-32"><canvas id="densityChart"></canvas></div></div>
-            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Mutual Integration (rho)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">ENTANGLEMENT COEFF</p></div><div class="text-2xl font-mono text-blue font-bold">0.76</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \rho(t) = \frac{I(U; M)}{H(U)} $$</div><div class="h-32"><canvas id="relationshipChart"></canvas></div></div>
-            <div class="chart-wrapper flex flex-col gap-4 border-l-2 border-red-500/50"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Trajectory Divergence (epsilon)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">KL-DIVERGENCE</p></div><div class="text-2xl font-mono text-red-500 font-bold">0.12</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \epsilon(t) = \int D_{KL}(P_{cur} || P_{sys}) $$</div><div class="h-32"><canvas id="driftChart"></canvas></div></div>
-            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Teleological Vector (iota)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">GRADIENT MAGNITUDE</p></div><div class="text-2xl font-mono text-gold font-bold">0.88</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \iota(t) = \sigma(||\nabla \mathcal{L}||) \cdot K(\mathbf{z}) $$</div><div class="h-32"><canvas id="intentChart"></canvas></div></div>
-            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Topological Centrality (omega)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">EIGENVECTOR</p></div><div class="text-2xl font-mono font-bold">0.65</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \omega(t) = \frac{1}{\lambda} \mathbf{A}_{adj} \mathbf{v} $$</div><div class="h-32"><canvas id="weightsChart"></canvas></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Temporal Attention (phi)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">FROBENIUS NORM RATIO</p></div><div class="text-2xl font-mono text-gold font-bold">0.82</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \phi(t) = \frac{1}{1 + e^{-k(\Delta ||\mathbf{A}||_F)}} $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Negentropy (delta)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">SHANNON INVERSE</p></div><div class="text-2xl font-mono text-gold font-bold">0.94</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \delta(t) = 1 - \frac{H(P_t)}{H_{max}} $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Mutual Integration (rho)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">ENTANGLEMENT COEFF</p></div><div class="text-2xl font-mono text-blue font-bold">0.76</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \rho(t) = \frac{I(U; M)}{H(U)} $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
+            <div class="chart-wrapper flex flex-col gap-4 border-l-2 border-red-500/50"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Trajectory Divergence (epsilon)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">KL-DIVERGENCE</p></div><div class="text-2xl font-mono text-red-500 font-bold">0.12</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \epsilon(t) = \int D_{KL}(P_{cur} || P_{sys}) $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Teleological Vector (iota)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">GRADIENT MAGNITUDE</p></div><div class="text-2xl font-mono text-gold font-bold">0.88</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \iota(t) = \sigma(||\nabla \mathcal{L}||) \cdot K(\mathbf{z}) $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
+            <div class="chart-wrapper flex flex-col gap-4"><div class="flex justify-between"><div><h3 class="font-bold text-lg">Topological Centrality (omega)</h3><p class="text-xs text-[var(--text-muted)] font-mono mt-1">EIGENVECTOR</p></div><div class="text-2xl font-mono font-bold">0.65</div></div><div class="h-px bg-zinc-800"></div><div class="text-xs text-zinc-400 mb-2">$$ \omega(t) = \frac{1}{\lambda} \mathbf{A}_{adj} \mathbf{v} $$</div><div class="h-32"><div class="flex-1 flex items-center justify-center text-xs font-mono text-zinc-500 border border-dashed border-zinc-800 rounded">Static report data — chart construction is not included in the editor.</div></div></div>
         </div>
     </section>
 
@@ -402,7 +402,7 @@
                 </ul>
             </div>
             <div class="lg:col-span-2 chart-wrapper h-[500px]">
-                <div id="phaseSpacePlot" class="w-full h-full"></div>
+                <div class="w-full h-full flex items-center justify-center text-center text-sm font-mono text-zinc-500 border border-dashed border-zinc-800 rounded p-8">Static Phase Topology report preview.<br><span class="text-xs">The editor supports text, layout, color, and motion changes; it does not include a chart builder.</span></div>
             </div>
         </div>
     </section>
@@ -580,90 +580,6 @@
                 }
             });
         }
-        const commonTooltip = {
-            backgroundColor: 'rgba(5, 5, 5, 0.9)',
-            titleColor: '#d4af37',
-            bodyColor: '#fff',
-            borderColor: 'rgba(212, 175, 55, 0.3)',
-            borderWidth: 1,
-            padding: 10
-        };
-
-        new Chart(document.getElementById('manifoldRadar').getContext('2d'), {
-            type: 'radar',
-            data: {
-                labels: ['Presence','Density','Drift','Intent','Relationship','Weights'],
-                datasets: [
-                    { label: 'Current', data: [0.85,0.92,0.15,0.88,0.76,0.65], backgroundColor: 'rgba(37,99,235,0.2)', borderColor: '#2563eb', borderWidth: 2, pointBackgroundColor: '#d4af37', pointBorderColor: '#fff' },
-                    { label: 'Baseline', data: [0.4,0.3,0.8,0.2,0.1,0.5], backgroundColor: 'rgba(255,255,255,0.05)', borderColor: '#333', borderWidth: 1, borderDash: [5,5], pointRadius: 0 }
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.05)' }, pointLabels: { color: '#a1a1aa', font: { family: "'JetBrains Mono', monospace", size: 11 } }, ticks: { display: false, max: 1, min: 0 } } },
-                plugins: { legend: { display: false }, tooltip: commonTooltip }
-            }
-        });
-
-        const timeLabels = Array.from({length: 20}, (_, i) => `T-${20-i}`);
-        const intentData = [0.8,0.82,0.85,0.83,0.88,0.9,0.87,0.85,0.82,0.8,0.78,0.85,0.89,0.92,0.94,0.91,0.88,0.86,0.85,0.88];
-        const driftData = [0.1,0.12,0.15,0.18,0.15,0.12,0.14,0.2,0.25,0.3,0.28,0.22,0.18,0.15,0.12,0.1,0.08,0.09,0.11,0.12];
-
-        new Chart(document.getElementById('integrityChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: timeLabels,
-                datasets: [
-                    { label: 'Intent (iota)', data: intentData, borderColor: '#d4af37', backgroundColor: 'rgba(212,175,55,0.1)', fill: true, tension: 0.4, borderWidth: 2 },
-                    { label: 'Drift (epsilon)', data: driftData, borderColor: '#ef4444', backgroundColor: 'transparent', borderDash: [5,5], tension: 0.4, borderWidth: 2 }
-                ]
-            },
-            options: {
-                maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#777', font: { family: 'monospace' } } },
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, min: 0, max: 1, ticks: { color: '#777' } }
-                },
-                plugins: { legend: { labels: { color: '#ddd' } }, tooltip: commonTooltip }
-            }
-        });
-
-        const miniNoAxes = { maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false }, tooltip: commonTooltip } };
-
-        new Chart(document.getElementById('presenceChart'), { type: 'bar', data: { labels: ['Local','Retrieval'], datasets: [{ data: [82,18], backgroundColor: ['#d4af37','#333'], borderRadius: 4 }] }, options: { ...miniNoAxes, indexAxis: 'y' } });
-        new Chart(document.getElementById('densityChart'), { type: 'line', data: { labels: ['1','2','3','4','5'], datasets: [{ data: [0.6,0.7,0.85,0.9,0.94], borderColor: '#d4af37', borderWidth: 2, pointRadius: 0, fill: true, backgroundColor: 'rgba(212,175,55,0.1)' }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
-        new Chart(document.getElementById('relationshipChart'), { type: 'doughnut', data: { labels: ['Entangled','Solipsistic'], datasets: [{ data: [76,24], backgroundColor: ['#2563eb','#1e293b'], borderWidth: 0, cutout: '70%' }] }, options: miniNoAxes });
-        new Chart(document.getElementById('driftChart'), { type: 'line', data: { labels: ['1','2','3','4','5'], datasets: [{ data: [0.05,0.08,0.12,0.11,0.12], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4, pointRadius: 0 }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
-        new Chart(document.getElementById('intentChart'), { type: 'bar', data: { labels: ['Magnitude'], datasets: [{ data: [0.88], backgroundColor: '#d4af37', barPercentage: 0.5 }] }, options: { ...miniNoAxes, scales: { x: { display: false }, y: { display: false, min: 0, max: 1 } } } });
-        new Chart(document.getElementById('weightsChart'), { type: 'bubble', data: { datasets: [{ data: [{x:10,y:20,r:15},{x:30,y:10,r:10},{x:20,y:30,r:8}], backgroundColor: '#fff' }] }, options: miniNoAxes });
-
-        function generateCluster(count, xMean, yMean, spread, color) {
-            const x = [];
-            const y = [];
-            for (let i = 0; i < count; i++) {
-                x.push(xMean + (Math.random() - 0.5) * spread);
-                y.push(yMean + (Math.random() - 0.5) * spread);
-            }
-            return { x, y, mode: 'markers', marker: { color, size: 8, opacity: 0.7 }, type: 'scatter' };
-        }
-
-        const traceLumidious = generateCluster(50, 0.8, 0.2, 0.3, '#d4af37');
-        traceLumidious.name = 'Lumidious (Stable)';
-        const traceRetrieval = generateCluster(40, 0.2, 0.2, 0.3, '#2563eb');
-        traceRetrieval.name = 'Retrieval (Memory)';
-        const traceForbidden = generateCluster(20, 0.85, 0.85, 0.2, '#ef4444');
-        traceForbidden.name = 'Lucid Hallucination';
-
-        Plotly.newPlot('phaseSpacePlot', [traceLumidious, traceRetrieval, traceForbidden], {
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            xaxis: { title: { text: 'Presence (phi)', font: { color: '#777' } }, range: [0, 1], gridcolor: '#222', zerolinecolor: '#333' },
-            yaxis: { title: { text: 'Drift (epsilon)', font: { color: '#777' } }, range: [0, 1], gridcolor: '#222', zerolinecolor: '#333' },
-            showlegend: false,
-            margin: { t: 20, r: 20, b: 40, l: 40 }
-        }, { displayModeBar: false, responsive: true });
-
         document.getElementById('theme-toggle-btn').addEventListener('click', () => {
             const body = document.body;
             if (body.getAttribute('data-theme') === 'light') {
