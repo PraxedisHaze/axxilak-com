@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,6 +46,33 @@
             --accent: var(--accent-gold);
         }
 
+        /* Light mode keeps the same structure, but every readable surface stays readable. */
+        [data-theme="light"] [class~="bg-[#0a0a0a]"],
+        [data-theme="light"] [class~="bg-zinc-900"],
+        [data-theme="light"] [class~="bg-zinc-900/50"],
+        [data-theme="light"] [class~="bg-black"] {
+            background-color: #ffffff !important;
+        }
+        [data-theme="light"] [class~="bg-black/60"] {
+            background-color: rgba(255, 255, 255, 0.92) !important;
+        }
+        [data-theme="light"] [class~="bg-zinc-800"],
+        [data-theme="light"] [class~="bg-zinc-800/30"] {
+            background-color: #e5e7eb !important;
+        }
+        [data-theme="light"] .text-zinc-300,
+        [data-theme="light"] .text-zinc-400,
+        [data-theme="light"] .text-zinc-500,
+        [data-theme="light"] .text-zinc-600 {
+            color: #374151 !important;
+        }
+        [data-theme="light"] .text-blue-300 { color: #1e40af !important; }
+        [data-theme="light"] .border-zinc-800,
+        [data-theme="light"] .border-zinc-900 { border-color: #d1d5db !important; }
+        [data-theme="light"] footer a:hover { color: #111827 !important; }
+
+        html { scroll-behavior: smooth; }
+
         body {
             background-color: var(--bg);
             color: var(--text-main);
@@ -80,6 +106,29 @@
             z-index: -3;
             pointer-events: none;
             opacity: 0.35;
+        }
+
+        /* APEX Particle Dimmer: visitors can bring the moving visual layers all the way down to Off. */
+        #matrix-canvas,
+        .cyber-grid,
+        .crt::before,
+        .neon-glitch {
+            transition: opacity 0.35s ease, text-shadow 0.35s ease;
+        }
+
+        #matrix-canvas { opacity: var(--matrix-opacity, 0.16); }
+        .cyber-grid { opacity: var(--grid-opacity, 0.35); }
+        .crt::before { opacity: var(--crt-opacity, 0.42); }
+        body.motion-off .cyber-grid,
+        body.motion-off .neon-glitch { animation-play-state: paused; }
+        body.motion-off .neon-glitch {
+            text-shadow: 0 0 6px rgba(255, 0, 255, 0.12), 0 0 8px rgba(0, 255, 255, 0.12);
+        }
+
+        .particle-dimmer {
+            accent-color: var(--accent-gold);
+            cursor: pointer;
+            width: 4.5rem;
         }
 
         @keyframes grid-move {
@@ -206,7 +255,7 @@
             box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.35) !important;
             pointer-events: auto !important;
         }
-        body.edit-mode { cursor: none !important; }
+        body.edit-mode { cursor: default !important; }
     </style>
 </head>
 <body class="antialiased crt">
@@ -216,15 +265,25 @@
     <div class="fixed inset-0 -z-10 lattice-bg pointer-events-none"></div>
 
     <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-cyan-400/20 bg-black/60">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="#" class="logo-link flex items-center gap-3" data-ax-locked="true">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 min-h-20 flex flex-wrap items-center gap-2 sm:justify-between">
+            <a href="#" class="logo-link flex items-center gap-3 mr-auto" data-ax-locked="true">
                 <div class="logo-square"></div>
                 <span class="font-bold text-xl tracking-tight neon-glitch" data-text="NEON TOKYO">NEON TOKYO<span class="text-gold">.</span></span>
             </a>
 
-            <div class="flex items-center gap-5 text-xs font-mono uppercase tracking-wider">
-                <button id="theme-toggle-btn" class="px-3 py-2 border border-white/20 hover:border-[var(--accent-gold)] transition">Theme</button>
-                <button id="edit-mode-btn" class="px-3 py-2 border border-[var(--accent-gold)] text-[var(--accent-gold)] hover:bg-[var(--accent-gold)]/10 transition">Edit</button>
+            <div class="flex w-full sm:w-auto items-center justify-end gap-1 sm:gap-2 text-[10px] sm:text-xs font-mono uppercase tracking-wider">
+                <a href="#manifold" class="hidden xl:inline-flex px-2 py-2 border border-transparent hover:border-white/20 transition">01 Manifold</a>
+                <a href="#integrity" class="hidden xl:inline-flex px-2 py-2 border border-transparent hover:border-white/20 transition">02 Limit</a>
+                <a href="#metrics" class="hidden xl:inline-flex px-2 py-2 border border-transparent hover:border-white/20 transition">03 Metrics</a>
+                <a href="#phase-space" class="hidden xl:inline-flex px-2 py-2 border border-transparent hover:border-white/20 transition">04 Topology</a>
+                <a href="#contact" class="px-2 sm:px-3 py-2 border border-transparent hover:border-[var(--accent-gold)] transition">Contact</a>
+                <div class="flex items-center gap-1 px-1 sm:px-2 py-2 border border-white/20" title="Particle intensity slider" data-ax-locked="true">
+                    <label for="particle-dimmer" class="hidden sm:inline text-[10px] text-zinc-400">Motion</label>
+                    <input type="range" id="particle-dimmer" class="particle-dimmer" min="0" max="100" value="100" aria-label="Visual motion intensity">
+                    <span id="dimmer-value" class="w-9 text-[10px] text-[var(--accent-gold)]">Full</span>
+                </div>
+                <button id="theme-toggle-btn" type="button" class="px-2 sm:px-3 py-2 border border-white/20 hover:border-[var(--accent-gold)] transition">Theme</button>
+                <button id="edit-mode-btn" type="button" class="px-2 sm:px-3 py-2 border border-[var(--accent-gold)] text-[var(--accent-gold)] hover:bg-[var(--accent-gold)]/10 transition">Edit</button>
             </div>
         </div>
     </nav>
@@ -348,17 +407,49 @@
         </div>
     </section>
 
-    <footer class="py-12 border-t border-zinc-900 bg-black text-center">
-        <div class="max-w-2xl mx-auto px-6">
-            <div class="text-gold font-mono font-bold text-lg mb-2">NEON TOKYO / SNIDER DYNAMICS</div>
-            <p class="text-zinc-600 text-xs uppercase tracking-widest mb-6">Formal Specification v1.0 • Axxilak Sovereign</p>
-            <nav class="flex flex-col items-center gap-2 text-xs font-mono">
-                <a href="https://axxilak.com" class="hover:text-white transition-colors" data-ax-locked="true">Axxilak.com</a>
-                <a href="/free-stuff.html" class="hover:text-white transition-colors" data-ax-locked="true">Free Stuff</a>
-            </nav>
+    <footer id="contact" class="scroll-mt-28 border-t border-zinc-900 bg-black px-6 py-24 text-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="max-w-2xl mb-20">
+                <div class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Contact Snider Dynamics</div>
+                <h2 class="text-3xl font-bold mb-4">Start a conversation.</h2>
+                <p class="text-[var(--text-muted)] leading-relaxed mb-8">Tell us what you are building. Submitting opens an email addressed to <a href="mailto:contact@axxilak.com" class="text-gold hover:underline">contact@axxilak.com</a>.</p>
+                <form action="mailto:contact@axxilak.com" method="POST" enctype="text/plain" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" name="name" placeholder="Full Name" autocomplete="name" required class="bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent-gold)] transition text-sm text-white">
+                    <input type="email" name="email" placeholder="Email Address" autocomplete="email" required class="bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent-gold)] transition text-sm text-white">
+                    <textarea name="message" rows="5" placeholder="What are you working on?" required class="md:col-span-2 bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent-gold)] transition text-sm text-white"></textarea>
+                    <button type="submit" class="md:col-span-2 border border-[var(--accent-gold)] bg-[var(--accent-gold)]/10 px-5 py-4 text-sm font-bold text-[var(--accent-gold)] hover:bg-[var(--accent-gold)]/20 transition">Compose Email</button>
+                </form>
+                <p class="mt-4 text-xs text-zinc-500">No message is claimed sent until you confirm it in your email application.</p>
+                <div class="mt-8 border-t border-zinc-900 pt-6">
+                    <div class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-3">Share Neon Tokyo</div>
+                    <div class="flex flex-wrap gap-3">
+                        <a data-share="x" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs font-mono text-zinc-300 hover:border-[var(--accent-gold)] hover:text-gold transition"><img src="icons/social/x-white.png" alt="" aria-hidden="true" class="h-5 w-auto object-contain"><span>Share on X</span></a>
+                        <a data-share="facebook" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs font-mono text-zinc-300 hover:border-[var(--accent-gold)] hover:text-gold transition"><img src="icons/social/facebook-primary.png" alt="" aria-hidden="true" class="h-5 w-auto object-contain"><span>Share on Facebook</span></a>
+                        <a data-share="linkedin" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs font-mono text-zinc-300 hover:border-[var(--accent-gold)] hover:text-gold transition"><img src="icons/social/linkedin-in.png" alt="" aria-hidden="true" class="h-5 w-auto object-contain"><span>Share on LinkedIn</span></a>
+                        <button type="button" id="copy-page-link" class="inline-flex items-center gap-2 border border-zinc-700 px-4 py-2 text-xs font-mono text-zinc-300 hover:border-[var(--accent-gold)] hover:text-gold transition">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg><span>Copy Link</span>
+                        </button>
+                    </div>
+                    <p id="share-status" class="mt-3 min-h-5 text-xs text-zinc-500" aria-live="polite"></p>
+                </div>
+            </div>
+
+            <div class="border-t border-zinc-900 pt-12 flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+                <div>
+                    <div class="text-gold font-mono font-bold text-lg mb-2">NEON TOKYO / SNIDER DYNAMICS</div>
+                    <p class="text-zinc-600 text-xs uppercase tracking-widest">Formal Specification v1.0 • Axxilak Sovereign</p>
+                </div>
+                <nav aria-label="Page sections" class="grid grid-cols-2 gap-x-10 gap-y-3 text-xs font-mono sm:grid-cols-3">
+                    <a href="#manifold" class="text-zinc-400 hover:text-gold transition-colors">01. Snider Manifold</a>
+                    <a href="#integrity" class="text-zinc-400 hover:text-gold transition-colors">02. Snider Limit</a>
+                    <a href="#metrics" class="text-zinc-400 hover:text-gold transition-colors">03. Metric Formalization</a>
+                    <a href="#phase-space" class="text-zinc-400 hover:text-gold transition-colors">04. Phase Topology</a>
+                    <a href="https://axxilak.com" class="text-zinc-400 hover:text-gold transition-colors" data-ax-locked="true">Axxilak.com</a>
+                    <a href="/free-stuff.html" class="text-zinc-400 hover:text-gold transition-colors" data-ax-locked="true">Free Stuff</a>
+                </nav>
+            </div>
         </div>
     </footer>
-
     <script>
         const matrixCanvas = document.getElementById('matrix-canvas');
         const matrixCtx = matrixCanvas.getContext('2d');
@@ -391,14 +482,104 @@
         }
 
         const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (!reduceMotion) {
+        const particleDimmer = document.getElementById('particle-dimmer');
+        const dimmerValue = document.getElementById('dimmer-value');
+        const cyberGrid = document.querySelector('.cyber-grid');
+
+        function startMatrix() {
+            if (reduceMotion || matrixTimer) return;
+            matrixCanvas.style.display = '';
             resizeMatrix();
             matrixTimer = window.setInterval(drawMatrix, 55);
-            window.addEventListener('resize', resizeMatrix);
-        } else {
-            matrixCanvas.style.display = 'none';
         }
 
+        function stopMatrix() {
+            if (matrixTimer) {
+                window.clearInterval(matrixTimer);
+                matrixTimer = null;
+            }
+        }
+
+        function setParticleIntensity(rawValue, persist = true) {
+            const value = Math.max(0, Math.min(100, Number.parseInt(rawValue, 10) || 0));
+            const intensity = value / 100;
+            document.documentElement.style.setProperty('--matrix-opacity', String(0.16 * intensity));
+            document.documentElement.style.setProperty('--grid-opacity', String(0.35 * intensity));
+            document.documentElement.style.setProperty('--crt-opacity', String(0.42 * intensity));
+            document.body.classList.toggle('motion-off', value === 0);
+
+            if (value === 0) {
+                stopMatrix();
+                matrixCanvas.style.display = 'none';
+            } else {
+                startMatrix();
+            }
+
+            if (particleDimmer) {
+                particleDimmer.value = String(value);
+                particleDimmer.setAttribute('aria-valuetext', value === 0 ? 'Off' : value === 100 ? 'Full' : `${value}%`);
+            }
+            if (dimmerValue) {
+                dimmerValue.textContent = value === 0 ? 'Off' : value === 100 ? 'Full' : `${value}%`;
+                dimmerValue.classList.toggle('text-zinc-500', value === 0);
+                dimmerValue.classList.toggle('text-[var(--accent-gold)]', value !== 0);
+            }
+            if (persist) {
+                try {
+                    localStorage.setItem('neon-tokyo-particle-intensity', String(value));
+                } catch (_) {
+                    // The dimmer remains usable when local storage is unavailable.
+                }
+            }
+        }
+
+        let savedIntensity = 100;
+        if (!reduceMotion) {
+            try {
+                const stored = localStorage.getItem('neon-tokyo-particle-intensity');
+                const legacyMotion = localStorage.getItem('neon-tokyo-motion');
+                if (stored !== null && /^\d+$/.test(stored)) {
+                    savedIntensity = Math.max(0, Math.min(100, Number.parseInt(stored, 10)));
+                } else if (legacyMotion === 'faded') {
+                    savedIntensity = 0;
+                }
+            } catch (_) {
+                // Default to the full visual treatment when storage is unavailable.
+            }
+            window.addEventListener('resize', resizeMatrix);
+        }
+        setParticleIntensity(reduceMotion ? 0 : savedIntensity, false);
+
+        if (particleDimmer) {
+            particleDimmer.addEventListener('input', (event) => setParticleIntensity(event.target.value));
+            if (reduceMotion) particleDimmer.disabled = true;
+        }
+
+        const shareMessage = 'Explore Neon Tokyo — a Snider Dynamics interactive specification.';
+        const pageUrl = () => window.location.href;
+        const shareDestinations = {
+            x: (url) => `https://x.com/intent/post?text=${encodeURIComponent(shareMessage)}&url=${encodeURIComponent(url)}`,
+            facebook: (url) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+            linkedin: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
+        };
+
+        document.querySelectorAll('[data-share]').forEach((link) => {
+            const destination = shareDestinations[link.dataset.share];
+            if (destination) link.href = destination(pageUrl());
+        });
+
+        const copyPageLink = document.getElementById('copy-page-link');
+        const shareStatus = document.getElementById('share-status');
+        if (copyPageLink && shareStatus) {
+            copyPageLink.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(pageUrl());
+                    shareStatus.textContent = 'Link copied.';
+                } catch (_) {
+                    shareStatus.textContent = `Copy this link: ${pageUrl()}`;
+                }
+            });
+        }
         const commonTooltip = {
             backgroundColor: 'rgba(5, 5, 5, 0.9)',
             titleColor: '#d4af37',
@@ -503,7 +684,7 @@
     <script src="../../coherence_engine.js"></script>
     <script type="module">
         window.WEBLAND_NAME = 'neon-tokyo';
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260726-contrast6';
         import { HandlerDispatcher } from './js/handler-dispatcher.js';
 
         const dispatcher = new HandlerDispatcher();

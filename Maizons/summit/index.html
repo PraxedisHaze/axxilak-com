@@ -90,7 +90,7 @@
     
         /* Editor Overrides */
         .apex-highlighted { outline: 3px solid #00ff00 !important; outline-offset: -3px !important; box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.4) !important; pointer-events: auto !important; }
-        body.edit-mode { cursor: none !important; }
+        body.edit-mode { cursor: default !important; }
     </style>
     
 </head>
@@ -280,7 +280,7 @@
 
     <script type="module">
         window.WEBLAND_NAME = 'summit';
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260726-contrast6';
         import { HandlerDispatcher } from './js/handler-dispatcher.js';
         const dispatcher = new HandlerDispatcher();
         let inspector = null;

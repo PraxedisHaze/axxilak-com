@@ -1,6 +1,6 @@
 import { MagnifyingGlass } from './lens-ui.js';
-import ElementDetector from './elementDetector.js';
-import { ToolPalette } from './tool-palette.js';
+import ElementDetector from './elementDetector.js?v=editor-20260726-contrast6';
+import { ToolPalette } from './tool-palette.js?v=editor-20260726-contrast6';
 
 export default class MagnifyingGlassInspector {
     constructor(weblingName = null) {
@@ -58,7 +58,7 @@ export default class MagnifyingGlassInspector {
             background: rgba(0, 0, 0, 0.3);
             display: none;
             pointer-events: auto;
-            cursor: not-allowed;
+            cursor: default;
         `;
         document.body.appendChild(this.lockdownOverlay);
 
@@ -84,6 +84,21 @@ export default class MagnifyingGlassInspector {
             min-width: 320px;
         `;
         document.body.appendChild(this.controlToolbar);
+        // Persistent, locked maker stamp: visible and clickable, but never editable through the page editor.
+        const brandStamp = document.createElement('a');
+        brandStamp.id = 'axxilak-maker-stamp';
+        brandStamp.href = 'https://axxilak.com';
+        brandStamp.target = '_blank';
+        brandStamp.rel = 'noopener noreferrer';
+        brandStamp.title = 'Visit Axxilak.com';
+        brandStamp.setAttribute('aria-label', 'Visit Axxilak.com');
+        brandStamp.setAttribute('data-anothen-internal', '');
+        brandStamp.setAttribute('data-ax-locked', 'true');
+        brandStamp.style.cssText = 'position:fixed;left:20px;bottom:20px;z-index:1000;display:inline-flex;align-items:center;gap:8px;color:rgba(250,250,250,.72);font:700 10px/1 JetBrains Mono,monospace;letter-spacing:.16em;text-decoration:none;text-transform:uppercase;transition:color 160ms ease,opacity 160ms ease;';
+        brandStamp.innerHTML = '<span aria-hidden="true" style="color:#d4af37;font-size:15px;line-height:1;">◆</span><span>AXXILAK<span style="color:#d4af37;">.COM</span></span>';
+        brandStamp.addEventListener('mouseenter', () => { brandStamp.style.color = '#ffffff'; });
+        brandStamp.addEventListener('mouseleave', () => { brandStamp.style.color = 'rgba(250,250,250,.72)'; });
+        document.body.appendChild(brandStamp);
 
         // PRINT MEDIA: Hide all editor UI when printing
         const printStylesheet = document.createElement('style');
@@ -216,6 +231,14 @@ export default class MagnifyingGlassInspector {
             }
             if (property === 'toggleLabels') {
                 value ? this.showLatticeLabels() : this.clearLatticeLabels();
+                return;
+            }
+
+            if (property === 'select-parent') {
+                const parent = value && value.parentElement;
+                if (!parent || parent === document.body || this.detector._isInternal(parent)) return;
+                if (this.editSession.active) this._cancelEditSession();
+                this._startEditSession(parent);
                 return;
             }
 
@@ -738,10 +761,12 @@ export default class MagnifyingGlassInspector {
             peekBtn.addEventListener('animationend', () => {
                 peekBtn.classList.remove('apex-peek-flash');
             }, { once: true });
-        }
-
-        // THEN update with data (initializes Quill with proper layout)
+        }        // THEN update with data (initializes Quill with proper layout)
         this.palette.update(data);
+
+        // Keep the selected target visible while its controls have focus.
+        this.highlightElement(el);
+        this.updateContextBar(el);
 
         // ACTIVATE CONTENT FIELD GLOW
         const quillContainer = document.getElementById('quill-editor');
@@ -756,7 +781,12 @@ export default class MagnifyingGlassInspector {
         if (data.role === 'text') {
             const quillEditor = document.querySelector('.ql-editor');
             if (quillEditor) {
-                quillEditor.focus();
+                if (this.palette && this.palette.quill) {
+                    this.palette.quill.focus();
+                    this.palette.quill.setSelection(Math.max(0, this.palette.quill.getLength() - 1), 0, 'silent');
+                } else {
+                    quillEditor.focus();
+                }
             }
         } else {
             const colorInput = document.getElementById('input-color');
@@ -805,9 +835,9 @@ export default class MagnifyingGlassInspector {
 
     _disableNavButtons() {
         // Find ALL buttons and interactive elements on page, EXCEPT Edit button
-        const interactiveElements = document.querySelectorAll(
+        const interactiveElements = Array.from(document.querySelectorAll(
             'button:not([data-anothen-internal]):not(#edit-mode-btn), a[href]:not([data-anothen-internal]), [onclick]:not([data-anothen-internal])'
-        );
+        )).filter((el) => !el.closest('#palette-container') && !el.closest('.lens-container'));
         this.editSession.disabledNavElements = [];
 
         interactiveElements.forEach(el => {

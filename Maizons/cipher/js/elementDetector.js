@@ -149,10 +149,10 @@ export class ElementDetector {
       // If it has children, check if it's a 'leaf container' (e.g., a link containing a single span)
       const childElements = Array.from(el.childNodes).filter(n => n.nodeType === 1);
       if (childElements.length > 0) {
-        // If it has only one or two small children, we allow it as a text-leaf for branding/links
-        if (childElements.length <= 2) return true;
-        // Otherwise, it's structural
-        return true;
+        // Composite labels belong to their leaf children. Keep standalone controls
+        // selectable, but do not make a parent wrapper compete with its children.
+        if (tagName === 'button' || tagName === 'a') return true;
+        return false;
       }
       return (el.innerText || '').trim().length > 0;
     }
@@ -165,15 +165,9 @@ export class ElementDetector {
       const children = Array.from(el.childNodes).filter(n => n.nodeType === 1);
       if (children.length === 0) return (el.innerText || '').trim().length > 0;
 
-      // Check if all children are form controls (buttons, inputs, etc) - skip those containers
-      const allFormControls = children.every(child => {
-        const childTag = child.tagName.toLowerCase();
-        return ['button', 'input', 'select', 'textarea'].includes(childTag);
-      });
-
-      if (allFormControls) return false; // Skip containers that only hold form controls
-
-      return true; // Container with mixed/content children is editable
+      // Composite containers are structural context, not default content targets.
+      // Their leaf descendants remain selectable and uniquely identifiable.
+      return false;
     }
 
     return false;

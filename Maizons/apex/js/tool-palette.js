@@ -12,14 +12,69 @@ class ToolPalette {
             
             const closeBtn = document.createElement('button');
             closeBtn.className = 'absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors';
+            closeBtn.type = 'button';
+            closeBtn.setAttribute('aria-label', 'Discard current changes and close editor');
+            closeBtn.title = 'Discard current changes and close editor';
             closeBtn.innerHTML = '✕';
-            closeBtn.onclick = () => window.toggleEditMode();
+            closeBtn.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (this.onEdit) this.onEdit('cancel-session', true);
+                if (typeof window.toggleEditMode === 'function') window.toggleEditMode();
+            };
             
             this.container.appendChild(closeBtn);
             this.container.appendChild(this.contentArea);
             document.body.appendChild(this.container);
         } else {
             this.contentArea = document.getElementById('palette-content');
+        }
+        // The lockdown overlay is inline-styled. Give the editor an explicit
+        // inline layer too so it remains interactive even when Tailwind's
+        // runtime scanner has not generated z-[20000].
+        this.container.style.zIndex = '20001';
+        this.container.style.pointerEvents = 'auto';
+        // Keep the palette below the top navigation on short viewports.
+        this.container.style.top = '5rem';
+        this.container.style.bottom = '1.5rem';
+        this.container.style.maxHeight = 'calc(100vh - 6.5rem)';
+        // Make the editor advertise its real affordances: normal pointer in
+        // the palette, text cursor plus a visible caret where typing happens.
+        if (!document.getElementById('apex-palette-input-affordances')) {
+            const inputStyles = document.createElement('style');
+            inputStyles.id = 'apex-palette-input-affordances';
+            inputStyles.setAttribute('data-anothen-internal', '');
+            inputStyles.textContent = `
+                #palette-container { cursor: default !important; }
+                #palette-container #quill-editor,
+                #palette-container .ql-container,
+                #palette-container .ql-editor,
+                #palette-container input[type="text"],
+                #palette-container input[type="number"],
+                #palette-container textarea {
+                    background: #18181b !important;
+                    color: #f8fafc !important;
+                    border-color: #3f3f46 !important;
+                }
+                #palette-container .ql-toolbar {
+                    background: #27272a !important;
+                    border-color: #3f3f46 !important;
+                }
+                #palette-container .ql-editor.ql-blank::before { color: #a1a1aa !important; }
+                #palette-container .ql-editor,
+                #palette-container input[type="text"],
+                #palette-container input[type="number"],
+                #palette-container textarea {
+                    cursor: text !important;
+                    caret-color: #fbbf24 !important;
+                }
+                [data-theme="light"] #palette-container .ql-editor { caret-color: #1d4ed8 !important; }
+                #palette-container button,
+                #palette-container select,
+                #palette-container input[type="color"],
+                #palette-container input[type="range"] { cursor: pointer !important; }
+            `;
+            document.head.appendChild(inputStyles);
         }
         this.onEdit = null; 
         this.quill = null;
@@ -67,17 +122,34 @@ class ToolPalette {
 
         const childCount = element.children.length;
         const currentOpacity = styles.opacity || '1';
+        const targetPath = (() => {
+            const parts = [];
+            let node = element;
+            let depth = 0;
+            while (node && node !== document.body && depth < 5) {
+                const tag = node.tagName.toLowerCase();
+                const identity = node.id ? '#' + node.id : (node.dataset.axId ? '[' + node.dataset.axId + ']' : '');
+                parts.unshift(tag + identity);
+                node = node.parentElement;
+                depth += 1;
+            }
+            return parts.join(' › ');
+        })();
         const fontSizeValue = parseInt(styles.fontSize, 10) || 16;
         const fontSizeMax = Math.max(200, fontSizeValue);
 
         this.contentArea.innerHTML = `
             <div class="tool-palette">
+                <div class="editor-session-controls sticky top-0 z-30 flex items-center justify-end gap-2 mb-4 pb-3 border-b border-zinc-700 bg-zinc-900/95">
+                    <button id="btn-save-changes" type="button" class="px-3 py-2 bg-emerald-400 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-sm hover:bg-emerald-300 transition">Save</button>
+                    <button id="btn-cancel-changes" type="button" class="px-3 py-2 border border-red-400 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-950/50 transition">Discard</button>
+                </div>
                 <!-- STICKY HEADER -->
                 <div class="palette-header palette-drag-handle">
                     <div class="palette-header-left">
                         <div class="palette-selected-label">Selected</div>
                         <div class="palette-selected-meta">${tagName} <span class="palette-selected-role">[${role.toUpperCase()}]</span></div>
-                        <div class="palette-selected-id">ID: ${element.dataset.axId}</div>
+                        <div class="palette-selected-id">ID: ${element.dataset.axId}</div><div class="palette-selected-id truncate" title="DOM path">${targetPath}</div>
                     </div>
                     <button id="btn-close-palette" aria-label="Close editor" class="text-[14px] font-bold text-zinc-500 hover:text-[var(--accent)] transition-colors">×</button>
                 </div>
@@ -255,7 +327,7 @@ class ToolPalette {
 
                             <!-- Structure & Hierarchy -->
                             <div class="palette-control mt-6 pt-4 border-t border-zinc-800">
-                                <label class="palette-label text-[9px] mb-3">Structure & Hierarchy</label>
+                                <label class="palette-label text-[9px] mb-3">Structure & Hierarchy</label><button id="btn-select-parent" type="button" class="w-full mb-3 px-2 py-2 bg-zinc-800 text-zinc-300 text-[9px] font-bold uppercase tracking-widest rounded hover:bg-zinc-700 transition">Select parent container</button>
                                 <div class="grid grid-cols-4 gap-2">
                                     <button id="btn-move-up" title="${isHorizontal ? 'Move Left' : 'Move Up'}" class="flex items-center justify-center p-2 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="${isHorizontal ? 'Move element left' : 'Move element up'}">
                                         ${isHorizontal ?
@@ -497,6 +569,7 @@ class ToolPalette {
         const advancedPanel = document.getElementById('advanced-panel');
         const resetToggle = document.getElementById('btn-reset-toggle');
         const resetDropdown = document.getElementById('reset-dropdown');
+        const parentBtn = document.getElementById('btn-select-parent');
         const moveUpBtn = document.getElementById('btn-move-up');
         const moveDownBtn = document.getElementById('btn-move-down');
         const cloneBtn = document.getElementById('btn-clone');
@@ -511,19 +584,31 @@ class ToolPalette {
         // SAVE / CANCEL BUTTONS
         if (saveBtn) {
             saveBtn.addEventListener('click', () => {
-                if (this.onSave) this.onSave();
+                if (this.onSave) {
+                    this.onSave();
+                } else if (this.onEdit) {
+                    this.onEdit('save-session', true);
+                }
             });
         }
 
         if (cancelBtn) {
             cancelBtn.addEventListener('click', () => {
-                if (this.onCancel) this.onCancel();
+                if (this.onCancel) {
+                    this.onCancel();
+                } else if (this.onEdit) {
+                    this.onEdit('cancel-session', true);
+                }
             });
         }
 
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
-                if (this.onCancel) this.onCancel();
+                if (this.onCancel) {
+                    this.onCancel();
+                } else if (this.onEdit) {
+                    this.onEdit('cancel-session', true);
+                }
             });
         }
 
@@ -576,6 +661,11 @@ class ToolPalette {
             };
         }
 
+        if (parentBtn) {
+            parentBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('select-parent', this.currentElement);
+            };
+        }
         if (moveUpBtn && !moveUpBtn.disabled) {
             moveUpBtn.onclick = () => { if (this.onEdit) this.onEdit('moveUp', this.currentElement); };
         }
@@ -910,8 +1000,7 @@ class ToolPalette {
                 }
             };
         }
-
-        // Peek (reticle visibility toggle)
+// Peek (reticle visibility toggle)
         const peekBtn = document.getElementById('btn-peek');
         if (peekBtn) {
             peekBtn.onclick = () => {

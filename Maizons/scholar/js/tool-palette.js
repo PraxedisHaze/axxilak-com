@@ -12,14 +12,69 @@ export class ToolPalette {
             
             const closeBtn = document.createElement('button');
             closeBtn.className = 'absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors';
+            closeBtn.type = 'button';
+            closeBtn.setAttribute('aria-label', 'Discard current changes and close editor');
+            closeBtn.title = 'Discard current changes and close editor';
             closeBtn.innerHTML = '✕';
-            closeBtn.onclick = () => window.toggleEditMode();
+            closeBtn.onclick = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (this.onEdit) this.onEdit('cancel-session', true);
+                if (typeof window.toggleEditMode === 'function') window.toggleEditMode();
+            };
             
             this.container.appendChild(closeBtn);
             this.container.appendChild(this.contentArea);
             document.body.appendChild(this.container);
         } else {
             this.contentArea = document.getElementById('palette-content');
+        }
+        // The lockdown overlay is inline-styled. Give the editor an explicit
+        // inline layer too so it remains interactive even when Tailwind's
+        // runtime scanner has not generated z-[20000].
+        this.container.style.zIndex = '20001';
+        this.container.style.pointerEvents = 'auto';
+        // Keep the palette below the top navigation on short viewports.
+        this.container.style.top = '5rem';
+        this.container.style.bottom = '1.5rem';
+        this.container.style.maxHeight = 'calc(100vh - 6.5rem)';
+        // Make the editor advertise its real affordances: normal pointer in
+        // the palette, text cursor plus a visible caret where typing happens.
+        if (!document.getElementById('apex-palette-input-affordances')) {
+            const inputStyles = document.createElement('style');
+            inputStyles.id = 'apex-palette-input-affordances';
+            inputStyles.setAttribute('data-anothen-internal', '');
+            inputStyles.textContent = `
+                #palette-container { cursor: default !important; }
+                #palette-container #quill-editor,
+                #palette-container .ql-container,
+                #palette-container .ql-editor,
+                #palette-container input[type="text"],
+                #palette-container input[type="number"],
+                #palette-container textarea {
+                    background: #18181b !important;
+                    color: #f8fafc !important;
+                    border-color: #3f3f46 !important;
+                }
+                #palette-container .ql-toolbar {
+                    background: #27272a !important;
+                    border-color: #3f3f46 !important;
+                }
+                #palette-container .ql-editor.ql-blank::before { color: #a1a1aa !important; }
+                #palette-container .ql-editor,
+                #palette-container input[type="text"],
+                #palette-container input[type="number"],
+                #palette-container textarea {
+                    cursor: text !important;
+                    caret-color: #fbbf24 !important;
+                }
+                [data-theme="light"] #palette-container .ql-editor { caret-color: #1d4ed8 !important; }
+                #palette-container button,
+                #palette-container select,
+                #palette-container input[type="color"],
+                #palette-container input[type="range"] { cursor: pointer !important; }
+            `;
+            document.head.appendChild(inputStyles);
         }
         this.onEdit = null; 
         this.quill = null;
@@ -67,51 +122,35 @@ export class ToolPalette {
 
         const childCount = element.children.length;
         const currentOpacity = styles.opacity || '1';
+        const targetPath = (() => {
+            const parts = [];
+            let node = element;
+            let depth = 0;
+            while (node && node !== document.body && depth < 5) {
+                const tag = node.tagName.toLowerCase();
+                const identity = node.id ? '#' + node.id : (node.dataset.axId ? '[' + node.dataset.axId + ']' : '');
+                parts.unshift(tag + identity);
+                node = node.parentElement;
+                depth += 1;
+            }
+            return parts.join(' › ');
+        })();
 
         this.contentArea.innerHTML = `
             <div class="tool-palette">
+                <div class="editor-session-controls sticky top-0 z-30 flex items-center justify-end gap-2 mb-4 pb-3 border-b border-zinc-700 bg-zinc-900/95">
+                    <button id="btn-save-changes" type="button" class="px-3 py-2 bg-emerald-400 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-sm hover:bg-emerald-300 transition">Save</button>
+                    <button id="btn-cancel-changes" type="button" class="px-3 py-2 border border-red-400 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-950/50 transition">Discard</button>
+                </div>
                 <!-- SIMPLE HEADER -->
                 <div class="palette-header">
                     <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]"></div>
-                        <span class="palette-title font-mono text-xs tracking-tighter">${tagName} <span class="text-[8px] opacity-40">[${role.toUpperCase()}]</span></span>
+                        <div class="w-3 h-3 bg-[var(--accent)] shadow-[0_0_8px_var(--accent)]"></div>                        <div class="flex flex-col leading-tight"><span class="text-[8px] font-bold text-zinc-500 uppercase tracking-[0.16em]">Editing selected element:</span><span class="palette-title font-mono text-xs tracking-tighter">${tagName} · ${role.toUpperCase()} · ${element.dataset.axId}</span><span class="text-[8px] text-zinc-500 truncate max-w-full" title="DOM path">${targetPath}</span></div>
                     </div>
                     <button id="btn-advanced-toggle" class="text-[9px] font-bold text-zinc-500 hover:text-[var(--accent)] uppercase tracking-widest transition-colors">
                         Advanced +
                     </button>
                 </div>
-
-                <!-- LATTICE VISUALIZERS (Flagship Controls) -->
-                <div class="mb-6 flex items-center justify-between bg-zinc-800/30 p-2 rounded-sm border border-zinc-800/50">
-                    <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-[0.2em] ml-1">Flagship Visualizer</span>
-                    <div class="flex gap-2 w-full">
-                        <button id="toggle-3d-view" class="flex-1 py-3 ${this.view3DActive ? 'bg-indigo-600 shadow-[0_0_30px_rgba(99,102,241,0.8)]' : 'bg-indigo-900/40'} text-white rounded-sm transition-all border ${this.view3DActive ? 'border-indigo-200' : 'border-indigo-500/40'} hover:bg-indigo-600 group">
-                            <div class="flex items-center justify-center gap-2">
-                                <img src="icons/3D_vibrant.png" alt="3D Matrix View" style="width: 64px; height: 64px; object-fit: contain;" class="transition-transform group-hover:scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]">
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 3D EXIT BUTTON (Global ritualistic exit) -->
-                ${this.view3DActive ? `
-                <button id="btn-exit-3d" class="w-full mb-4 py-3 bg-red-600 text-white text-[10px] font-bold rounded-sm animate-pulse hover:bg-red-500 transition-all uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(220,38,38,0.5)]">
-                    Exit 3D Matrix
-                </button>
-                ` : ''}
-
-                <!-- 3D VIEW CONTROLS (Only visible in 3D mode) -->
-                ${this.view3DActive ? `
-                <div class="mb-4 p-3 bg-indigo-900/30 border border-indigo-700/50 rounded-sm">
-                    <div class="palette-control">
-                        <label class="palette-label text-[9px] mb-2 flex justify-between">
-                            <span>Layer Spacing</span>
-                            <span class="text-[7px] text-indigo-300" id="spacing-value">50px</span>
-                        </label>
-                        <input type="range" id="slider-spacing" min="10" max="150" step="10" value="50" class="w-full accent-indigo-500 cursor-pointer">
-                    </div>
-                </div>
-                ` : ''}
 
                 <!-- ADVANCED PANEL (Hidden by default) -->
                 <div id="advanced-panel" class="hidden mb-4 p-3 bg-black/40 border border-zinc-800 rounded-sm">
@@ -317,7 +356,7 @@ export class ToolPalette {
                 </div>
 
                 <div class="palette-control mt-6 pt-4 border-t border-zinc-800">
-                    <label class="palette-label text-[9px] mb-3">Structure & Hierarchy</label>
+                    <label class="palette-label text-[9px] mb-3">Structure & Hierarchy</label><button id="btn-select-parent" type="button" class="w-full mb-3 px-2 py-2 bg-zinc-800 text-zinc-300 text-[9px] font-bold uppercase tracking-widest rounded hover:bg-zinc-700 transition">Select parent container</button>
                     <div class="grid grid-cols-4 gap-2">
                         <button id="btn-move-up" title="${isHorizontal ? 'Move Left' : 'Move Up'}" class="flex items-center justify-center p-2 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''}>
                             ${isHorizontal ? 
@@ -426,6 +465,7 @@ export class ToolPalette {
         const labelsToggle = document.getElementById('toggle-labels');
         const advancedToggle = document.getElementById('btn-advanced-toggle');
         const advancedPanel = document.getElementById('advanced-panel');
+        const parentBtn = document.getElementById('btn-select-parent');
         const moveUpBtn = document.getElementById('btn-move-up');
         const moveDownBtn = document.getElementById('btn-move-down');
         const cloneBtn = document.getElementById('btn-clone');
@@ -486,6 +526,11 @@ export class ToolPalette {
             };
         }
 
+        if (parentBtn) {
+            parentBtn.onclick = () => {
+                if (this.onEdit) this.onEdit('select-parent', this.currentElement);
+            };
+        }
         if (moveUpBtn && !moveUpBtn.disabled) {
             moveUpBtn.onclick = () => { if (this.onEdit) this.onEdit('moveUp', this.currentElement); };
         }
@@ -802,8 +847,7 @@ export class ToolPalette {
                 if (this.onEdit) this.onEdit('cancel-session', true);
             };
         }
-
-        // Peek (reticle visibility toggle)
+// Peek (reticle visibility toggle)
         const peekBtn = document.getElementById('btn-peek');
         if (peekBtn) {
             peekBtn.onclick = () => {
