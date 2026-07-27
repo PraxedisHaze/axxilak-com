@@ -1,6 +1,6 @@
 import { MagnifyingGlass } from './lens-ui.js';
-import ElementDetector from './elementDetector.js?v=editor-20260726-contrast6';
-import { ToolPalette } from './tool-palette.js?v=editor-20260726-contrast6';
+import ElementDetector from './elementDetector.js?v=editor-20260726-contrast7';
+import { ToolPalette } from './tool-palette.js?v=editor-20260726-contrast7';
 
 export default class MagnifyingGlassInspector {
     constructor(weblingName = null) {

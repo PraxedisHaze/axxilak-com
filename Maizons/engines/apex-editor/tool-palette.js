@@ -11,7 +11,8 @@ export class ToolPalette {
             this.contentArea.id = 'palette-content';
             
             const closeBtn = document.createElement('button');
-            closeBtn.className = 'absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors';
+            closeBtn.id = 'btn-close-palette';
+closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center justify-center border border-zinc-500 bg-zinc-900 text-zinc-200 hover:border-white hover:text-white transition-colors';
             closeBtn.innerHTML = '✕';
             closeBtn.onclick = () => window.toggleEditMode();
             
@@ -20,6 +21,28 @@ export class ToolPalette {
             document.body.appendChild(this.container);
         } else {
             this.contentArea = document.getElementById('palette-content');
+        }
+        // Make the editor advertise its real affordances: normal pointer in
+        // the palette, text cursor plus a visible caret where typing happens.
+        if (!document.getElementById('apex-palette-input-affordances')) {
+            const inputStyles = document.createElement('style');
+            inputStyles.id = 'apex-palette-input-affordances';
+            inputStyles.setAttribute('data-anothen-internal', '');
+            inputStyles.textContent = `
+                #palette-container { cursor: default !important; }
+                #palette-container .ql-editor,
+                #palette-container input[type="text"],
+                #palette-container input[type="number"],
+                #palette-container textarea {
+                    cursor: text !important;
+                    caret-color: #f8fafc !important;
+                }
+                #palette-container button,
+                #palette-container select,
+                #palette-container input[type="color"],
+                #palette-container input[type="range"] { cursor: pointer !important; }
+            `;
+            document.head.appendChild(inputStyles);
         }
         this.onEdit = null; 
         this.quill = null;

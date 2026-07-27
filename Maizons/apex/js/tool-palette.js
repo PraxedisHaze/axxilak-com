@@ -11,7 +11,8 @@ class ToolPalette {
             this.contentArea.id = 'palette-content';
             
             const closeBtn = document.createElement('button');
-            closeBtn.className = 'absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors';
+            closeBtn.id = 'btn-close-palette';
+closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center justify-center border border-zinc-500 bg-zinc-900 text-zinc-200 hover:border-white hover:text-white transition-colors';
             closeBtn.type = 'button';
             closeBtn.setAttribute('aria-label', 'Discard current changes and close editor');
             closeBtn.title = 'Discard current changes and close editor';
@@ -140,7 +141,7 @@ class ToolPalette {
 
         this.contentArea.innerHTML = `
             <div class="tool-palette">
-                <div class="editor-session-controls sticky top-0 z-30 flex items-center justify-end gap-2 mb-4 pb-3 border-b border-zinc-700 bg-zinc-900/95">
+                <div class="editor-session-controls sticky top-0 z-30 flex items-center justify-start gap-2 pr-12 mb-4 pb-3 border-b border-zinc-700 bg-zinc-900/95">
                     <button id="btn-save-changes" type="button" class="px-3 py-2 bg-emerald-400 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-sm hover:bg-emerald-300 transition">Save</button>
                     <button id="btn-cancel-changes" type="button" class="px-3 py-2 border border-red-400 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-950/50 transition">Discard</button>
                 </div>
