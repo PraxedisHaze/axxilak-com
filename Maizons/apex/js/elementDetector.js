@@ -14,8 +14,28 @@ export class ElementDetector {
     this.debugBadge = null;
   }
 
-  initLattice() {
+  // options.reset: used once, on fresh page load, before saved edits replay.
+  // data-ax-id is a runtime-only attribute (never shipped in the HTML), so on
+  // every reload every element starts untagged. The normal (non-reset) path
+  // below only tags untagged elements using an ever-growing, cross-session
+  // counter - reactive per-click order, not DOM order - so the same physical
+  // element gets a different ID every session and saved edits (keyed to the
+  // old ID) never find their element again. A full deterministic pass, reset
+  // to 0 and walking every eligible element in DOM order, gives every element
+  // the same ID on every load (document structure is static between saves),
+  // so saved edits actually replay. Left the counter at N afterward so
+  // same-session clones still continue from N+1 with no collision risk.
+  initLattice(options = {}) {
     const editable = document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,div,button,a,img,section,header,footer,main,article,label,td,th,blockquote,li');
+    if (options.reset) {
+      this.axIdCounter = 0;
+      editable.forEach(el => {
+        if (this._isInternal(el)) return;
+        this.axIdCounter += 1;
+        el.dataset.axId = `ax-${this.axIdCounter}`;
+      });
+      return;
+    }
     editable.forEach(el => {
       if (this._isInternal(el)) return;
       if (!el.dataset.axId) {
@@ -30,12 +50,16 @@ export class ElementDetector {
     if (el.dataset && el.dataset.axId) {
       return `[data-ax-id="${el.dataset.axId}"]`;
     }
-    if (el.id) return `#${el.id}`;
+    if (el.id) return `#${CSS.escape(el.id)}`;
 
     let selector = el.tagName.toLowerCase();
     if (el.className && typeof el.className === 'string') {
-      const classes = el.className.split(' ').filter(Boolean).join('.');
-      if (classes) selector += `.${classes}`;
+      const classes = el.className
+        .split(/\s+/)
+        .map(cls => cls.trim())
+        .filter(Boolean)
+        .map(cls => CSS.escape(cls));
+      if (classes.length) selector += `.${classes.join('.')}`;
     }
 
     if (el.parentElement) {
@@ -144,17 +168,30 @@ export class ElementDetector {
 
     const tagName = el.tagName.toLowerCase();
 
+    // Never treat live navigation / handler-driven controls as editable content.
+    // They poison the editor lifecycle because the inspector starts trying to
+    // edit the controls that are supposed to remain functional around it.
+    if ((tagName === 'button' || tagName === 'a') && (el.hasAttribute('data-handler') || el.closest('nav'))) {
+      return false;
+    }
+
     // 1. MEDIA ROLE
     if (tagName === 'img') return true;
 
     // 2. TEXT ROLE (Leaf elements - check before structure to prioritize buttons/links)
     if (['h1','h2','h3','h4','h5','h6','p','span','button','a','label','td','th','blockquote','li'].includes(tagName)) {
-      // If it has children, check if it's a 'leaf container' (e.g., a link containing a single span)
       const childElements = Array.from(el.childNodes).filter(n => n.nodeType === 1);
-      if (childElements.length > 0) {
-        // Composite labels belong to their leaf children. Keep standalone controls
-        // selectable, but do not make a parent wrapper compete with its children.
-        if (tagName === 'button' || tagName === 'a') return true;
+      const hasOwnText = Array.from(el.childNodes).some(n => n.nodeType === 3 && n.textContent.trim().length > 0);
+      if (childElements.length > 0 && !hasOwnText) {
+        // Composite labels belong to their leaf children. Do not let parent
+        // wrappers act like direct text nodes; that risks rewriting layout
+        // containers and shoving text into visually wrong positions.
+        // But a paragraph with real text of its own PLUS a nested inline
+        // element (a bold phrase, a link) is mixed content, not a bare
+        // wrapper - excluding it made the entire paragraph permanently
+        // unselectable outside the one nested span, for any copy with
+        // ordinary inline formatting. That's the common case, not an edge
+        // case, so only exclude true no-text wrappers here.
         return false;
       }
       return (el.innerText || '').trim().length > 0;
@@ -190,20 +227,13 @@ export class ElementDetector {
     else if (textTags.includes(tagName)) role = 'text';
     else if (['section', 'header', 'footer', 'main', 'article', 'div', 'nav'].includes(tagName)) {
         const directText = this._getTextNodes(el);
-        if (directText) {
+        if (directText && !Array.from(el.childNodes).some(n => n.nodeType === 1)) {
             role = 'text';
         } else {
-            // Small wrapper with only text-bearing children (e.g., overlay div wrapping a span)
-            const children = Array.from(el.children);
-            const textChildTags = ['SPAN', 'P', 'A', 'STRONG', 'EM', 'B', 'I', 'SMALL', 'LABEL'];
-            if (children.length > 0 && children.length <= 3 && children.every(c => textChildTags.includes(c.tagName))) {
-                role = 'text';
-            } else {
-                role = 'structure';
-            }
+            role = 'structure';
         }
-    }
 
+    }
     const hasChildElements = Array.from(el.childNodes).some(n => n.nodeType === 1);
 
     return {
@@ -221,6 +251,9 @@ export class ElementDetector {
         color: styles.color,
         zIndex: styles.zIndex,
         fontFamily: styles.fontFamily || '',
+        fontSize: styles.fontSize || '',
+        fontWeight: styles.fontWeight || '',
+        lineHeight: styles.lineHeight || '',
         backgroundColor: styles.backgroundColor
       }
     };
@@ -257,7 +290,18 @@ export class ElementDetector {
           text += node.textContent;
         }
       }
-      if (text.trim()) return text.trim();
+      const hasDirectText = text.trim().length > 0;
+
+      // Mixed content: direct text AND a text-bearing inline child (e.g. a
+      // bold phrase) both hold real words. Returning direct text alone here
+      // silently dropped the child's words from the edit box. Flatten to
+      // the full, readable sentence instead, with source whitespace/
+      // newlines collapsed to single spaces.
+      const childrenWithText = Array.from(el.children).some(c => (c.textContent || '').trim().length > 0);
+      if (hasDirectText && childrenWithText) {
+        return (el.textContent || '').replace(/\s+/g, ' ').trim();
+      }
+      if (hasDirectText) return text.trim();
 
       // Second pass: recurse into child elements to find nested text
       const structuralTags = ['DIV', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'MAIN', 'NAV'];
@@ -296,23 +340,39 @@ export class ElementDetector {
 
       // Only use direct text nodes if at least one has real content (not just whitespace)
       const contentNode = textNodes.find(n => n.textContent.trim());
+
+      // Mixed content: real direct text alongside a child element that also
+      // carries its own words (e.g. a bold inline span). The old path below
+      // dumped the whole edit into the first text node and blanked the
+      // rest, silently stranding the child element's words in the wrong
+      // place. Plain text editing can't preserve that inline styling
+      // anyway (no rich text editor is active), so do an honest full
+      // flatten instead of a silent, scrambled loss. Elements whose only
+      // children are text-less (icons, dots) are untouched by this check.
+      const childrenWithText = Array.from(el.children).some(c => (c.textContent || '').trim().length > 0);
+      if (contentNode && childrenWithText) {
+        el.textContent = newText;
+        return;
+      }
+
       if (contentNode) {
         contentNode.textContent = newText;
         for (const node of textNodes) {
           if (node !== contentNode) node.textContent = '';
         }
-      } else {
-        // No direct text nodes â€” check for text-bearing child elements
-        const textChildTags = ['SPAN', 'P', 'A', 'STRONG', 'EM', 'B', 'I'];
-        const textChild = Array.from(el.children).find(c => textChildTags.includes(c.tagName) && (c.innerText || '').trim());
-        if (textChild) {
-          textChild.innerText = newText;
-        } else if (el.childNodes.length === 0) {
-          // No children at all â€” safe to set directly
-          el.textContent = newText;
-        } else {
-          // Has child elements but no text nodes â€” prepend a text node
-          el.insertBefore(document.createTextNode(newText + ' '), el.firstChild);
+        return;
+      }
+
+      // No direct text nodes: only allow a single simple text-bearing child,
+      // never inject new text into a structured wrapper/container.
+      const textChildTags = ['SPAN', 'P', 'A', 'STRONG', 'EM', 'B', 'I', 'SMALL', 'LABEL'];
+      const elementChildren = Array.from(el.children);
+      if (elementChildren.length === 1) {
+        const onlyChild = elementChildren[0];
+        const childHasOwnElementChildren = Array.from(onlyChild.childNodes).some(n => n.nodeType === 1);
+        const childHasText = ((onlyChild.innerText || '').trim().length > 0);
+        if (!childHasOwnElementChildren && textChildTags.includes(onlyChild.tagName) && childHasText) {
+          onlyChild.innerText = newText;
         }
       }
     } catch (e) {
@@ -323,6 +383,9 @@ export class ElementDetector {
 }
 
 export default ElementDetector;
+
+
+
 
 
 

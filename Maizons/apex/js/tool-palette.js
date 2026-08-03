@@ -1,35 +1,12 @@
-class ToolPalette {
+﻿class ToolPalette {
     constructor() {
+        // The real palette-container/-content elements always ship as
+        // static markup in index.html; the dead fallback that used to
+        // create them here (for a page that didn't ship that markup) is
+        // archived at _archive/tool-palette_dead-container-fallback_20260802.js
+        // rather than kept live and drifting out of sync with the real one.
         this.container = document.getElementById('palette-container');
-        if (!this.container) {
-            this.container = document.createElement('div');
-            this.container.id = 'palette-container';
-            this.container.setAttribute('data-anothen-internal', '');
-            this.container.className = 'fixed bottom-6 right-6 w-96 bg-zinc-900 border-2 border-[var(--accent)] rounded-sm shadow-2xl z-[20000] hidden max-h-[600px] overflow-y-auto text-white p-6';
-            
-            this.contentArea = document.createElement('div');
-            this.contentArea.id = 'palette-content';
-            
-            const closeBtn = document.createElement('button');
-            closeBtn.id = 'btn-close-palette';
-closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center justify-center border border-zinc-500 bg-zinc-900 text-zinc-200 hover:border-white hover:text-white transition-colors';
-            closeBtn.type = 'button';
-            closeBtn.setAttribute('aria-label', 'Discard current changes and close editor');
-            closeBtn.title = 'Discard current changes and close editor';
-            closeBtn.innerHTML = '✕';
-            closeBtn.onclick = (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                if (this.onEdit) this.onEdit('cancel-session', true);
-                if (typeof window.toggleEditMode === 'function') window.toggleEditMode();
-            };
-            
-            this.container.appendChild(closeBtn);
-            this.container.appendChild(this.contentArea);
-            document.body.appendChild(this.container);
-        } else {
-            this.contentArea = document.getElementById('palette-content');
-        }
+        this.contentArea = document.getElementById('palette-content');
         // The lockdown overlay is inline-styled. Give the editor an explicit
         // inline layer too so it remains interactive even when Tailwind's
         // runtime scanner has not generated z-[20000].
@@ -47,9 +24,6 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             inputStyles.setAttribute('data-anothen-internal', '');
             inputStyles.textContent = `
                 #palette-container { cursor: default !important; }
-                #palette-container #quill-editor,
-                #palette-container .ql-container,
-                #palette-container .ql-editor,
                 #palette-container input[type="text"],
                 #palette-container input[type="number"],
                 #palette-container textarea {
@@ -57,19 +31,17 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                     color: #f8fafc !important;
                     border-color: #3f3f46 !important;
                 }
-                #palette-container .ql-toolbar {
-                    background: #27272a !important;
-                    border-color: #3f3f46 !important;
-                }
-                #palette-container .ql-editor.ql-blank::before { color: #a1a1aa !important; }
-                #palette-container .ql-editor,
                 #palette-container input[type="text"],
                 #palette-container input[type="number"],
                 #palette-container textarea {
                     cursor: text !important;
                     caret-color: #fbbf24 !important;
                 }
-                [data-theme="light"] #palette-container .ql-editor { caret-color: #1d4ed8 !important; }
+                [data-theme="light"] #palette-container input[type="text"],
+                [data-theme="light"] #palette-container input[type="number"],
+                [data-theme="light"] #palette-container textarea {
+                    caret-color: #1d4ed8 !important;
+                }
                 #palette-container button,
                 #palette-container select,
                 #palette-container input[type="color"],
@@ -84,6 +56,13 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
         this.view3DActive = false;
         this.labelsActive = false;
         this.debug = false;
+        this.isDirty = false;
+        this._boundCloseResetDropdown = () => {
+            const resetDropdown = document.getElementById('reset-dropdown');
+            if (resetDropdown) {
+                resetDropdown.classList.add('hidden');
+            }
+        };
     }
 
     update(data) {
@@ -98,9 +77,10 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
         }
         
         if (this.currentElement && this.currentElement.dataset.axId === element.dataset.axId) {
-            // SYNC ONLY: If it's the same element, just update the text content in Quill
-            if (this.quill && textContent !== this.quill.getText().trim()) {
-                this.quill.root.innerText = textContent || '';
+            // SYNC ONLY: If it's the same element, update whichever content editor is active.
+            const plainContentInput = document.getElementById('input-content');
+            if (plainContentInput && document.activeElement !== plainContentInput) {
+                plainContentInput.value = textContent || '';
             }
             return;
         }
@@ -138,38 +118,47 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
         })();
         const fontSizeValue = parseInt(styles.fontSize, 10) || 16;
         const fontSizeMax = Math.max(200, fontSizeValue);
+        const containerGlowState = this.parseBoxShadowControlState(data.containerBoxShadow || 'none', this.rgbToHex(styles.color));
+        const containerGradientState = this.parseGradientControlState(data.containerBackgroundImage || 'none', this.rgbToHex(styles.backgroundColor), this.rgbToHex(styles.color));
+        // Video/media embeds only ever save the fully-built <iframe>/<video> tag
+        // (as innerHTML), never the original URL the user typed. On reopen the
+        // URL field always started blank even though a real embed was present.
+        // Recover a real, working URL straight from the live embed so the field
+        // isn't empty just because we don't have the original input back.
+        const existingMediaEl = element.querySelector ? element.querySelector('iframe, video') : null;
+        const existingMediaSrc = existingMediaEl ? (existingMediaEl.src || '') : '';
 
         this.contentArea.innerHTML = `
             <div class="tool-palette">
-                <div class="editor-session-controls sticky top-0 z-30 flex items-center justify-start gap-2 pr-12 mb-4 pb-3 border-b border-zinc-700 bg-zinc-900/95">
-                    <button id="btn-save-changes" type="button" class="px-3 py-2 bg-emerald-400 text-zinc-950 text-[10px] font-black uppercase tracking-wider rounded-sm hover:bg-emerald-300 transition">Save</button>
-                    <button id="btn-cancel-changes" type="button" class="px-3 py-2 border border-red-400 text-red-200 text-[10px] font-bold uppercase tracking-wider rounded-sm hover:bg-red-950/50 transition">Discard</button>
-                </div>
+
                 <!-- STICKY HEADER -->
-                <div class="palette-header palette-drag-handle">
+                <div class="palette-header palette-drag-handle relative pr-10">
                     <div class="palette-header-left">
                         <div class="palette-selected-label">Selected</div>
                         <div class="palette-selected-meta">${tagName} <span class="palette-selected-role">[${role.toUpperCase()}]</span></div>
-                        <div class="palette-selected-id">ID: ${element.dataset.axId}</div><div class="palette-selected-id truncate" title="DOM path">${targetPath}</div>
+                        <div class="palette-selected-id">ID: ${element.dataset.axId}</div><div class="palette-selected-id palette-selected-path" title="DOM path">${targetPath}</div>
                     </div>
-                    <button id="btn-close-palette" aria-label="Close editor" class="text-[14px] font-bold text-zinc-500 hover:text-[var(--accent)] transition-colors">×</button>
+                    <button id="btn-close-palette" type="button" aria-label="Discard current changes and close editor" title="Discard current changes and close editor" class="absolute top-0 right-0 z-40 w-8 h-8 flex items-center justify-center border border-zinc-500 bg-zinc-900 text-zinc-200 hover:border-white hover:text-white transition-colors">&times;</button>
                 </div>
 
                 <!-- PRIMARY CONTROLS (NEVER SCROLL) -->
                 <div class="palette-primary">
-                    <!-- Content Editor -->
-                    <div class="palette-control">
-                        <label class="palette-label">Content ${isStructural ? '(Container)' : (isMedia ? '(Media)' : '')}</label>
-                        <div id="quill-editor" class="bg-zinc-900 text-white" style="min-height: 120px;"></div>
+                    <!-- Plain Text Editor (temporary safe mode) -->
+                    <div class="palette-control ${isMedia ? 'hidden' : ''}">
+                        <label class="palette-label">Content ${isStructural ? '(Container)' : ''}</label>
+                        <textarea id="input-content" class="palette-input text-xs leading-relaxed resize-y" style="min-height: 120px; font-weight: 500;" placeholder="Edit text here...">${textContent || ''}</textarea>
+                        <div class="text-[8px] text-zinc-500 mt-2">Plain text editing is active. Rich text styling is temporarily unavailable while we stabilize the editor.</div>
                     </div>
 
                     <!-- Text Color Control -->
 
-                <div class="palette-control mt-4 ${!isLink ? 'hidden' : ''}">
+                ${isLink ? `
+                <div class="palette-control mt-4">
                     <label class="palette-label">Link URL</label>
                     <input type="text" id="input-link-url" class="palette-input text-[10px]" value="${linkHref || ''}" placeholder="https://your-social-link">
                     <div class="text-[8px] text-zinc-500 mt-1">Leave empty to keep placeholder '#'</div>
                 </div>
+                ` : ''}
 
                 <div id="text-color-control" class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}" style="transition: opacity 0.3s;">
                         <label class="palette-label" id="text-color-label">Text Color</label>
@@ -193,9 +182,9 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                             <div id="text-size-control" class="palette-control ${(isStructural || isMedia) ? 'opacity-30 pointer-events-none' : ''}">
                                 <label class="palette-label">Font Size (px)</label>
                                 <input type="range" id="input-font-size-slider" min="8" max="${fontSizeMax}" step="1" value="${fontSizeValue}" class="w-full accent-[var(--accent)] cursor-pointer" aria-label="Font size slider">
-                                <div class="flex gap-2 mt-3">
+                                <div class="flex flex-wrap gap-2 mt-3">
                                     <input type="number" id="input-font-size" min="8" max="${fontSizeMax}" step="1" class="palette-input w-20 text-center" value="${fontSizeValue}" aria-label="Font size input">
-                                    <div class="font-preset-buttons flex-1">
+                                    <div class="font-preset-buttons" style="flex-basis:100%;">
                                         <button class="font-preset-btn" data-font-size-preset="16" title="Body (16px)">Body</button>
                                         <button class="font-preset-btn" data-font-size-preset="32" title="Heading (32px)">Heading</button>
                                         <button class="font-preset-btn" data-font-size-preset="48" title="Display (48px)">Display</button>
@@ -223,12 +212,12 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                         <div id="effects-panel" class="palette-section-content" role="region" aria-labelledby="effects-toggle">
                             <!-- Text Gradient -->
                             <div id="text-gradient-control" class="palette-control ${(isStructural || isMedia) ? 'opacity-30 pointer-events-none' : ''}">
-                                <label class="palette-label">Text Gradient</label>
+                                <label class="palette-label">Text Gradient (letters)</label>
                                 <div class="flex items-center gap-2 mb-2">
                                     <input type="color" id="input-text-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.color)}" aria-label="Gradient start color">
                                     <span class="text-[9px] text-zinc-500">→</span>
                                     <input type="color" id="input-text-grad-color2" class="palette-input--color" value="#8b5cf6" aria-label="Gradient end color">
-                                    <button id="btn-text-grad-clear" class="text-[8px] text-zinc-500 hover:text-amber-400 transition-colors ml-auto" title="Clear text gradient">✕ clear</button>
+                                    <button id="btn-text-grad-clear" class="text-[8px] text-zinc-500 hover:text-amber-400 transition-colors ml-auto" title="Clear text gradient">× clear</button>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <input type="range" id="input-text-grad-angle" min="0" max="360" step="1" value="90" class="flex-1 accent-[var(--accent)]" aria-label="Gradient angle">
@@ -250,15 +239,15 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                             <div class="palette-control mt-4">
                                 <label class="palette-label">Container Glow</label>
                                 <div class="flex items-center gap-3">
-                                    <input type="color" id="input-glow-color" class="palette-input--color" value="${this.rgbToHex(styles.color)}" aria-label="Container glow color">
-                                    <input type="range" id="input-glow-blur" min="0" max="50" step="1" value="0" class="flex-1 accent-[var(--accent)]" aria-label="Container glow blur">
-                                    <span id="glow-blur-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">0px</span>
+                                    <input type="color" id="input-glow-color" class="palette-input--color" value="${containerGlowState.color}" aria-label="Container glow color">
+                                    <input type="range" id="input-glow-blur" min="0" max="50" step="1" value="${containerGlowState.blur}" class="flex-1 accent-[var(--accent)]" aria-label="Container glow blur">
+                                    <span id="glow-blur-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">${containerGlowState.blur}px</span>
                                 </div>
                             </div>
 
                             <!-- Container Gradient -->
                             <div class="palette-control mt-4">
-                                <label class="palette-label">Container Gradient</label>
+                                <label class="palette-label">Container Gradient (box/background)</label>
                                 <div class="flex items-center gap-2 mb-2">
                                     <input type="color" id="input-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.backgroundColor)}" aria-label="Container gradient start">
                                     <span class="text-[9px] text-zinc-500">→</span>
@@ -270,19 +259,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                                 </div>
                             </div>
 
-                            <!-- Text Mask -->
-                            <div class="palette-control mt-4 ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
-                                <label class="palette-label">Text Mask</label>
-                                <input type="text" id="input-mask-url" class="palette-input text-[10px] mb-2" placeholder="Image URL..." aria-label="Mask image URL">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-[9px] text-zinc-500 whitespace-nowrap">Mask:</span>
-                                    <input type="color" id="input-mask-color" class="palette-input--color" value="#0a0a0a" aria-label="Mask color">
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <input type="range" id="input-mask-fade" min="0" max="100" step="1" value="0" class="flex-1 accent-[var(--accent)]" aria-label="Mask fade">
-                                    <span id="mask-fade-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">0%</span>
-                                </div>
-                            </div>
+                            <!-- Text Mask removed from the base editor until the effect is trustworthy -->
                         </div>
                     </div>
 
@@ -305,7 +282,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                             <!-- Media URL -->
                             <div class="palette-control mt-4">
                                 <label class="palette-label">Media URL</label>
-                                <input type="text" id="input-media-url" class="palette-input text-[10px] mb-2" placeholder="Paste image or video URL..." aria-label="Media URL">
+                                <input type="text" id="input-media-url" class="palette-input text-[10px] mb-2" value="${existingMediaSrc}" placeholder="Paste image or video URL..." aria-label="Media URL">
                                 <button id="btn-apply-url" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-sm transition-all border border-zinc-700 uppercase tracking-widest">
                                     Apply URL
                                 </button>
@@ -362,10 +339,6 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                             SAVE
                         </button>
 
-                        <!-- Peek Button (Glasses) -->
-                        <button id="btn-peek" class="px-3 bg-zinc-800 text-zinc-400 border border-zinc-700 rounded hover:bg-zinc-700 transition" aria-label="Toggle preview" title="Toggle preview glasses">
-                            GLASSES
-                        </button>
 
                         <!-- Cancel Button -->
                         <button id="btn-cancel" class="flex-1 btn-cancel" aria-label="Discard changes" title="Discard changes (Esc)">
@@ -406,11 +379,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                         </button>
                     </div>
 
-                    <div class="palette-control mb-4 border-b border-zinc-800 pb-3">
-                        <button id="toggle-3d" class="w-full py-1.5 ${this.view3DActive ? 'bg-green-600' : 'bg-zinc-800'} text-white text-[9px] font-bold rounded-sm transition-all uppercase border border-white/5 hover:border-white/20">
-                            TOGGLE 3D VIEW
-                        </button>
-                    </div>
+                    <!-- 3D View removed from the base editor: needs a full overhaul, coming back as an advanced-editor upsell -->
 
                     <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="palette-control">
@@ -458,75 +427,13 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             </div> <!-- end tool-palette -->
         `;
 
-        this.initQuill(textContent);
-        this.matchElementStyles(element, styles);
+        this.quill = null;
         this.attachListeners();
     }
 
-    initQuill(content) {
-        if (this.debug && typeof Quill === 'undefined') {
-            console.warn('[APEX][palette] Quill is undefined - editor cannot initialize.');
-        }
-        this.quill = new Quill('#quill-editor', {
-            theme: 'snow',
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    ['clean']
-                ]
-            }
-        });
-
-        // Prevent Quill from triggering an 'onEdit' during initialization
-        this.quill.root.innerText = content || '';
-
-        this.quill.on('text-change', (delta, oldDelta, source) => {
-            if (source === 'user') {
-                // Strip Quill's <p> wrapper — block elements inside inline elements = invalid HTML
-                let html = this.quill.root.innerHTML;
-                // Unwrap single <p>...</p> to just the inner content
-                html = html.replace(/^<p>(.*)<\/p>$/s, '$1');
-                // Convert remaining <p> breaks to <br> for multi-line
-                html = html.replace(/<\/p><p>/g, '<br>');
-                html = html.replace(/^<p>|<\/p>$/g, '');
-                if (this.onEdit) this.onEdit('innerHTML', html);
-            }
-        });
-    }
-
-    matchElementStyles(element, styles) {
-        if (!this.quill || !element) return;
-
-        // Apply element's text color to Quill
-        if (styles.color) {
-            this.quill.root.style.color = styles.color;
-        }
-
-        // Apply element's background color to Quill
-        if (styles.backgroundColor && styles.backgroundColor !== 'rgba(0, 0, 0, 0)') {
-            this.quill.root.style.backgroundColor = styles.backgroundColor;
-        }
-
-        // Apply font size
-        if (styles.fontSize) {
-            this.quill.root.style.fontSize = styles.fontSize;
-        }
-
-        // Apply font family
-        if (styles.fontFamily) {
-            this.quill.root.style.fontFamily = styles.fontFamily;
-        }
-
-        // Apply font weight
-        if (styles.fontWeight) {
-            this.quill.root.style.fontWeight = styles.fontWeight;
-        }
-
-        // Apply line height
-        if (styles.lineHeight) {
-            this.quill.root.style.lineHeight = styles.lineHeight;
-        }
-    }
+    // Mirrors the active editor caret position onto the live on-page element as an
+    // empty, zero-width marker span. It MUST stay empty (no text content) so
+    // it never changes the element's textContent.
 
     attachListeners() {
         // COLLAPSIBLE SECTIONS (Phase 1 - Progressive Disclosure)
@@ -552,11 +459,12 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                 toggle.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
         });
-
         // BUTTON REFERENCES
-        const saveBtn = document.getElementById('btn-save') || document.getElementById('btn-save-changes');
-        const cancelBtn = document.getElementById('btn-cancel') || document.getElementById('btn-cancel-changes');
+        // Wire the current palette save/cancel controls so every visible exit path behaves the same way.
+        const saveBtns = [document.getElementById('btn-save')].filter(Boolean);
+        const cancelBtns = [document.getElementById('btn-cancel')].filter(Boolean);
         const closeBtn = document.getElementById('btn-close-palette');
+        const contentInput = document.getElementById('input-content');
         const colorInput = document.getElementById('input-color');
         const hexInput = document.getElementById('hex-color');
         const zInput = document.getElementById('input-zindex');
@@ -583,55 +491,48 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
         const paddingInput = document.getElementById('input-padding');
 
         // SAVE / CANCEL BUTTONS
-        if (saveBtn) {
-            saveBtn.addEventListener('click', () => {
+        saveBtns.forEach((btn) => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (this.onSave) {
                     this.onSave();
                 } else if (this.onEdit) {
                     this.onEdit('save-session', true);
                 }
-            });
-        }
+            };
+        });
 
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
+        cancelBtns.forEach((btn) => {
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (this.onCancel) {
                     this.onCancel();
                 } else if (this.onEdit) {
                     this.onEdit('cancel-session', true);
                 }
-            });
-        }
+            };
+        });
 
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
+            closeBtn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 if (this.onCancel) {
                     this.onCancel();
-                } else if (this.onEdit) {
-                    this.onEdit('cancel-session', true);
+                } else if (typeof window.exitEditMode === 'function') {
+                    window.exitEditMode();
                 }
-            });
-        }
-
-        // ADVANCED PANEL TOGGLE
-        if (advancedToggle && advancedPanel) {
-            advancedToggle.addEventListener('click', () => {
-                const isHidden = advancedPanel.classList.toggle('hidden');
-                advancedToggle.textContent = isHidden ? 'Advanced +' : 'Advanced -';
-            });
+            };
         }
 
         // RESET DROPDOWN TOGGLE
         if (resetToggle && resetDropdown) {
-            resetToggle.addEventListener('click', (e) => {
+            resetToggle.onclick = (e) => {
                 e.stopPropagation();
                 resetDropdown.classList.toggle('hidden');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', () => {
-                resetDropdown.classList.add('hidden');
-            });
+            };
         }
 
         if (opacityInput) {
@@ -662,6 +563,9 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             };
         }
 
+        document.removeEventListener('click', this._boundCloseResetDropdown);
+        document.addEventListener('click', this._boundCloseResetDropdown);
+
         if (parentBtn) {
             parentBtn.onclick = () => {
                 if (this.onEdit) this.onEdit('select-parent', this.currentElement);
@@ -675,11 +579,45 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             moveDownBtn.onclick = () => { if (this.onEdit) this.onEdit('moveDown', this.currentElement); };
         }
 
+        if (contentInput) {
+            let textSyncTimer = null;
+            const syncTextContent = (value, delay = 60) => {
+                if (textSyncTimer) clearTimeout(textSyncTimer);
+                textSyncTimer = setTimeout(() => {
+                    if (this.onEdit) this.onEdit('textContent', value);
+                }, delay);
+            };
+
+            contentInput.addEventListener('input', (e) => {
+                syncTextContent(e.target.value, 60);
+                this._renderLiveCaret(contentInput.selectionStart);
+            });
+
+            contentInput.addEventListener('paste', (e) => {
+                const pastedText = e.clipboardData ? e.clipboardData.getData('text') : '';
+                const nextValue = pastedText
+                    ? contentInput.value.slice(0, contentInput.selectionStart) + pastedText + contentInput.value.slice(contentInput.selectionEnd)
+                    : null;
+                syncTextContent(nextValue ?? contentInput.value, 120);
+                this._renderLiveCaret(contentInput.selectionStart);
+            });
+
+            // _renderLiveCaret was originally only wired to Quill's own
+            // events. In the current shipped plain-textarea mode Quill is
+            // never initialized, so those events never fire and the live
+            // caret never appeared on the page at all. Mirror the same
+            // events here so cursor movement (not just typing) is reflected.
+            ['click', 'keyup', 'select'].forEach(evt => {
+                contentInput.addEventListener(evt, () => {
+                    this._renderLiveCaret(contentInput.selectionStart);
+                });
+            });
+        }
+
         if (colorInput) {
             colorInput.oninput = (e) => {
                 if (hexInput) hexInput.value = e.target.value;
                 if (this.onEdit) this.onEdit('color', e.target.value);
-                if (this.quill) this.quill.root.style.color = e.target.value;
                 // Re-fire text glow if active (glow always follows text color)
                 const glowBlur = document.getElementById('input-text-glow-blur');
                 if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
@@ -691,7 +629,6 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                 if (!hex.startsWith('#')) hex = '#' + hex;
                 if (colorInput) colorInput.value = hex;
                 if (this.onEdit) this.onEdit('color', hex);
-                if (this.quill) this.quill.root.style.color = hex;
                 // Re-fire text glow if active (glow always follows text color)
                 const glowBlur = document.getElementById('input-text-glow-blur');
                 if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
@@ -722,7 +659,6 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
 
             // Apply edit
             if (this.onEdit) this.onEdit('fontSize', sizeValue);
-            if (this.quill) this.quill.root.style.fontSize = sizeValue;
         };
 
         if (fontSizeInput) {
@@ -797,7 +733,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                                 showImageStatus(`Storage nearly full (${Math.round(used / 1024)}KB used). Rejected.`, true);
                                 return;
                             }
-                        } catch (err) { /* storage access error — proceed anyway */ }
+                        } catch (err) { /* storage access error â€” proceed anyway */ }
 
                         if (sizeKB > MAX_ENCODED_KB) {
                             showImageStatus(`${sizeKB}KB — large, may fill storage`, false);
@@ -870,17 +806,17 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             const label = document.getElementById('glow-blur-value');
             if (label) label.textContent = blur + 'px';
             if (blur === 0) {
-                if (this.onEdit) this.onEdit('boxShadow', 'none');
+                if (this.onEdit) this.onEdit('containerBoxShadow', 'none');
                 return;
             }
             const layers = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
             const shadow = layers.map(m => `0 0 ${Math.round(blur * m)}px ${color}`).join(', ');
-            if (this.onEdit) this.onEdit('boxShadow', shadow);
+            if (this.onEdit) this.onEdit('containerBoxShadow', shadow);
         };
         if (glowColor) glowColor.oninput = updateGlow;
         if (glowBlur) glowBlur.oninput = updateGlow;
 
-        // TEXT GLOW controls (always uses current text color — no separate color picker)
+        // TEXT GLOW controls (always uses current text color â€” no separate color picker)
         const textGlowBlur = document.getElementById('input-text-glow-blur');
         const textGlowColor = document.getElementById('input-text-glow-color');
         const updateTextGlow = () => {
@@ -916,7 +852,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
                 this.onEdit('backgroundClip', 'text');
                 this.onEdit('webkitTextFillColor', 'transparent');
             }
-            // Gray out Text Color — gradient overrides it
+            // Gray out Text Color â€” gradient overrides it
             const colorControl = document.getElementById('text-color-control');
             const colorLabel = document.getElementById('text-color-label');
             if (colorControl) { colorControl.style.opacity = '0.3'; colorControl.style.pointerEvents = 'none'; }
@@ -951,7 +887,17 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
             const angle = gradAngle ? parseInt(gradAngle.value) : 180;
             const label = document.getElementById('grad-angle-value');
             if (label) label.textContent = angle + '°';
-            if (this.onEdit) this.onEdit('backgroundImage', `linear-gradient(${angle}deg, ${c1}, ${c2})`);
+            if (this.onEdit) {
+                // Container Gradient and Text Gradient are mutually exclusive
+                // visually. If Text Gradient was left on (text-fill-color still
+                // transparent), the container's real gradient shows through the
+                // see-through letters and looks like "text coloring" instead of
+                // a container background, even though this call is correct.
+                this.onEdit('webkitBackgroundClip', '');
+                this.onEdit('backgroundClip', '');
+                this.onEdit('webkitTextFillColor', '');
+                this.onEdit('containerBackgroundImage', `linear-gradient(${angle}deg, ${c1}, ${c2})`);
+            }
         };
         if (gradColor1) gradColor1.oninput = updateGradient;
         if (gradColor2) gradColor2.oninput = updateGradient;
@@ -1059,6 +1005,43 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
         return "#" + ((1 << 24) + (+r << 16) + (+g << 8) + +b).toString(16).slice(1);
     }
 
+    parseBoxShadowControlState(boxShadow, fallbackColor = '#00ff00') {
+        if (!boxShadow || boxShadow === 'none') {
+            return { color: fallbackColor, blur: 0 };
+        }
+        const colors = boxShadow.match(/#[0-9a-fA-F]{6}|rgba?\([^\)]+\)/g) || [];
+        const color = colors.length ? this.rgbToHex(colors[colors.length - 1]) : fallbackColor;
+        const blurMatches = [...boxShadow.matchAll(/(?:^|\s)(\d+)px(?![^,]*inset)/g)]
+            .map(m => parseInt(m[1], 10))
+            .filter(n => !isNaN(n));
+
+        let blur = 0;
+        if (blurMatches.length >= 4) {
+            // Generated container glow shadows use the fixed multiplier series
+            // [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4]. The 4th value is the user's
+            // actual base slider value; the largest value is 4x and was causing
+            // reopen to snap to the max.
+            blur = blurMatches[3];
+        } else if (blurMatches.length) {
+            blur = Math.round(Math.max(...blurMatches) / 4);
+        }
+
+        blur = Math.max(0, Math.min(50, blur));
+        return { color, blur };
+    }
+
+    parseGradientControlState(backgroundImage, fallbackColor1 = '#000000', fallbackColor2 = '#ffffff') {
+        if (!backgroundImage || backgroundImage === 'none' || !backgroundImage.includes('linear-gradient')) {
+            return { color1: fallbackColor1, color2: fallbackColor2, angle: 180 };
+        }
+        const angleMatch = backgroundImage.match(/linear-gradient\(([-\d.]+)deg/i);
+        const angle = angleMatch ? Math.max(0, Math.min(360, Math.round(parseFloat(angleMatch[1])))) : 180;
+        const colors = backgroundImage.match(/#[0-9a-fA-F]{6}|rgba?\([^\)]+\)/g) || [];
+        const color1 = colors[0] ? this.rgbToHex(colors[0]) : fallbackColor1;
+        const color2 = colors[1] ? this.rgbToHex(colors[1]) : fallbackColor2;
+        return { color1, color2, angle };
+    }
+
     showStandby() {
         this.container.classList.remove('hidden');
         this.contentArea.innerHTML = `
@@ -1093,6 +1076,7 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
     }
 
     setDirty(isDirty) {
+        this.isDirty = !!isDirty;
         const indicator = document.getElementById('dirty-indicator');
         if (indicator) {
             indicator.classList.toggle('hidden', !isDirty);
@@ -1102,15 +1086,186 @@ closeBtn.className = 'absolute top-3 right-3 z-40 w-8 h-8 flex items-center just
     focusEditor(role) {
         setTimeout(() => {
             if (role === 'text') {
-                const quillEditor = document.querySelector('.ql-editor');
-                if (quillEditor) quillEditor.focus();
             } else {
                 const colorInput = document.getElementById('input-color');
                 if (colorInput) colorInput.focus();
             }
         }, 100);
     }
+
+    syncCaretFromPagePoint(clientX, clientY) {
+        const el = this.currentElement;
+        if (!el) return false;
+
+        const index = this._getTextOffsetFromPoint(el, clientX, clientY);
+        if (typeof index !== 'number') return false;
+
+        const plainContentInput = document.getElementById('input-content');
+        if (plainContentInput) {
+            try {
+                try {
+                    plainContentInput.focus({ preventScroll: true });
+                } catch (err) {
+                    plainContentInput.focus();
+                }
+                plainContentInput.setSelectionRange(index, index);
+                this._renderLiveCaret(index);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    _getTextOffsetFromPoint(el, clientX, clientY) {
+        if (!el) return null;
+
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                return node.nodeValue && node.nodeValue.length
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_REJECT;
+            }
+        });
+
+        let total = 0;
+        let bestIndex = null;
+        let bestScore = Number.POSITIVE_INFINITY;
+        let node;
+
+        const scoreRect = (rect) => {
+            const x = rect.left;
+            const top = rect.top;
+            const bottom = rect.bottom || rect.top;
+            const y = clientY < top ? top : (clientY > bottom ? bottom : clientY);
+            const dx = x - clientX;
+            const dy = y - clientY;
+            return (dx * dx) + (dy * dy);
+        };
+
+        while ((node = walker.nextNode())) {
+            const len = node.nodeValue.length;
+            for (let offset = 0; offset <= len; offset++) {
+                const range = document.createRange();
+                range.setStart(node, offset);
+                range.collapse(true);
+
+                let rect = range.getBoundingClientRect();
+                if ((!rect || (!rect.width && !rect.height)) && offset > 0) {
+                    const probe = document.createRange();
+                    probe.setStart(node, offset - 1);
+                    probe.setEnd(node, offset);
+                    const probeRect = probe.getBoundingClientRect();
+                    if (probeRect) {
+                        rect = {
+                            left: probeRect.right,
+                            top: probeRect.top,
+                            bottom: probeRect.bottom,
+                            width: 0,
+                            height: probeRect.height
+                        };
+                    }
+                }
+
+                if (!rect || (rect.left === 0 && rect.top === 0 && !rect.width && !rect.height)) {
+                    continue;
+                }
+
+                const score = scoreRect(rect);
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestIndex = total + offset;
+                }
+            }
+            total += len;
+        }
+
+        if (typeof bestIndex === 'number') {
+            return bestIndex;
+        }
+
+        return total;
+    }
+
+    // Mirrors the textarea caret onto the live page element by inserting a
+    // zero-text-content <span class="ax-live-caret"> at the matching text
+    // offset. Zero content deliberately, so it can never trip the
+    // textContent-resync mismatch check in update(). Restores behavior
+    // documented in potch.md as originally wired to Quill-only events; the
+    // event wiring was already migrated to plain-textarea mode, but this
+    // method itself was never carried over, leaving every call site
+    // (input/paste/click/keyup/select, plus syncCaretFromPagePoint) calling
+    // an undefined method.
+    _renderLiveCaret(index) {
+        const el = this.currentElement;
+        if (!el || typeof index !== 'number') return;
+
+        // Clear any previous marker on this element before inserting the new
+        // one so carets never accumulate as the user types or moves around.
+        el.querySelectorAll('.ax-live-caret').forEach(node => node.remove());
+
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+            acceptNode(node) {
+                return node.nodeValue && node.nodeValue.length
+                    ? NodeFilter.FILTER_ACCEPT
+                    : NodeFilter.FILTER_REJECT;
+            }
+        });
+
+        let total = 0;
+        let target = null;
+        let targetOffset = 0;
+        let node;
+        let lastNode = null;
+
+        while ((node = walker.nextNode())) {
+            lastNode = node;
+            const len = node.nodeValue.length;
+            if (index <= total + len) {
+                target = node;
+                targetOffset = index - total;
+                break;
+            }
+            total += len;
+        }
+
+        // Index past the last text node (caret at the very end of the
+        // content) lands on the end of the last text node instead of
+        // silently doing nothing.
+        if (!target && lastNode) {
+            target = lastNode;
+            targetOffset = lastNode.nodeValue.length;
+        }
+
+        if (!target) return;
+
+        try {
+            const marker = document.createElement('span');
+            marker.className = 'ax-live-caret';
+            const after = target.splitText(targetOffset);
+            target.parentNode.insertBefore(marker, after);
+        } catch (err) {
+            // A caret marker is a visual nice-to-have; it should never break
+            // editing if the DOM shifted under us mid-keystroke.
+        }
+    }
 }
 
 export { ToolPalette };
 export default ToolPalette;
+
+
+
+
+
+
+
+
+
+
+
+
+
+

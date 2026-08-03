@@ -1,6 +1,6 @@
-import { MagnifyingGlass } from './lens-ui.js';
-import ElementDetector from './elementDetector.js?v=editor-20260726-contrast7';
-import { ToolPalette } from './tool-palette.js?v=editor-20260726-contrast7';
+import { MagnifyingGlass } from './lens-ui.js?v=editor-20260729-crosshair1';
+import ElementDetector from './elementDetector.js?v=editor-20260802-mixedcontent1';
+import { ToolPalette } from './tool-palette.js?v=editor-20260802-deadcoderemoved1';
 
 export default class MagnifyingGlassInspector {
     constructor(weblingName = null) {
@@ -35,14 +35,23 @@ export default class MagnifyingGlassInspector {
 
         // Edit Session State
         this.editSession = {
-            active: false,           // Is an edit session in progress?
-            element: null,           // Element being edited
-            originalState: null,     // Snapshot of original values (for Cancel)
-            pendingChanges: {},      // Buffer of pending edits (for Save)
-            disabledButtons: [],     // Store buttons disabled during edit mode (for recovery)
-            disabledNavElements: [], // Separate storage for nav buttons (different shape)
-            autoSaveTimer: null      // FIX 2: Timer for auto-save every 3 seconds
+            active: false,             // Is an edit session in progress?
+            element: null,             // Element being edited
+            originalState: null,       // Snapshot of original values (for Cancel)
+            containerOriginalState: null, // Snapshot of the nearest block container styles
+            pendingChanges: {},        // Buffer of pending edits (for Save)
+            disabledButtons: [],       // Store buttons disabled during edit mode (for recovery)
+            disabledNavElements: [],   // Separate storage for nav buttons (different shape)
+            autoSaveTimer: null,       // FIX 2: Timer for auto-save every 3 seconds
+            containerPreviewTarget: null
         };
+
+        // Bind drag handlers once so activate/deactivate can remove the same
+        // listeners instead of stacking fresh anonymous functions on reopen.
+        this._boundPaletteDragStart = (e) => this._startDrag(e, this.palette.container);
+        this._boundPaletteDragMove = (e) => this._continueDrag(e);
+        this._boundPaletteDragEnd = () => this._endDrag();
+        this._dragListenersAttached = false;
 
         // Create lockdown overlay (blocks all page interactions during edit)
         this.lockdownOverlay = document.createElement('div');
@@ -55,7 +64,7 @@ export default class MagnifyingGlassInspector {
             width: 100%;
             height: 100%;
             z-index: 19998;
-            background: rgba(0, 0, 0, 0.3);
+            background: transparent;
             display: none;
             pointer-events: auto;
             cursor: default;
@@ -94,8 +103,8 @@ export default class MagnifyingGlassInspector {
         brandStamp.setAttribute('aria-label', 'Visit Axxilak.com');
         brandStamp.setAttribute('data-anothen-internal', '');
         brandStamp.setAttribute('data-ax-locked', 'true');
-        brandStamp.style.cssText = 'position:fixed;left:20px;bottom:20px;z-index:1000;display:inline-flex;align-items:center;gap:8px;color:rgba(250,250,250,.72);font:700 10px/1 JetBrains Mono,monospace;letter-spacing:.16em;text-decoration:none;text-transform:uppercase;transition:color 160ms ease,opacity 160ms ease;';
-        brandStamp.innerHTML = '<span aria-hidden="true" style="color:#d4af37;font-size:15px;line-height:1;">◆</span><span>AXXILAK<span style="color:#d4af37;">.COM</span></span>';
+        brandStamp.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:1000;display:inline-flex;align-items:center;gap:8px;color:rgba(250,250,250,.72);font:700 10px/1 JetBrains Mono,monospace;letter-spacing:.16em;text-decoration:none;text-transform:uppercase;cursor:pointer;transition:color 160ms ease,opacity 160ms ease;';
+        brandStamp.innerHTML = '<span aria-hidden="true" style="color:#d4af37;font-size:15px;line-height:1;">?</span><span>AXXILAK<span style="color:#d4af37;">.COM</span></span>';
         brandStamp.addEventListener('mouseenter', () => { brandStamp.style.color = '#ffffff'; });
         brandStamp.addEventListener('mouseleave', () => { brandStamp.style.color = 'rgba(250,250,250,.72)'; });
         document.body.appendChild(brandStamp);
@@ -163,6 +172,28 @@ export default class MagnifyingGlassInspector {
         this._setupCounterPersistence(counterKey);
         this.palette = new ToolPalette();
         this.palette.debug = this.debug;
+        this.palette.onCancel = () => {
+            // Close/Cancel should just deselect the current element and
+            // drop back into hover mode so the next one can be picked
+            // straight away - it shouldn't exit Edit Mode entirely.
+            // _cancelEditSession() (via the shared _endEditSession(), also
+            // used by Save) does the real cleanup: reverts pending changes,
+            // tears down the lockdown overlay, restores nav/scroll - but it
+            // also unconditionally flips Edit Mode off, since that shared
+            // function is what a genuine full exit uses too. Don't touch
+            // that shared function (Save relies on the same exit behavior);
+            // instead re-assert "still in Edit Mode" right after, only on
+            // this path.
+            if (this.editSession.active) {
+                this._cancelEditSession();
+            }
+            if (this.isActive) {
+                document.body.classList.add('edit-mode');
+                if (typeof window.__apexSetEditModeState === 'function') {
+                    window.__apexSetEditModeState(true);
+                }
+            }
+        };
 
         this.detector.onDetect = (data) => {
             if (!this.isActive || this.isPreviewMode) return;
@@ -218,15 +249,10 @@ export default class MagnifyingGlassInspector {
                 return;
             }
             if (property === 'view3D') {
-                if (value) {
-                    // End any active edit session before entering 3D view
-                    if (this.editSession.active) {
-                        this._endEditSession();
-                    }
-                    this.activate3DView();
-                } else {
-                    this.deactivate3DView();
-                }
+                // 3D View removed from the base editor (needs a full overhaul;
+                // coming back as an advanced-editor upsell). Entry point is
+                // gone from the palette; this guard keeps it inert even if
+                // something else still tries to flip it on.
                 return;
             }
             if (property === 'toggleLabels') {
@@ -289,7 +315,8 @@ export default class MagnifyingGlassInspector {
                 return;
             }
 
-            // Buffer edits during session
+            // Buffer edits only during an explicit active session.
+            // Hover/targeting must never auto-promote into a locked edit state.
             if (this.editSession.active && this.palette.currentElement) {
                 this._bufferEdit(property, value);
             }
@@ -306,8 +333,17 @@ export default class MagnifyingGlassInspector {
             // Only reposition lens on window re-entry if NOT in edit session (keep it locked during edit)
             if (!this.editSession.active) {
                 this.lens.moveTo(e.clientX, e.clientY);
+                this.lens.show();
+            } else {
+                // Re-entry during an active edit session must NOT re-enable the
+                // targeting-mode cursor suppression. Show the locked reticle if
+                // needed, but keep the native cursor available for both the
+                // palette and the on-page text target.
+                this.lens.lensContainer.style.display = 'block';
+                this.lens.isVisible = true;
+                document.body.classList.remove('ax-lens-active');
+                document.body.style.cursor = '';
             }
-            this.lens.show();
         });
 
         window.addEventListener('pointermove', (e) => {
@@ -339,7 +375,7 @@ export default class MagnifyingGlassInspector {
             if (!this.isActive || this.isPreviewMode) return;
 
             const isOverPalette = this.palette.container.contains(e.target);
-            const isPaletteInput = e.target.closest('#palette-container input, #palette-container textarea, #palette-container select, .ql-editor, #palette-container button');
+            const isPaletteInput = e.target.closest('#palette-container input, #palette-container textarea, #palette-container select, #palette-container button');
 
             // Allow palette interactions
             if (isPaletteInput) return;
@@ -394,9 +430,19 @@ export default class MagnifyingGlassInspector {
             }
 
             // NORMAL MODE: Start edit session
-            // Warn if unsaved changes exist
             if (this.editSession.active) {
-                if (confirm('You have unsaved changes. Discard them?')) {
+                const currentEl = this.editSession.element;
+                const hasPendingChanges = Object.keys(this.editSession.pendingChanges || {}).length > 0;
+
+                // Clicking the already-active element should not restart or block the session.
+                if (currentEl === clickedElement) {
+                    return;
+                }
+
+                // If nothing is dirty, switch targets cleanly without a scary discard prompt.
+                if (!hasPendingChanges) {
+                    this._endEditSession();
+                } else if (confirm('You have unsaved changes. Discard them?')) {
                     this._cancelEditSession();
                 } else {
                     return;
@@ -437,8 +483,16 @@ export default class MagnifyingGlassInspector {
 
             // Handle Delete key
             if ((e.key === 'Delete' || e.key === 'Backspace') && this.highlightedElement) {
+                // Whenever an edit session is open, Backspace/Delete belongs to
+                // the content textarea, never to this whole-element shortcut -
+                // even if a click on the page (e.g. repositioning the caret)
+                // landed just outside the element's box and focus fell back to
+                // <body>. That focus gap used to let a real Backspace here pop
+                // "Delete this element?" instead of just deleting a character.
+                if (this.editSession.active) return;
+
                 // Ensure we aren't typing in an input or contentEditable element
-                if (e.target.closest('input, textarea, .ql-editor, [contenteditable="true"]')) return;
+                if (e.target.closest('input, textarea, [contenteditable="true"]')) return;
 
                 e.preventDefault();
                 const isLocked = this.highlightedElement.dataset.axLocked === 'true' || this.highlightedElement.closest('[data-ax-locked="true"]');
@@ -451,7 +505,18 @@ export default class MagnifyingGlassInspector {
             }
         });
 
+        // Deterministic ID pass, once, before any saved edit tries to replay -
+        // see initLattice()'s own comment for why this is required for
+        // persistence to survive a reload at all.
+        this.detector.initLattice({ reset: true });
         this.applyAllSavedEdits();
+        // Live caret markers are only ever meant to exist during an active
+        // edit session. deactivate() only clears them via _endEditSession(),
+        // which never runs here since no session is active yet at first
+        // load - so any stray marker baked into old saved edit data (from
+        // before today's mixed-content/textContent fixes) would otherwise
+        // survive straight onto the fresh page. Sweep unconditionally.
+        document.querySelectorAll('.ax-live-caret').forEach(node => node.remove());
         this.deactivate();
 
         // Watch for theme changes to swap edit sets
@@ -559,10 +624,14 @@ export default class MagnifyingGlassInspector {
             previewBtn.onclick = () => this.togglePreviewMode();
         }
 
-        // Palette dragging still works because it's interactive
-        this.palette.container.addEventListener('mousedown', (e) => this._startDrag(e, this.palette.container));
-        document.addEventListener('mousemove', (e) => this._continueDrag(e));
-        document.addEventListener('mouseup', () => this._endDrag());
+        // Palette dragging still works because it's interactive. Attach these
+        // once per activation cycle instead of stacking them on every reopen.
+        if (!this._dragListenersAttached) {
+            this.palette.container.addEventListener('mousedown', this._boundPaletteDragStart);
+            document.addEventListener('mousemove', this._boundPaletteDragMove);
+            document.addEventListener('mouseup', this._boundPaletteDragEnd);
+            this._dragListenersAttached = true;
+        }
     }
 
     togglePreviewMode() {
@@ -625,6 +694,13 @@ export default class MagnifyingGlassInspector {
         const editOverrides = document.getElementById('apex-edit-overrides');
         if (editOverrides) editOverrides.remove();
 
+
+        if (this._dragListenersAttached) {
+            this.palette.container.removeEventListener('mousedown', this._boundPaletteDragStart);
+            document.removeEventListener('mousemove', this._boundPaletteDragMove);
+            document.removeEventListener('mouseup', this._boundPaletteDragEnd);
+            this._dragListenersAttached = false;
+        }
         // Restore site's native cursor
         document.body.style.cursor = '';
         const nativeCursor = document.getElementById('cursor');
@@ -671,9 +747,38 @@ export default class MagnifyingGlassInspector {
         const top = rect.top + window.scrollY;
         const left = rect.left + window.scrollX;
 
-        // Offset bar so it sits ON the top border
-        this.contextBar.style.top = (rect.top - 20) + 'px';
-        this.contextBar.style.left = rect.left + 'px';
+        // Default position: sit just above the element's top-left corner.
+        let barTop = rect.top - 20;
+        let barLeft = rect.left;
+
+        // Keep the context bar from trampling the persistent lower-left
+        // Axxilak maker stamp. If the rectangles would overlap, move the bar
+        // above the stamp instead.
+        const stamp = document.getElementById('axxilak-maker-stamp');
+        const barWidth = this.contextBar.offsetWidth || 160;
+        const barHeight = this.contextBar.offsetHeight || 24;
+        if (stamp) {
+            const stampRect = stamp.getBoundingClientRect();
+            const overlapsStamp = !(
+                barLeft + barWidth < stampRect.left ||
+                barLeft > stampRect.right ||
+                barTop + barHeight < stampRect.top ||
+                barTop > stampRect.bottom
+            );
+            if (overlapsStamp) {
+                barTop = Math.max(8, stampRect.top - barHeight - 8);
+                if (barTop + barHeight > stampRect.top) {
+                    barLeft = stampRect.right + 12;
+                }
+            }
+        }
+
+        // Viewport clamp so the bar stays readable at the edges.
+        barLeft = Math.max(8, Math.min(barLeft, window.innerWidth - barWidth - 8));
+        barTop = Math.max(8, Math.min(barTop, window.innerHeight - barHeight - 8));
+
+        this.contextBar.style.top = barTop + 'px';
+        this.contextBar.style.left = barLeft + 'px';
     }
 
     _clearHighlight() {
@@ -689,6 +794,12 @@ export default class MagnifyingGlassInspector {
 
     _startEditSession(el) {
         const data = this.detector._extractElementData(el);
+        const containerPreviewState = this._captureContainerStyleState(el);
+        if (data && containerPreviewState) {
+            data.containerBoxShadow = containerPreviewState.boxShadow || 'none';
+            data.containerBackgroundImage = containerPreviewState.backgroundImage || 'none';
+            data.containerTargetSelector = containerPreviewState.selector || '';
+        }
 
         // Skip locked elements
         if (el.dataset.axLocked === 'true') return;
@@ -711,6 +822,7 @@ export default class MagnifyingGlassInspector {
         this.editSession.active = true;
         this.editSession.element = el;
         this.editSession.originalState = this._captureElementState(el);
+        this.editSession.containerOriginalState = this._captureContainerStyleState(el);
         this.editSession.pendingChanges = {};
         this.editSession.disabledButtons = []; // Track buttons we disable
 
@@ -727,7 +839,7 @@ export default class MagnifyingGlassInspector {
 
         // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.id !== 'btn-edit' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container')) { // Skip EDIT, toolbar, and palette buttons
+            if (btn.id !== 'edit-mode-btn' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container')) { // Skip EDIT, toolbar, and palette buttons
                 // Store original onclick attribute
                 this.editSession.disabledButtons.push({
                     button: btn,
@@ -747,8 +859,19 @@ export default class MagnifyingGlassInspector {
         this.lens.moveTo(centerX, centerY);
         this.lens.setSearching(true); // Desaturate to show "locked"
 
-        // Visual feedback
-        el.classList.add('apex-edit-locked');
+        // During an active edit session, the palette needs a real native
+        // cursor. Keep the locked crosshair visible on the target itself, but
+        // stop the body-wide cursor suppression until the session ends.
+        document.body.classList.remove('ax-lens-active');
+        document.body.style.cursor = '';
+
+        // Visual feedback: text leaves proved sensitive to selection chrome and
+        // could jump during preview. Keep the stronger lock outline for media/
+        // structure targets, but let plain text targets stay in-flow while the
+        // palette/context bar carry selection state.
+        if (data.role !== 'text') {
+            el.classList.add('apex-edit-locked');
+        }
 
         // SHOW PALETTE FIRST (make it visible and laid out before Quill initializes)
         this.palette.show();
@@ -763,31 +886,34 @@ export default class MagnifyingGlassInspector {
             peekBtn.addEventListener('animationend', () => {
                 peekBtn.classList.remove('apex-peek-flash');
             }, { once: true });
-        }        // THEN update with data (initializes Quill with proper layout)
+        }
+        // THEN update with data once the palette is visible and laid out
         this.palette.update(data);
 
-        // Keep the selected target visible while its controls have focus.
+        // Keep every selected target visibly framed. The original jump bug
+        // traced to 'apex-edit-locked' specifically (it pulses/animates —
+        // see its CSS, `animation: apex-edit-pulse`), not to the plain,
+        // static 'apex-highlighted' outline used here. Excluding text roles
+        // from the pulsing lock chrome (above) stays; excluding them from a
+        // static, non-animating outline was overbroad and left every span
+        // (badges, stat numbers, headings) with no visible selection frame
+        // at all beyond the small lens reticle.
         this.highlightElement(el);
+        
         this.updateContextBar(el);
 
-        // ACTIVATE CONTENT FIELD GLOW
-        const quillContainer = document.getElementById('quill-editor');
-        if (quillContainer) {
-            quillContainer.classList.add('apex-editor-active');
-        }
-
-        // PREVENT INLINE EDITING: Blur the element so cursor doesn't appear inline
+        // PREVENT INLINE EDITING: blur the live element so the textarea is the
+        // single active typing surface during an edit session.
         el.blur();
 
-        // THEN auto-focus palette editor based on role (immediately, not deferred)
+        // THEN auto-focus the active palette control based on role.
         if (data.role === 'text') {
-            const quillEditor = document.querySelector('.ql-editor');
-            if (quillEditor) {
-                if (this.palette && this.palette.quill) {
-                    this.palette.quill.focus();
-                    this.palette.quill.setSelection(Math.max(0, this.palette.quill.getLength() - 1), 0, 'silent');
-                } else {
-                    quillEditor.focus();
+            const plainContentInput = document.getElementById('input-content');
+            if (plainContentInput) {
+                try {
+                    plainContentInput.focus({ preventScroll: true });
+                } catch (err) {
+                    plainContentInput.focus();
                 }
             }
         } else {
@@ -798,34 +924,42 @@ export default class MagnifyingGlassInspector {
         }
 
         // LOCK DOWN PAGE - Nothing else can be clicked except the editor/palette
+        this._previousBodyOverflow = document.body.style.overflow;
+        this._previousDocOverflow = document.documentElement.style.overflow;
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.body.classList.add('ax-editing');
         this.lockdownOverlay.style.display = 'block';
         this.lockdownOverlay.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
             return false;
         };
-        // Block all non-palette clicks during edit
+        // During edit, clicks on the locked page can still be meaningful if
+        // they land inside the selected text element: use them to reposition
+        // the mirrored caret in both the live element and Quill.
         this.lockdownOverlay.onmousedown = (e) => {
+            const activeEl = this.editSession.element;
+            if (activeEl && this.palette && typeof this.palette.syncCaretFromPagePoint === 'function') {
+                const rect = activeEl.getBoundingClientRect();
+                const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+                if (inside) {
+                    const synced = this.palette.syncCaretFromPagePoint(e.clientX, e.clientY);
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return synced ? false : false;
+                }
+            }
             e.stopPropagation();
             e.preventDefault();
             return false;
         };
 
-        // CRITICAL: Disable pointer-events on ALL page content
-        const scene = document.getElementById('apex-3d-scene');
-        if (scene) {
-            scene.style.cssText += 'pointer-events: none !important;';
-            // Also disable on all descendants to be sure
-            scene.querySelectorAll('*').forEach(el => {
-                if (!el.classList.contains('lens-container') && !el.closest('#palette-container')) {
-                    el.style.pointerEvents = 'none';
-                }
-            });
-        }
-
-        // ALSO lock nav (it's OUTSIDE the scene)
-        const nav = document.querySelector('nav');
-        if (nav) nav.style.cssText += 'pointer-events: none !important;';
+        // The full-screen lockdown overlay already blocks page interaction
+        // during an edit session. Do not also stamp pointer-events:none across
+        // the entire scene tree: that has been leaving the page in a poisoned
+        // state after close/reopen and also hides live visual previews such as
+        // container glow until the editor exits.
 
         // DISABLE button handlers in nav (pointer-events alone doesn't stop inline onclick)
         try {
@@ -838,7 +972,7 @@ export default class MagnifyingGlassInspector {
     _disableNavButtons() {
         // Find ALL buttons and interactive elements on page, EXCEPT Edit button
         const interactiveElements = Array.from(document.querySelectorAll(
-            'button:not([data-anothen-internal]):not(#edit-mode-btn), a[href]:not([data-anothen-internal]), [onclick]:not([data-anothen-internal])'
+            'a[href]:not([data-anothen-internal]), [onclick]:not(button):not([data-anothen-internal])'
         )).filter((el) => !el.closest('#palette-container') && !el.closest('.lens-container'));
         this.editSession.disabledNavElements = [];
 
@@ -913,20 +1047,35 @@ export default class MagnifyingGlassInspector {
         }
     }
 
-    highlightElement(el) {
-        // Remove previous highlight
-        if (this.highlightedElement && this.highlightedElement !== el) {
-            this.highlightedElement.classList.remove('apex-highlighted');
-            this.highlightedElement.classList.remove('apex-danger-target');
+    _setContainerPreviewTarget(target) {
+        if (this.editSession.containerPreviewTarget && this.editSession.containerPreviewTarget !== target) {
+            this.editSession.containerPreviewTarget.classList.remove('apex-container-preview-target');
         }
+        this.editSession.containerPreviewTarget = target || null;
+        if (target && target !== this.editSession.element) {
+            target.classList.add('apex-container-preview-target');
+        }
+    }
+
+    highlightElement(el) {
+        // Sweep stale highlight classes from the whole document first. Relying
+        // on a single remembered element reference has allowed old glow state
+        // to survive on prior targets after saves / retargets.
+        document.querySelectorAll('.apex-highlighted, .apex-danger-target').forEach(node => {
+            if (node !== el) {
+                node.classList.remove('apex-highlighted', 'apex-danger-target');
+            }
+        });
 
         // Add highlight to new element
         el.classList.add('apex-highlighted');
-        
+
         // Add danger class if not locked
         const isLocked = el.dataset.axLocked === 'true' || el.closest('[data-ax-locked="true"]');
         if (!isLocked) {
             el.classList.add('apex-danger-target');
+        } else {
+            el.classList.remove('apex-danger-target');
         }
 
         this.highlightedElement = el;
@@ -949,7 +1098,7 @@ export default class MagnifyingGlassInspector {
         if (e.button !== 0) return; // Only left-click
         
         // Allow interaction with inputs and editor
-        const isInteractive = e.target.closest('input, textarea, select, .ql-editor, button');
+        const isInteractive = e.target.closest('input, textarea, select, button');
         if (isInteractive) return;
 
         e.preventDefault();
@@ -995,6 +1144,54 @@ export default class MagnifyingGlassInspector {
         setTimeout(() => el.classList.remove('apex-spark'), 500);
     }
 
+    _resolveContainerStyleTarget(el) {
+        if (!el) return null;
+
+        if (this.detector && this.detector._isInternal && this.detector._isInternal(el)) {
+            return null;
+        }
+
+        const inlineTags = new Set(['SPAN', 'A', 'STRONG', 'EM', 'B', 'I', 'SMALL', 'LABEL']);
+        const styles = window.getComputedStyle(el);
+        const isInline = styles.display === 'inline' || styles.display === 'contents';
+        const looksInline = inlineTags.has(el.tagName);
+
+        if (!isInline && !looksInline) {
+            return el;
+        }
+
+        let parent = el.parentElement;
+        while (parent && parent !== document.body) {
+            if (this.detector && this.detector._isInternal && this.detector._isInternal(parent)) {
+                parent = parent.parentElement;
+                continue;
+            }
+
+            const parentStyles = window.getComputedStyle(parent);
+            const parentIsInline = parentStyles.display === 'inline' || parentStyles.display === 'contents';
+            const parentLooksInline = inlineTags.has(parent.tagName);
+            if (!parentIsInline && !parentLooksInline) {
+                return parent;
+            }
+            parent = parent.parentElement;
+        }
+
+        return el.parentElement || el;
+    }
+
+    _captureContainerStyleState(el) {
+        const target = this._resolveContainerStyleTarget(el);
+        if (!target) return null;
+
+        const styles = window.getComputedStyle(target);
+        return {
+            target,
+            selector: this.detector.getUniqueSelector(target),
+            boxShadow: styles.boxShadow || 'none',
+            backgroundImage: styles.backgroundImage || 'none'
+        };
+    }
+
     _captureElementState(el) {
         const styles = window.getComputedStyle(el);
         const data = this.detector._extractElementData(el);
@@ -1004,6 +1201,7 @@ export default class MagnifyingGlassInspector {
             color: styles.color,
             backgroundColor: styles.backgroundColor,
             zIndex: styles.zIndex,
+            whiteSpace: styles.whiteSpace,
             fontFamily: styles.fontFamily,
             opacity: styles.opacity,
             margin: styles.margin,
@@ -1122,6 +1320,22 @@ export default class MagnifyingGlassInspector {
             return;
         }
 
+        // Apply container-only styling to the nearest real block target rather than
+        // the inline text node itself.
+        if (property === 'containerBoxShadow' || property === 'containerBackgroundImage') {
+            const containerState = this.editSession.containerOriginalState || this._captureContainerStyleState(el);
+            const target = containerState?.target || this._resolveContainerStyleTarget(el);
+            if (!target) return;
+
+            this.editSession.containerOriginalState = containerState || this._captureContainerStyleState(el);
+            this._setContainerPreviewTarget(target);
+            this.editSession.pendingChanges[property] = value;
+            const styleProp = property === 'containerBoxShadow' ? 'boxShadow' : 'backgroundImage';
+            target.style[styleProp] = value;
+            this.palette.setDirty(true);
+            return;
+        }
+
         // Store in pending changes
         this.editSession.pendingChanges[property] = value;
 
@@ -1132,6 +1346,7 @@ export default class MagnifyingGlassInspector {
         const el = this.editSession.element;
         if (property === 'textContent') {
             this.detector._setTextNodes(el, value);
+            el.style.whiteSpace = typeof value === 'string' && /\r?\n/.test(value) ? 'pre-wrap' : 'normal';
         } else if (property === 'innerHTML') {
             el.innerHTML = value;
         } else if (property === 'href') {
@@ -1164,6 +1379,23 @@ export default class MagnifyingGlassInspector {
                 const newPos = currentPos === 'static' ? 'relative' : currentPos;
                 this.edits[selector]['position'] = newPos;
                 this.edits[selector]['zIndex'] = value;
+            } else if (property === 'containerBoxShadow' || property === 'containerBackgroundImage') {
+                const containerState = this.editSession.containerOriginalState || this._captureContainerStyleState(el);
+                const target = containerState?.target || this._resolveContainerStyleTarget(el);
+                const targetSelector = containerState?.selector || (target ? this.detector.getUniqueSelector(target) : null);
+                const styleProp = property === 'containerBoxShadow' ? 'boxShadow' : 'backgroundImage';
+
+                if (target && targetSelector) {
+                    if (!this.originals[targetSelector]) {
+                        this.originals[targetSelector] = {
+                            innerHTML: target.innerHTML,
+                            src: target.tagName === 'IMG' ? target.src : undefined,
+                            style: target.getAttribute('style') || ''
+                        };
+                    }
+                    if (!this.edits[targetSelector]) this.edits[targetSelector] = {};
+                    this.edits[targetSelector][styleProp] = value;
+                }
             } else {
                 this.edits[selector][property] = value;
             }
@@ -1175,8 +1407,14 @@ export default class MagnifyingGlassInspector {
         // Visual feedback
         this.triggerSpark(el);
 
-        // Clean up session
-        this._endEditSession();
+        // Stay in the current edit session after save. Save should commit the
+        // current state, clear dirty markers, and let the user continue working
+        // instead of tearing the editor down into a half-closed state.
+        this.editSession.originalState = this._captureElementState(el);
+        this.editSession.containerOriginalState = this._captureContainerStyleState(el);
+        this.editSession.pendingChanges = {};
+        this.palette.setDirty(false);
+        this.updateContextBar(el);
     }
 
     _cancelEditSession() {
@@ -1184,6 +1422,15 @@ export default class MagnifyingGlassInspector {
 
         const el = this.editSession.element;
         const original = this.editSession.originalState;
+
+        // After a clean Save, Cancel should behave like Close unless there are
+        // new unsaved changes in the current session. Re-running the full revert
+        // path here was deleting/collapsing some elements after save.
+        const hasPendingChanges = !!(this.palette && this.palette.isDirty) || Object.keys(this.editSession.pendingChanges || {}).length > 0;
+        if (!hasPendingChanges) {
+            this._endEditSession();
+            return;
+        }
 
         // Revert ALL changes to original state
         if (original) {
@@ -1208,7 +1455,7 @@ export default class MagnifyingGlassInspector {
 
             // Revert styles
             const styleProps = ['color', 'backgroundColor', 'zIndex', 'fontFamily',
-                               'fontSize', 'opacity', 'margin', 'padding', 'transform',
+                               'fontSize', 'opacity', 'margin', 'padding', 'transform', 'whiteSpace',
                                'boxShadow', 'textShadow', 'backgroundImage', 'backgroundClip',
                                'webkitBackgroundClip', 'webkitTextFillColor', 'backgroundSize', 'backgroundPosition'];
             styleProps.forEach(prop => {
@@ -1216,6 +1463,16 @@ export default class MagnifyingGlassInspector {
                     el.style[prop] = original[prop];
                 }
             });
+
+            const containerOriginal = this.editSession.containerOriginalState;
+            if (containerOriginal?.target) {
+                if (this.editSession.pendingChanges['containerBoxShadow'] !== undefined) {
+                    containerOriginal.target.style.boxShadow = containerOriginal.boxShadow || 'none';
+                }
+                if (this.editSession.pendingChanges['containerBackgroundImage'] !== undefined) {
+                    containerOriginal.target.style.backgroundImage = containerOriginal.backgroundImage || 'none';
+                }
+            }
         }
 
         // Clean up session
@@ -1236,18 +1493,22 @@ export default class MagnifyingGlassInspector {
         // Remove edit lock visual
         if (el) el.classList.remove('apex-edit-locked');
 
-        // Remove content field glow
-        const quillContainer = document.getElementById('quill-editor');
-        if (quillContainer) {
-            quillContainer.classList.remove('apex-editor-active');
-        }
+        // Plain-text mode no longer uses the old Quill container glow state.
+
 
         // Remove connection line
-        const connectionLine = document.getElementById('apex-connection-line');
-        if (connectionLine) connectionLine.remove();
+        // Plain-text mode no longer uses the old Quill container glow state.
 
-        // Unlock lens
-        this.lens.setSearching(false);
+
+        // End the session in a neutral state. Do not immediately re-enable the
+        // targeting reticle/cursor suppression here; that was leaving the green
+        // reticle hanging around after close and poisoning the next reopen.
+        if (this.lens) {
+            this.lens.hide();
+            this.lens.setSearching(false);
+        }
+        document.body.classList.remove('ax-lens-active');
+        document.body.style.cursor = '';
 
         // Auto-reset peek toggle (restore reticle visibility) and hide button
         if (this._peekActive) {
@@ -1264,59 +1525,81 @@ export default class MagnifyingGlassInspector {
         if (peekBtn) peekBtn.classList.add('hidden');
 
         this.palette.setDirty(false);
+        this.palette.hide();
+        this.contextBar.classList.add('hidden');
+        document.querySelectorAll('.ax-live-caret').forEach(node => node.remove());
 
         // RESTORE button handlers that were disabled during edit
         try {
             if (this.editSession.disabledButtons && this.editSession.disabledButtons.length > 0) {
                 this.editSession.disabledButtons.forEach(({ button, originalOnclick, originalProperty }) => {
-                    if (button) {
-                        // Use property assignment instead of setAttribute (safer for handler functions)
-                        button.onclick = originalProperty || null;
+                    if (!button) return;
+
+                    if (originalOnclick !== null && originalOnclick !== undefined) {
+                        button.setAttribute('onclick', originalOnclick);
+                    } else {
+                        button.removeAttribute('onclick');
                     }
+
+                    button.onclick = originalProperty || null;
                 });
             }
         } catch (err) {
             console.error('[APEX] Button restore failed (cleanup continues):', err);
         }
 
-        // Reset session state
+        // Reset session state (nav/button restore must happen before
+        // we discard the captured disabled-element lists)
         this.editSession.active = false;
         this.editSession.element = null;
         this.editSession.originalState = null;
+        this.editSession.containerOriginalState = null;
         this.editSession.pendingChanges = {};
-        this.editSession.disabledButtons = [];
-        this.editSession.disabledNavElements = [];
+
+        // Clear any mirrored live caret markers left in the page and forget the
+        // last palette target so hover/highlight state cannot drift away from
+        // the element the editor was actually attached to.
+        document.querySelectorAll('.ax-live-caret').forEach(node => node.remove());
+        if (this.palette) {
+            this.palette.currentElement = null;
+        }
 
         // Clear ALL lingering highlights (bulletproof DOM sweep, not reference-dependent)
-        document.querySelectorAll('.apex-highlighted').forEach(el => {
-            el.classList.remove('apex-highlighted', 'apex-danger-target');
+        document.querySelectorAll('.apex-highlighted, .apex-container-preview-target').forEach(el => {
+            el.classList.remove('apex-highlighted', 'apex-danger-target', 'apex-container-preview-target');
         });
         this.highlightedElement = null;
+        this.editSession.containerPreviewTarget = null;
 
         // DISABLE BUTTON DISABLE GUARD: Tell HandlerDispatcher to allow button clicks again
         window.inspectorEditMode = false;
+        document.body.classList.remove('edit-mode');
+        const editModeBtn = document.getElementById('edit-mode-btn');
+        if (editModeBtn) {
+            editModeBtn.classList.remove('apex-edit-btn-active');
+        }
+        if (typeof window.__apexSetEditModeState === 'function') {
+            window.__apexSetEditModeState(false);
+        }
 
         // UNLOCK PAGE - Remove the lockdown overlay and restore pointer-events
         this.lockdownOverlay.style.display = 'none';
-        const scene = document.getElementById('apex-3d-scene');
-        if (scene) {
-            scene.style.pointerEvents = 'auto';
-            // Restore all descendants
-            scene.querySelectorAll('*').forEach(el => {
-                el.style.pointerEvents = '';
-            });
-        }
-
-        // Restore nav
-        const nav = document.querySelector('nav');
-        if (nav) nav.style.pointerEvents = 'auto';
-
+        document.body.classList.remove('ax-editing');
+        document.body.style.overflow = this._previousBodyOverflow || '';
+        document.documentElement.style.overflow = this._previousDocOverflow || '';
+        this._previousBodyOverflow = '';
+        this._previousDocOverflow = '';
         // RESTORE button handlers in nav
         try {
             this._restoreNavButtons();
         } catch (err) {
             console.error('[APEX] Failed to restore nav buttons:', err);
         }
+        this.lockdownOverlay.onclick = null;
+        this.lockdownOverlay.onmousedown = null;
+        // Safe to clear the captured disable-state only after restoration has run.
+        this.editSession.disabledButtons = [];
+        this.editSession.disabledNavElements = [];
     }
 
     _togglePeek() {
@@ -1502,11 +1785,19 @@ export default class MagnifyingGlassInspector {
             if (!this.edits[selector]) this.edits[selector] = {};
             this.edits[selector]['deleted'] = true;
             this.saveEdits();
+            // The deleted element is often the one the active edit session is
+            // pointed at. Without tearing the session down here, the lockdown
+            // overlay, scroll lock, and nav-button disable all stay stuck on
+            // a session that now references a detached node.
+            if (this.editSession.active && this.editSession.element === el) {
+                this._endEditSession();
+            }
             return;
         }
 
         if (property === 'textContent') {
             this.detector._setTextNodes(el, value);
+            el.style.whiteSpace = typeof value === 'string' && /\r?\n/.test(value) ? 'pre-wrap' : 'normal';
         } else if (property === 'innerHTML') {
             el.innerHTML = value;
         } else if (property === 'href') {
@@ -2058,8 +2349,10 @@ export default class MagnifyingGlassInspector {
     applyAllSavedEdits() {
         const data = this.loadEdits();
         for (const selector in data) {
-            const el = document.querySelector(selector);
-            if (el) {
+            try {
+                const el = document.querySelector(selector);
+                if (!el) continue;
+
                 // Capture original state BEFORE applying any edits
                 if (!this.originals[selector]) {
                     this.originals[selector] = {
@@ -2074,12 +2367,17 @@ export default class MagnifyingGlassInspector {
                     const val = props[prop];
                     if (val === undefined || val === null || String(val) === 'undefined' || String(val) === 'null') continue;
                     
-                    if (prop === 'textContent') this.detector._setTextNodes(el, val);
+                    if (prop === 'textContent') {
+                        this.detector._setTextNodes(el, val);
+                        el.style.whiteSpace = typeof val === 'string' && /\r?\n/.test(val) ? 'pre-wrap' : 'normal';
+                    }
                     else if (prop === 'innerHTML') el.innerHTML = val;
                     else if (prop === 'src') el.src = val;
                     else if (prop === 'href') el.setAttribute('href', this._normalizeEditableHref(val));
-                    else el.style[prop] = val;
+                    else if (prop != 'containerBoxShadow' && prop != 'containerBackgroundImage') el.style[prop] = val;
                 }
+            } catch (e) {
+                console.warn('[APEX] Skipping invalid saved edit selector:', selector, e);
             }
         }
     }
@@ -2094,7 +2392,20 @@ export default class MagnifyingGlassInspector {
             // Persist pending changes immediately (snapshot, not final)
             if (!this.edits[selector]) this.edits[selector] = {};
             for (const [prop, value] of Object.entries(this.editSession.pendingChanges)) {
-                if (value !== undefined && value !== null && String(value) !== 'undefined' && String(value) !== 'null') {
+                if (value === undefined || value === null || String(value) === 'undefined' || String(value) === 'null') {
+                    continue;
+                }
+
+                if (prop === 'containerBoxShadow' || prop === 'containerBackgroundImage') {
+                    const containerState = this.editSession.containerOriginalState || this._captureContainerStyleState(this.editSession.element);
+                    const target = containerState?.target || this._resolveContainerStyleTarget(this.editSession.element);
+                    const targetSelector = containerState?.selector || (target ? this.detector.getUniqueSelector(target) : null);
+                    const styleProp = prop === 'containerBoxShadow' ? 'boxShadow' : 'backgroundImage';
+                    if (targetSelector) {
+                        if (!this.edits[targetSelector]) this.edits[targetSelector] = {};
+                        this.edits[targetSelector][styleProp] = value;
+                    }
+                } else {
                     this.edits[selector][prop] = value;
                 }
             }
@@ -2148,6 +2459,37 @@ export default class MagnifyingGlassInspector {
         };
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

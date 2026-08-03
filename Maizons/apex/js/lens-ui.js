@@ -4,27 +4,42 @@ export class MagnifyingGlass {
         this.lensContainer.className = 'lens-container';
         this.lensContainer.setAttribute('data-anothen-internal', '');
         
-        // Lens is now centered on mouse, draggable by the border
+        // Small fixed-size targeting crosshair, centered on the mouse. No circle,
+        // no border, no glow — a compact plus sign with a true empty gap at the
+        // center so it never covers the exact pixel you're aiming at.
+        const SIZE = 10;   // total span, edge to edge
+        const GAP = 3;     // empty hole in the middle — never obscures the target
+        const ARM = (SIZE - GAP) / 2; // length of each of the 4 line segments
+
         this.lensContainer.style.cssText = `
-            position: fixed; width: 300px; height: 300px;
-            border: 2px solid rgba(0, 0, 0, 0.85); border-radius: 50%; z-index: 19999;
-            box-shadow: 0 0 0 2px #00ff00, 0 0 20px rgba(0, 255, 0, 0.4), inset 0 0 15px rgba(0, 255, 0, 0.1);
+            position: fixed; width: ${SIZE}px; height: ${SIZE}px;
+            z-index: 19999;
             display: none; background: transparent;
             transform: translate(-50%, -50%);
             left: -1000px; top: -1000px;
             pointer-events: none;
         `;
 
-        // Crosshairs (full span, gradient: dark center → neon edge)
-        this.vHair = document.createElement('div');
-        this.vHair.style.cssText = 'position:absolute; top:0; bottom:0; left:50%; width:1px; background:linear-gradient(to bottom, #00ff00, #004d00 50%, #00ff00); transform:translateX(-50%);';
-        this.hHair = document.createElement('div');
-        this.hHair.style.cssText = 'position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(to right, #00ff00, #004d00 50%, #00ff00); transform:translateY(-50%);';
+        // Crosshairs span the full 10px like before, but a CSS mask punches an
+        // empty GAP-px hole out of the exact center — so setSearching() and the
+        // theme-update code in magnifying-glass-inspector.js can go on setting
+        // `.style.background` on these two elements exactly as they always have
+        // (mask-image is a separate property; those writes never touch it).
+        const gapMaskV = `linear-gradient(to bottom, #000 0, #000 ${ARM}px, transparent ${ARM}px, transparent ${ARM + GAP}px, #000 ${ARM + GAP}px, #000 100%)`;
+        const gapMaskH = `linear-gradient(to right, #000 0, #000 ${ARM}px, transparent ${ARM}px, transparent ${ARM + GAP}px, #000 ${ARM + GAP}px, #000 100%)`;
 
-        // Center Dot (always-on bright red)
+        this.vHair = document.createElement('div');
+        this.vHair.style.cssText = `position:absolute; top:0; bottom:0; left:50%; width:1px; background:#00ff00; transform:translateX(-50%);
+            mask-image:${gapMaskV}; -webkit-mask-image:${gapMaskV};`;
+
+        this.hHair = document.createElement('div');
+        this.hHair.style.cssText = `position:absolute; left:0; right:0; top:50%; height:1px; background:#00ff00; transform:translateY(-50%);
+            mask-image:${gapMaskH}; -webkit-mask-image:${gapMaskH};`;
+
+        // No center dot — the whole point is the middle stays empty.
         this.centerDot = document.createElement('div');
         this.centerDot.id = 'lens-center-dot';
-        this.centerDot.style.cssText = 'position:absolute; top:50%; left:50%; width:4px; height:4px; background:#ef4444; border-radius:50%; transform:translate(-50%,-50%); opacity:1; box-shadow:0 0 6px #ef4444, 0 0 12px #ef4444;';
+        this.centerDot.style.cssText = 'display:none;';
 
         // Depth Probe UI (Yellow Circle & Z-Label)
         this.probeDot = document.createElement('div');
@@ -70,40 +85,42 @@ export class MagnifyingGlass {
         this.lensContainer.style.display = 'block';
         this.isVisible = true;
         document.body.style.cursor = 'none'; // Hide default cursor
+        // Plain inline cursor:none loses to native browser cursors on links/
+        // buttons and to the palette's own `cursor: pointer !important` rules.
+        // This class forces every element except the palette to hide its
+        // cursor, so the crosshair is the only thing visible while targeting.
+        document.body.classList.add('ax-lens-active');
     }
 
-    hide() { 
-        this.lensContainer.style.display = 'none'; 
-        this.isVisible = false; 
+    hide() {
+        this.lensContainer.style.display = 'none';
+        this.isVisible = false;
         document.body.style.cursor = 'default';
+        document.body.classList.remove('ax-lens-active');
     }
 
     setSearching(isSearching) {
         const isLight = document.body.getAttribute('data-theme') === 'light';
 
         if (isSearching) {
-            // Locked: dark core + pink aura, maroon→pink gradient crosshairs
-            this.lensContainer.style.borderColor = 'rgba(0, 0, 0, 0.85)';
-            this.lensContainer.style.boxShadow = '0 0 0 2px #f472b6, 0 0 25px rgba(244,114,182,0.5), inset 0 0 15px rgba(244,114,182,0.15)';
-            this.lensContainer.style.background = 'rgba(244,114,182,0.05)';
+            // Locked: maroon→pink gradient crosshairs
             this.vHair.style.background = 'linear-gradient(to bottom, #f472b6, #800000 50%, #f472b6)';
             this.hHair.style.background = 'linear-gradient(to right, #f472b6, #800000 50%, #f472b6)';
         } else {
-            // Unlocked: dark core + themed aura, gradient crosshairs
+            // Unlocked: themed gradient crosshairs
             const neon = isLight ? '#d4af37' : '#00ff00';
             const dark = isLight ? '#5c4a00' : '#004d00';
-            this.lensContainer.style.borderColor = 'rgba(0, 0, 0, 0.85)';
-            this.lensContainer.style.boxShadow = `0 0 0 2px ${neon}, 0 0 20px ${neon}66, inset 0 0 15px ${neon}22`;
-            this.lensContainer.style.background = isLight ? 'rgba(212,175,55,0.05)' : 'rgba(0,255,0,0.05)';
             this.vHair.style.background = `linear-gradient(to bottom, ${neon}, ${dark} 50%, ${neon})`;
             this.hHair.style.background = `linear-gradient(to right, ${neon}, ${dark} 50%, ${neon})`;
         }
     }
 
     pulse() {
-        this.lensContainer.style.boxShadow = '0 0 0 3px #00ff00, 0 0 40px rgba(0, 255, 0, 0.7), inset 0 0 20px rgba(0, 255, 0, 0.3)';
+        // Brief brightness flash on the crosshair itself — there is no longer a
+        // ring/border to glow, so the pulse now scales the crosshair briefly.
+        this.lensContainer.style.transform = 'translate(-50%, -50%) scale(1.6)';
         setTimeout(() => {
-            this.lensContainer.style.boxShadow = '0 0 0 2px #00ff00, 0 0 20px rgba(0, 255, 0, 0.4), inset 0 0 15px rgba(0, 255, 0, 0.1)';
+            this.lensContainer.style.transform = 'translate(-50%, -50%) scale(1)';
         }, 150);
     }
 }

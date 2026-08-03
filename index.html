@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AXXILAK | Something Extraordinary Is Being Built</title>
-  <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. Coming soon.">
+  <title>AXXILAK | Maisons for the Sovereign Creative</title>
+  <meta name="description" content="AXXILAK builds Maisons — bespoke digital architectures, each with its own live in-browser editor. Preview Velvet now. More Maisons underway.">
 
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
   <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
@@ -32,12 +32,8 @@
       color: #f0f0f0;
       font-family: 'Outfit', sans-serif;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
       position: relative;
+      overflow-x: hidden;
     }
 
     h1, h2, h3, .serif { font-family: 'Cinzel', serif; }
@@ -52,7 +48,6 @@
       pointer-events: none;
     }
 
-    /* Ambient glow */
     .glow-top {
       position: fixed;
       top: -20%;
@@ -76,31 +71,20 @@
       z-index: 0;
     }
 
-    /* Main card */
-    .card {
+    main {
       position: relative;
       z-index: 1;
-      background: var(--glass);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--silver);
-      border-top: 1px solid rgba(236, 242, 248, 0.45);
-      border-radius: 2px;
-      padding: 4rem 3.5rem;
-      max-width: 560px;
-      width: 90%;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 5rem 1.5rem 4rem;
+    }
+
+    /* Hero */
+    .hero {
       text-align: center;
-      animation: rise 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      opacity: 0;
+      margin-bottom: 5rem;
     }
 
-    @keyframes rise {
-      0%   { opacity: 0; transform: translateY(20px) scale(0.97); }
-      70%  { opacity: 1; transform: translateY(-3px) scale(1.01); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* Logo */
     .logo {
       font-family: 'Cinzel', serif;
       font-size: 1.1rem;
@@ -108,23 +92,21 @@
       letter-spacing: 0.45em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.35);
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
     }
 
-    /* Gold rule */
     .gold-rule {
       width: 48px;
       height: 1px;
       background: linear-gradient(to right, transparent, var(--primary), transparent);
-      margin: 0 auto 2.5rem;
+      margin: 0 auto 2rem;
     }
 
-    /* Headline */
     .headline {
       font-family: 'Cinzel', serif;
-      font-size: clamp(1.5rem, 5vw, 2.1rem);
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       line-height: 1.3;
       background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
       background-size: 200% auto;
@@ -140,31 +122,179 @@
       100% { background-position: 200% center; }
     }
 
-    /* Subtext */
     .subtext {
-      font-family: 'Outfit', sans-serif;
       font-weight: 200;
-      font-size: 0.95rem;
-      color: rgba(240, 240, 240, 0.55);
+      font-size: 1rem;
+      color: rgba(240, 240, 240, 0.6);
       line-height: 1.75;
-      margin-bottom: 2.5rem;
+      max-width: 560px;
+      margin: 0 auto;
       letter-spacing: 0.01em;
     }
 
     .subtext strong {
-      color: rgba(240, 240, 240, 0.8);
+      color: rgba(240, 240, 240, 0.85);
       font-weight: 400;
     }
 
-    /* Divider */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 auto 2.5rem;
-      width: 80%;
+    /* Section shell */
+    section {
+      margin-bottom: 4.5rem;
     }
 
-    /* Form */
+    .section-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #f0f0f0;
+    }
+
+    .section-sub {
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(240,240,240,0.5);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* Featured Maison card */
+    .featured-card {
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--silver);
+      border-top: 1px solid rgba(236, 242, 248, 0.45);
+      border-radius: 3px;
+      padding: 2.5rem;
+      max-width: 640px;
+      margin: 0 auto 2.5rem;
+      text-align: center;
+    }
+
+    .featured-eyebrow {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(212, 175, 55, 0.75);
+      margin-bottom: 0.75rem;
+    }
+
+    .featured-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .featured-vibe {
+      font-size: 0.85rem;
+      color: rgba(240,240,240,0.45);
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.05em;
+    }
+
+    .featured-desc {
+      font-size: 0.9rem;
+      color: rgba(240,240,240,0.7);
+      line-height: 1.7;
+      margin-bottom: 1.75rem;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .preview-link {
+      display: inline-block;
+      background: var(--primary);
+      color: #030303;
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 1.75rem;
+      border-radius: 1px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .preview-link:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    /* Collection grid */
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.75rem;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .collection-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+    }
+
+    .collection-item .name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(240,240,240,0.85);
+      margin-bottom: 0.25rem;
+    }
+
+    .collection-item .vibe {
+      font-size: 0.65rem;
+      letter-spacing: 0.05em;
+      color: rgba(212, 175, 55, 0.55);
+    }
+
+    /* Editor callout */
+    .editor-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 2rem;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: rgba(255,255,255,0.015);
+    }
+
+    .editor-card p {
+      font-size: 0.9rem;
+      color: rgba(240,240,240,0.65);
+      line-height: 1.7;
+      max-width: 480px;
+    }
+
+    /* Email form */
+    .signup-card {
+      max-width: 460px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
     .notify-label {
       font-size: 0.7rem;
       letter-spacing: 0.25em;
@@ -229,22 +359,19 @@
       letter-spacing: 0.05em;
     }
 
-    /* Footer note */
-    .footer-note {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
+    footer {
+      position: relative;
       z-index: 1;
+      text-align: center;
+      padding: 2rem 1.5rem 3rem;
       font-size: 0.65rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.12);
-      white-space: nowrap;
     }
 
     @media (max-width: 480px) {
-      .card { padding: 2.5rem 1.75rem; }
+      .featured-card { padding: 1.75rem 1.25rem; }
       .form-row { flex-direction: column; }
       button[type="submit"] { width: 100%; }
     }
@@ -257,42 +384,101 @@
   <div class="glow-top"></div>
   <div class="glow-bottom"></div>
 
-  <div class="card">
-    <div class="logo">Axxilak</div>
-    <div class="gold-rule"></div>
+  <main>
 
-    <h1 class="headline">Something extraordinary<br>is being built here.</h1>
+    <div class="hero">
+      <div class="logo">Axxilak</div>
+      <div class="gold-rule"></div>
+      <h1 class="headline">Maisons for the<br>sovereign creative.</h1>
+      <p class="subtext">
+        <strong>A Maison</strong> is a bespoke digital architecture — and every one ships with its own
+        live, in-browser editor. Make it yours before it ever leaves the page.
+      </p>
+    </div>
 
-    <p class="subtext">
-      <strong>Weblings.</strong> Bespoke digital architectures for the sovereign creative.
-      High-performance. Yours forever. Built with love.
-    </p>
-
-    <hr class="divider">
-
-    <span class="notify-label">Be first to know</span>
-
-    <form
-      class="notify-form"
-      action="https://formspree.io/f/mkojaejr"
-      method="POST"
-      id="notifyForm"
-    >
-      <div class="form-row">
-        <input
-          type="email"
-          name="email"
-          placeholder="your@email.com"
-          required
-          autocomplete="email"
-        />
-        <button type="submit">Notify me</button>
+    <section>
+      <div class="section-label">Live Now</div>
+      <div class="section-title">Preview a working Maison</div>
+      <p class="section-sub">
+        Velvet is built and its editor is live. Open it, look around, try the editor — this is a real
+        Maison, not a mockup.
+      </p>
+      <div class="featured-card">
+        <div class="featured-eyebrow">Void / Luxury</div>
+        <div class="featured-name">Velvet</div>
+        <div class="featured-vibe">Elegance is refusal.</div>
+        <p class="featured-desc">
+          Silk and shadow for the discerning atelier. Open it below and use the editor in the corner —
+          it's the same tool every Maison carries.
+        </p>
+        <a class="preview-link" href="Maizons/velvet/index.html">Open Velvet →</a>
       </div>
-      <p class="form-status" id="formStatus"></p>
-    </form>
-  </div>
+    </section>
 
-  <p class="footer-note">Axxilak &nbsp;·&nbsp; Digital Architectures &nbsp;·&nbsp; Est. 2026</p>
+    <section>
+      <div class="section-label">The Collection</div>
+      <div class="section-title">Thirteen Maisons, one architecture</div>
+      <p class="section-sub">
+        Each Maison carries a distinct vibe. Velvet is open for preview now; the rest of the
+        collection is being brought forward the same way, one at a time.
+      </p>
+      <div class="collection-grid">
+        <div class="collection-item"><div class="name">Liquid Gold</div><div class="vibe">Luxury / Pro</div></div>
+        <div class="collection-item"><div class="name">Ether</div><div class="vibe">Air / Sanctuary</div></div>
+        <div class="collection-item"><div class="name">Iron &amp; Ink</div><div class="vibe">Earth / Archive</div></div>
+        <div class="collection-item"><div class="name">Neon Tokyo</div><div class="vibe">Fire / Cyber</div></div>
+        <div class="collection-item"><div class="name">Scholar</div><div class="vibe">Water / Knowledge</div></div>
+        <div class="collection-item"><div class="name">Gaia</div><div class="vibe">Life / Nature</div></div>
+        <div class="collection-item"><div class="name">Aura</div><div class="vibe">Spirit / Energy</div></div>
+        <div class="collection-item"><div class="name">Summit</div><div class="vibe">Peak / Adventure</div></div>
+        <div class="collection-item"><div class="name">Oracle</div><div class="vibe">Stars / Mystic</div></div>
+        <div class="collection-item"><div class="name">Apex</div><div class="vibe">Structure / Corporate</div></div>
+        <div class="collection-item"><div class="name">Canvas</div><div class="vibe">Void / Gallery</div></div>
+        <div class="collection-item"><div class="name">Cipher</div><div class="vibe">Logic / Terminal</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-label">What Makes It Different</div>
+      <div class="section-title">The editor is the multiplier</div>
+      <div class="editor-card">
+        <p>
+          A Maison isn't a template you wait on us to customize. It arrives with a real, in-page editor —
+          text, color, layout, images — so you shape it yourself, live, in the browser, before it's ever
+          truly finished. That's the actual product: not one site, but the architecture that lets every
+          Maison become yours.
+        </p>
+        <a class="preview-link" href="Maizons/velvet/index.html">Try the editor in Velvet →</a>
+      </div>
+    </section>
+
+    <section style="margin-bottom: 0;">
+      <div class="signup-card">
+        <span class="notify-label">Be first to know</span>
+        <form
+          class="notify-form"
+          action="https://formspree.io/f/mkojaejr"
+          method="POST"
+          id="notifyForm"
+        >
+          <div class="form-row">
+            <input
+              type="email"
+              name="email"
+              placeholder="your@email.com"
+              required
+              autocomplete="email"
+            />
+            <button type="submit">Notify me</button>
+          </div>
+          <p class="form-status" id="formStatus"></p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>Axxilak &nbsp;·&nbsp; Digital Architectures &nbsp;·&nbsp; Est. 2026</footer>
 
   <script>
     // Particle field

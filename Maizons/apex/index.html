@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APEX | Professional Webling</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Quill Rich Text Editor -->
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- Editor dependencies -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -181,6 +179,16 @@
             opacity: 1;
         }
 
+        /* Keep closed-mode hero text feeling inert and readable. These are not
+           actionable controls outside edit mode, so they should not show text
+           carets or hand cursors after the editor closes. */
+        #hero h1,
+        #hero h1 span,
+        #hero p,
+        #hero .inline-flex,
+        #hero .inline-flex span {
+            cursor: default;
+        }
         .sr-only {
             position: absolute;
             width: 1px;
@@ -251,61 +259,6 @@
 
         .card-apex { background-color: transparent !important; }
 
-        /* === QUILL EDITOR STYLING === */
-        #quill-editor-container .ql-container {
-            font-size: 13px;
-            font-family: 'JetBrains Mono', monospace;
-            border: none !important;
-        }
-
-        #quill-editor-container .ql-editor {
-            padding: 8px;
-            min-height: 80px;
-            line-height: 1.5;
-        }
-
-        #quill-editor-container .ql-toolbar {
-            background: #f5f5f5;
-            border: none !important;
-            border-radius: 3px 3px 0 0;
-            padding: 6px;
-        }
-
-        #quill-editor-container .ql-toolbar.ql-snow .ql-stroke {
-            stroke: #999;
-        }
-
-        #quill-editor-container .ql-toolbar.ql-snow .ql-fill {
-            fill: #999;
-        }
-
-        #quill-editor-container .ql-toolbar.ql-snow button:hover .ql-stroke,
-        #quill-editor-container .ql-toolbar.ql-snow button:focus .ql-stroke,
-        #quill-editor-container .ql-toolbar.ql-snow button.ql-active .ql-stroke {
-            stroke: #2563eb;
-        }
-
-        #quill-editor-container .ql-toolbar.ql-snow button.ql-active .ql-fill {
-            fill: #2563eb;
-        }
-
-        /* ... QUILL EDITOR TEXT COLOR (APEX PALETTE) === */
-        #quill-editor .ql-container,
-        #quill-editor .ql-editor {
-            color: #00ff00;
-        }
-
-        [data-theme="light"] #quill-editor {
-            background-color: #fffdf6 !important;
-        }
-
-        [data-theme="light"] #quill-editor .ql-container,
-        [data-theme="light"] #quill-editor .ql-editor {
-            color: #1a1a1a !important;
-            background-color: #fffdf6 !important;
-        }
-
-        /* === STANDARDIZED BUTTON LINKS === */
         .btn-link {
             background: none;
             border: none;
@@ -359,9 +312,11 @@
         }
 
         [data-ax-id] {
-            cursor: pointer;
             position: relative;
-            white-space: pre-wrap;
+        }
+
+        body.edit-mode [data-ax-id] {
+            cursor: pointer;
         }
 
         body.ax-active [data-ax-id] {
@@ -388,7 +343,7 @@
     </div>
 
     <!-- Nav (OUTSIDE 3D scene - never transformed) -->
-    <nav class="sticky top-0 w-full backdrop-blur-md border-b z-50 theme-aware" style="position: relative; z-index: 100;">
+    <nav class="sticky top-0 w-full backdrop-blur-md border-b z-50 theme-aware" style="z-index: 100;">
         <div class="max-w-7xl mx-auto p-4 md:p-6 flex justify-between items-center relative">
             <a href="#" class="text-xl font-extrabold tracking-tighter flex items-center gap-2 hover:opacity-80 transition-opacity" data-ax-locked="true">
                 <div class="w-3 h-3 bg-[var(--accent)]"></div>
@@ -397,9 +352,9 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
-                <button data-handler="scrollTo('#solutions')" class="btn-link hover:text-[var(--accent)] transition">Solutions</button>
-                <button data-handler="scrollTo('#about-text')" class="btn-link hover:text-[var(--accent)] transition">About</button>
-                <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button>
+                <span class="nav-label-group"><button id="nav-solutions-btn" data-nav-pair="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link hover:text-[var(--accent)] transition">Solutions</button><button class="nav-edit-pencil" data-edit-target="nav-solutions-btn" aria-label="Edit Solutions label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-about-btn" data-nav-pair="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link hover:text-[var(--accent)] transition">About</button><button class="nav-edit-pencil" data-edit-target="nav-about-btn" aria-label="Edit About label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-getstarted-btn" data-nav-pair="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button><button class="nav-edit-pencil" data-edit-target="nav-getstarted-btn" aria-label="Edit Get Started label" title="Edit label">&#9998;</button></span>
                 <button data-handler="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
@@ -420,11 +375,13 @@
         <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu"
             class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
-            <button data-handler="scrollTo('#solutions')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
-            <button data-handler="scrollTo('#about-text')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
-            <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
+            <button id="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
+            <button id="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
+            <button id="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
         </div>
     </nav>
+
+
 
     <!-- 3D SCENE (nav is outside so it's never transformed) -->
     <div id="apex-3d-scene">
@@ -436,7 +393,7 @@
             <div
                 class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-[var(--accent)] text-xs font-bold font-mono rounded-full mb-8 border border-blue-100">
                 <span class="w-2 h-2 bg-[var(--accent)] rounded-full animate-pulse"></span>
-                SYSTEM ONLINE v2.0
+                <span class="apex-stat-text">SYSTEM ONLINE v2.0</span>
             </div>
             <h1 class="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 leading-[1.1]">
                 <span>Scale Your</span> <br>
@@ -458,27 +415,23 @@
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
             <div class="group cursor-default">
                 <div
-                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
-                    100%</div>
-                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Precision</div>
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300"><span class="apex-stat-text">100%</span></div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest"><span class="apex-stat-text">Precision</span></div>
             </div>
             <div class="group cursor-default">
                 <div
-                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
-                    0.2s</div>
-                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Latency</div>
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300"><span class="apex-stat-text">0.2s</span></div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest"><span class="apex-stat-text">Latency</span></div>
             </div>
             <div class="group cursor-default">
                 <div
-                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
-                    500+</div>
-                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Deployments</div>
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300"><span class="apex-stat-text">500+</span></div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest"><span class="apex-stat-text">Deployments</span></div>
             </div>
             <div class="group cursor-default">
                 <div
-                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300">
-                    &infin;</div>
-                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest">Scalability</div>
+                    class="text-4xl font-extrabold mb-2 text-[var(--accent)] group-hover:scale-110 transition-transform duration-300"><span class="apex-stat-text">&infin;</span></div>
+                <div class="text-xs uppercase font-bold text-zinc-400 tracking-widest"><span class="apex-stat-text">Scalability</span></div>
             </div>
         </div>
     </section>
@@ -568,7 +521,7 @@
             <div class="md:w-1/2">
                 <h2 class="text-3xl font-extrabold mb-6 tracking-tight">The Architect.</h2>
                 <p class="text-zinc-600 mb-6 leading-relaxed">
-                    We do not build websites. We build <span class="font-bold text-zinc-900">infrastructure for
+                    We do not build websites. We build <span class="font-bold" style="color: var(--text);">infrastructure for
                         authority.</span>
                     Apex was born from the need for a digital presence that moves as fast as you do.
                     Every pixel is calculated. Every interaction is optimized.
@@ -638,20 +591,19 @@
         <div class="max-w-7xl mx-auto w-full">
             <!-- Top Row: Contact Form -->
             <div class="max-w-2xl mb-24">
-                <div class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Initialize Partnership</div>
-                <form action="mailto:apex@axxilak.com" method="POST" enctype="text/plain" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6"><span class="apex-stat-text">Initialize Partnership</span></div>
+                <form id="contact-form" action="https://formspree.io/f/mkojaejr" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" name="name" placeholder="Full Name" required
                         class="bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent)] transition text-sm text-white">
                     <input type="email" name="email" placeholder="Email Address" required
                         class="bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent)] transition text-sm text-white">
                     <textarea name="message" rows="4" placeholder="Your Mission Requirements"
                         class="md:col-span-2 bg-zinc-900 border border-zinc-800 p-4 outline-none focus:border-[var(--accent)] transition text-sm text-white"></textarea>
-                    <button type="submit" onclick="showThanks(event)" class="md:col-span-2 btn-apex py-4 rounded-sm text-sm font-bold">Initiate
-                        Protocol</button>
+                    <button type="submit" onclick="showThanks(event)" class="md:col-span-2 btn-apex py-4 rounded-sm text-sm font-bold">Initiate Protocol</button>
                     <div id="form-success"
                         class="md:col-span-2 hidden text-center p-4 border border-green-500 text-green-500 bg-green-500/10 text-xs rounded">
-                        <p class="font-bold">Transmission Received!</p>
-                        <p class="opacity-80">Command will respond within 24 hours.</p>
+                        <p class="font-bold">Transmission Received</p>
+                        <p class="opacity-80">Your inquiry was submitted successfully. Axxilak will respond after review.</p>
                     </div>
                 </form>
             </div>
@@ -676,7 +628,7 @@
 
                 <!-- Column 2: Navigation -->
                 <div class="flex flex-col gap-6">
-                    <div class="text-xs font-bold uppercase tracking-widest text-zinc-500">Navigation</div>
+                    <div class="text-xs font-bold uppercase tracking-widest text-zinc-500"><span class="apex-stat-text">Navigation</span></div>
                     <nav class="flex flex-col gap-4">
                         <button data-handler="scrollTo('#solutions')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
                         <button data-handler="scrollTo('#about-text')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">About</button>
@@ -689,14 +641,14 @@
         <!-- Axxilak Branding Bar (standardized, locked) -->
         <div class="max-w-7xl mx-auto mt-24 pt-8 border-t border-zinc-800/50" data-anothen-internal="true">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
-                <span class="text-[10px] text-zinc-600 uppercase tracking-[0.2em]">&copy; 2026 Axxilak</span>
+                <span class="text-[10px] text-zinc-600 uppercase tracking-[0.2em]"><span class="apex-stat-text">&copy; 2026 Axxilak</span></span>
                 <a href="https://axxilak.com" target="_blank" rel="noopener" data-ax-locked="true"
                     class="group inline-flex items-center gap-3">
                     <span id="axxilak-dot" data-ax-locked="true"
                         class="w-2.5 h-2.5 bg-[var(--accent)] rounded-full shadow-[0_0_6px_var(--accent)] group-hover:shadow-[0_0_20px_var(--accent)] transition-shadow duration-700 cursor-pointer select-none"></span>
                     <span class="text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-500 group-hover:text-zinc-300 transition-colors duration-700" data-ax-locked="true">Powered by Axxilak</span>
                 </a>
-                <a href="/free-stuff.html" class="text-[10px] text-zinc-600 uppercase tracking-[0.2em] hover:text-zinc-400 transition-colors duration-300">Free Stuff</a>
+                <a href="/free-stuff.html" class="text-[10px] text-zinc-600 uppercase tracking-[0.2em] hover:text-zinc-400 transition-colors duration-300" data-ax-locked="true">Free Stuff</a>
             </div>
         </div>
     </footer>
@@ -714,15 +666,85 @@
 
     <!-- EDIT MODE: PALETTE CONTAINER (for context-aware tools) -->
     <div id="palette-container" data-anothen-internal
-        class="fixed bottom-6 right-6 w-96 bg-zinc-900/95 backdrop-blur-md border border-[var(--accent)]/60 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_15px_var(--accent-glow,rgba(37,99,235,0.15))] z-[20000] hidden max-h-[900px] overflow-hidden text-white flex flex-col">
+        class="fixed inset-x-3 bottom-3 w-auto max-h-[75vh] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-96 sm:max-h-[900px] bg-zinc-900/95 backdrop-blur-md border border-[var(--accent)]/60 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_15px_var(--accent-glow,rgba(37,99,235,0.15))] z-[20000] hidden overflow-hidden text-white flex flex-col">
         <!-- Palette content injected here by JS -->
-        <div id="palette-content" class="flex-1 overflow-y-auto px-5 py-4"></div>
+        <div id="palette-content" class="flex-1 px-5 py-4"></div>
     </div>
 
     <!-- DRAGGABLE SECTION OVERLAY (Edit Mode) -->
     <style id="edit-mode-styles">
         .edit-mode .section-drag-handle {
             display: block !important;
+        }
+
+        /* Nav label editing (narrow, isolated path — see potch.md for why the
+           general inspector is deliberately never opened to nav elements).
+           Pencil icons only ever exist to toggle contenteditable on their one
+           paired label and write straight to the same edits/localStorage
+           object the rest of the editor already uses; they never touch
+           elementDetector, editSession, or the lockdown overlay. */
+        .nav-label-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .nav-edit-pencil {
+            display: none;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.75rem;
+            line-height: 1;
+            opacity: 0.6;
+            padding: 2px;
+        }
+        .nav-edit-pencil:hover {
+            opacity: 1;
+        }
+        body.edit-mode .nav-edit-pencil {
+            display: inline-block !important;
+        }
+
+        /* Nav uses Tailwind's `sticky`, which positions relative to actual
+           scroll offset. Scroll gets locked (overflow:hidden) when edit mode
+           opens, but locking doesn't reset the offset itself — if you were
+           scrolled down when you clicked into edit mode, the sticky nav
+           renders that far above the viewport and, with scroll locked, can
+           never come back into view for the rest of the session. Pin it to
+           the viewport instead while editing, and compensate body padding so
+           content doesn't jump when nav leaves the normal document flow. */
+        body.ax-editing nav.theme-aware {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+        }
+        body.ax-editing {
+            padding-top: 93px !important;
+        }
+
+        /* Live caret � shows where the editor caret is mirrored onto the actual
+           on-page element being edited, so typing feels like it's happening in
+           place instead of only inside the separate editor panel. */
+        .ax-live-caret {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            vertical-align: text-bottom;
+            background: currentColor;
+            animation: ax-caret-blink 1s step-end infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ax-caret-blink {
+            50% { opacity: 0; }
+        }
+
+        /* While the crosshair is active, hide every native cursor (including
+           the hand/pointer browsers show over links and buttons) so the tiny
+           crosshair is the only thing you see — except inside the palette
+           panel itself, which still needs a real pointer to be usable. */
+        body.ax-lens-active :not(#palette-container):not(#palette-container *) {
+            cursor: none !important;
         }
 
         /* Draggable Elements */
@@ -748,19 +770,26 @@
             cursor: grabbing;
         }
 
-        /* Text in white/light boxes = black */
+        /* Dark theme editor fields: keep strong light-on-dark contrast */
         #palette-container .palette-input,
         #palette-container input,
         #palette-container textarea,
         #palette-container select {
-            color: #000000 !important;
+            color: #f8fafc !important;
+            background-color: #18181b !important;
+            border-color: #3f3f46 !important;
+        }
+
+        #palette-container input::placeholder,
+        #palette-container textarea::placeholder {
+            color: #a1a1aa !important;
         }
 
         /* Text on dark areas = neon green */
         #palette-container .palette-label,
         #palette-container .palette-title,
         #palette-container .palette-header,
-        #palette-container button {
+        #palette-container button:not(.btn-save) {
             color: #00ff00 !important;
         }
         #palette-container #btn-peek {
@@ -779,21 +808,77 @@
         [data-theme="light"] #palette-container input,
         [data-theme="light"] #palette-container textarea,
         [data-theme="light"] #palette-container select {
-            color: #1a1a1a !important;
+            color: #111827 !important;
             background-color: #fffaf0 !important;
-            border-color: #d9c08a !important;
+            border-color: #bfa56a !important;
+        }
+
+        [data-theme="light"] #palette-container input::placeholder,
+        [data-theme="light"] #palette-container textarea::placeholder {
+            color: #6b7280 !important;
         }
 
         [data-theme="light"] #palette-container .palette-label,
         [data-theme="light"] #palette-container .palette-title,
         [data-theme="light"] #palette-container .palette-header,
-        [data-theme="light"] #palette-container button {
+        [data-theme="light"] #palette-container button:not(.btn-save) {
             color: #4a2f00 !important;
         }
         [data-theme="light"] #palette-container #btn-peek {
             color: #be185d !important;
             border-color: #be185d !important;
             background-color: #fff0f6 !important;
+        }        [data-theme="light"] #palette-container .palette-header {
+            background: #fff7e6 !important;
+            border-bottom-color: #d4af37 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-actions {
+            background: #fff7e6 !important;
+            border-top-color: #d4af37 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-section {
+            border-color: #d9c08a !important;
+            background: #fffaf0 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-section-header {
+            background: #f5ecd8 !important;
+            color: #4a2f00 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-section-header:hover {
+            background: #eadbb8 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-section-content {
+            background: #fffaf0 !important;
+            color: #111827 !important;
+        }
+
+        [data-theme="light"] #palette-container .palette-selected-label,
+        [data-theme="light"] #palette-container .palette-selected-meta,
+        [data-theme="light"] #palette-container .palette-selected-id,
+        [data-theme="light"] #palette-container .palette-selected-path,
+        [data-theme="light"] #palette-container #dirty-indicator,
+        [data-theme="light"] #palette-container .btn-cancel,
+        [data-theme="light"] #palette-container #btn-advanced-toggle,
+        [data-theme="light"] #palette-container #btn-reset-toggle,
+        [data-theme="light"] #palette-container #btn-close-palette {
+            color: #4a2f00 !important;
+        }
+
+        [data-theme="light"] #palette-container #btn-close-palette {
+            background: #fffaf0 !important;
+            border-color: #bfa56a !important;
+        }
+
+        [data-theme="light"] #palette-container .btn-cancel,
+        [data-theme="light"] #palette-container #btn-advanced-toggle,
+        [data-theme="light"] #palette-container #btn-reset-toggle {
+            border-color: #bfa56a !important;
+            background: #fffaf0 !important;
         }
         body:not([data-theme="light"]) #palette-container .lattice-id-value {
             color: #e2e8f0;
@@ -977,15 +1062,9 @@
         .apex-highlighted {
             outline: 4px solid #00ff00 !important;
             outline-offset: 2px !important;
-            box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.2) !important;
             position: relative !important;
             z-index: 9999 !important;
-            animation: apex-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes apex-pulse {
-            0%, 100% { box-shadow: 0 0 30px #00ff00, inset 0 0 20px rgba(0, 255, 0, 0.2); }
-            50% { box-shadow: 0 0 50px #00ff00, inset 0 0 30px rgba(0, 255, 0, 0.4); }
+            animation: none !important;
         }
 
         /* Grayscale mode: desaturate everything except highlighted element */
@@ -1113,26 +1192,57 @@
             cursor: auto !important;
         }
 
+        #axxilak-maker-stamp,
+        #axxilak-maker-stamp * {
+            cursor: pointer !important;
+        }
+
+        /* Every other axxilak.com link (footer nav link, "Powered by Axxilak"
+           branding bar) relied on the browser's default anchor cursor instead
+           of an explicit rule, unlike the maker-stamp above. Make all of them
+           equally robust rather than guessing which one was showing the
+           wrong cursor. */
+        a[href*="axxilak.com"],
+        a[href*="axxilak.com"] * {
+            cursor: pointer !important;
+        }
+
         body.apex-grayscale-mode .apex-highlighted {
             filter: grayscale(0%) !important;
         }
 
         /* Danger highlight for deletion target */
         .apex-highlighted.apex-danger-target {
-            outline: 4px solid #ef4444 !important;
-            box-shadow: 0 0 40px #ef4444, inset 0 0 30px rgba(239, 68, 68, 0.3) !important;
-            animation: apex-danger-pulse 1s ease-in-out infinite !important;
-        }
-
-        @keyframes apex-danger-pulse {
-            0%, 100% { box-shadow: 0 0 40px #ef4444, inset 0 0 30px rgba(239, 68, 68, 0.3); }
-            50% { box-shadow: 0 0 60px #ef4444, inset 0 0-40px rgba(239, 68, 68, 0.5); }
+            outline: 3px solid #ef4444 !important;
+            outline-offset: 2px !important;
+            animation: none !important;
         }
 
         .apex-edit-locked {
             outline: 3px solid #00ff00 !important;
             outline-offset: 4px !important;
             animation: apex-edit-pulse 2s ease-in-out infinite;
+        }
+
+        .apex-container-preview-target {
+            outline: 2px dashed #38bdf8 !important;
+            outline-offset: 4px !important;
+        }
+
+        /* Solutions cards sit in a CSS grid. The global selection treatment
+           (position:relative + z-index:9999 + a 4px outline) fights the grid
+           and visually mangles card layout. Card-safe cue: keep selection
+           visible with a thin inset outline, but never let it change layout
+           flow (no position/z-index change), so the grid never jumps. */
+        #solutions .apex-highlighted,
+        #solutions .apex-edit-locked,
+        #solutions .apex-highlighted.apex-danger-target {
+            outline: 2px solid #00ff00 !important;
+            outline-offset: -2px !important;
+            animation: none !important;
+            position: static !important;
+            z-index: auto !important;
+            filter: none !important;
         }
 
         @keyframes apex-edit-pulse {
@@ -1185,24 +1295,6 @@
             100% { opacity: 1; }
         }
 
-        /* Content field highlight when element is locked */
-        #quill-editor.apex-editor-active {
-            border: 2px solid #00ff00 !important;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.2) !important;
-            animation: apex-content-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes apex-content-pulse {
-            0%, 100% {
-                box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.2);
-                border-color: #00ff00;
-            }
-            50% {
-                box-shadow: 0 0 40px rgba(0, 255, 0, 0.9), inset 0 0 15px rgba(0, 255, 0, 0.4);
-                border-color: #00ffff;
-            }
-        }
-
         /* === CONTEXTUAL ACTION BAR === */
         #apex-context-bar {
             position: fixed;
@@ -1241,7 +1333,21 @@
         .tool-palette {
             display: flex !important;
             flex-direction: column !important;
-            height: 100% !important;
+            min-height: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        #palette-container {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain !important;
+        }
+
+        #palette-content {
+            padding: 0 !important;
+            overflow: visible !important;
+            min-height: 0 !important;
         }
 
         /* Sticky Header Container */
@@ -1256,7 +1362,21 @@
             flex-shrink: 0 !important;
             display: flex !important;
             justify-content: space-between !important;
-            align-items: center !important;
+            align-items: flex-start !important;
+            gap: 0.75rem !important;
+        }
+
+        #palette-container .palette-header-left {
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+        }
+
+        #palette-container .palette-selected-path {
+            white-space: normal !important;
+            overflow-wrap: anywhere !important;
+            word-break: break-word !important;
+            line-height: 1.35 !important;
+            max-width: 100% !important;
         }
 
         /* Primary Controls (Content + Text Color - Never Scroll) */
@@ -1268,10 +1388,11 @@
             margin-bottom: 1.5rem !important;
         }
 
-        /* Scrollable Content Area */
+        /* Main Content Area */
         .palette-content {
-            overflow-y: auto !important;
-            flex: 1 !important;
+            overflow: visible !important;
+            flex: 1 0 auto !important;
+            min-height: 0 !important;
             padding: 0 1rem !important;
         }
 
@@ -1465,17 +1586,6 @@
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
         }
 
-        /* Content Editor Expansion */
-        #quill-editor {
-            transition: height 200ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-            min-height: 120px !important;
-            border: 2px solid #3f3f46 !important;
-        }
-
-        #quill-editor:focus-within {
-            min-height: 180px !important;
-            border: 3px solid #d4af37 !important;
-        }
     </style>
 
     <!-- ... Templates ... -->
@@ -1580,6 +1690,21 @@
 
         // Theme Toggle... (closes editor during transition)
         function toggleTheme() {
+            // Two independent handler-wiring systems both bind this button
+            // (attachHandlers() here in index.html, and HandlerDispatcher in
+            // handler-dispatcher.js), so a single click calls this twice.
+            // Two calls flip the theme, then flip it right back - looks like
+            // the button does nothing. A short, local, self-clearing guard
+            // (not AxxilakTransition.active) absorbs the near-simultaneous
+            // second call: both dispatchers fire on the same native click in
+            // the same tick, well under 50ms apart, so 50ms is plenty - and
+            // unlike the transition engine's own `active` flag (which can get
+            // stuck true if its rAF loop stalls, e.g. a backgrounded tab),
+            // this always clears on its own and can never leave the button
+            // permanently unresponsive.
+            if (window.__themeToggleInFlight) return;
+            window.__themeToggleInFlight = true;
+            setTimeout(() => { window.__themeToggleInFlight = false; }, 50);
             // Close editor before transition (covers the UI change)
             try {
                 if (window.inspector && window.inspector.isActive) {
@@ -1625,19 +1750,69 @@
         // Check saved preference on load
         if (localStorage.getItem('theme') === 'light') {
             document.body.setAttribute('data-theme', 'light');
-            document.getElementById('theme-icon').innerText = 'ðŸŒ™';
+            document.getElementById('theme-icon').src = 'icons/moon.svg';
         }
 
-        // Form Success Feedback
-        function showThanks(e) {
-            setTimeout(() => {
-                const form = e.target.closest('form');
-                const success = form.querySelector('#form-success');
-                if (success) success.classList.remove('hidden');
+        // Form Feedback
+        async function showThanks(e) {
+            const form = e.target.closest('form');
+            if (!form) return;
+
+            const success = form.querySelector('#form-success');
+            const submitBtn = e.target.closest('button[type="submit"]');
+            if (success) success.classList.add('hidden');
+
+            if (!form.reportValidity()) {
+                e.preventDefault();
+                return;
+            }
+
+            e.preventDefault();
+
+            const originalLabel = submitBtn ? submitBtn.textContent : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Transmitting...';
+            }
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Form submission failed');
+                }
+
+                if (success) {
+                    success.innerHTML = '<p class="font-bold">Transmission Received</p><p class="opacity-80">Your inquiry was submitted successfully. Axxilak will respond after review.</p>';
+                    success.classList.remove('hidden','border-red-500','text-red-400','bg-red-500/10');
+                    success.classList.add('border-green-500','text-green-500','bg-green-500/10');
+                }
+
                 form.reset();
-            }, 500);
+                if (submitBtn) {
+                    submitBtn.textContent = 'Transmission Sent';
+                }
+            } catch (error) {
+                if (success) {
+                    success.innerHTML = '<p class="font-bold">Transmission Failed</p><p class="opacity-80">Formspree did not accept the submission. Please try again.</p>';
+                    success.classList.remove('hidden','border-green-500','text-green-500','bg-green-500/10');
+                    success.classList.add('border-red-500','text-red-400','bg-red-500/10');
+                }
+            } finally {
+                if (submitBtn) {
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalLabel || 'Initiate Protocol';
+                    }, 1800);
+                }
+            }
         }
-
         // Parallax Grid
         window.addEventListener('scroll', () => {
             const grid = document.getElementById('global-grid');
@@ -1726,7 +1901,7 @@
     <!-- OLD EDITOR SYSTEM REMOVED - Replaced by new lens/detector/palette integration -->
 
     <!-- EDGE ELECTRIFY MOUNT (THE RELIC) -->
-    <div id="edge-electrify-mount" class="fixed bottom-6 left-6 z-[25000] flex flex-col items-center group cursor-pointer transition-transform hover:scale-110" onclick="document.getElementById('edge-upsell-modal').classList.remove('hidden'); document.getElementById('edge-upsell-modal').classList.add('flex');">
+    <div id="edge-electrify-mount" class="fixed bottom-6 left-6 z-[25000] flex flex-col items-center group cursor-pointer transition-transform hover:scale-110" onclick="window.openEdgeUpsell()">
         <img src="marketing/clock-electrify-instructions.png" alt="Edge Electrify" class="w-20 h-20 drop-shadow-[0_0_20px_rgba(37,99,235,0.8)] animate-pulse hover:animate-none" id="edge-electrify-clock">
         <span class="mt-2 text-[10px] font-mono tracking-widest text-[var(--accent)] font-bold opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-[0_0_5px_var(--accent)]">ELECTRIFY</span>
     </div>
@@ -1738,7 +1913,7 @@
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[var(--accent)] rounded-full blur-[80px] opacity-50 pointer-events-none"></div>
             
             <h2 class="text-3xl font-extrabold tracking-tight mb-2 relative z-10">Edge Electrify</h2>
-            <div class="text-[var(--accent)] font-mono text-xs tracking-widest mb-8 relative z-10">PROFESSIONAL LINE ART ENGINE</div>
+            <div class="text-[var(--accent)] font-mono text-xs tracking-widest mb-8 relative z-10"><span class="apex-stat-text">PROFESSIONAL LINE ART ENGINE</span></div>
             
             <div class="flex justify-center items-center gap-4 mb-8 relative z-10">
                 <span class="text-zinc-500 line-through text-2xl font-light">$0.99</span>
@@ -1749,18 +1924,10 @@
                 This premium add-on is unlocked and included perpetually with your Axxilak APEX license.
             </p>
             
-            <button onclick="
-                document.getElementById('edge-upsell-modal').classList.add('hidden');
-                document.getElementById('edge-upsell-modal').classList.remove('flex');
-                document.getElementById('edge-fullscreen-container').classList.remove('hidden');
-                document.getElementById('edge-fullscreen-container').classList.add('flex');
-            " class="w-full btn-apex py-4 rounded-sm text-sm font-bold relative z-10 tracking-widest uppercase shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)]">
+            <button onclick="window.openEdgeElectrify()" class="w-full btn-apex py-4 rounded-sm text-sm font-bold relative z-10 tracking-widest uppercase shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)]">
                 Initialize Engine
             </button>
-            <button onclick="
-                document.getElementById('edge-upsell-modal').classList.add('hidden');
-                document.getElementById('edge-upsell-modal').classList.remove('flex');
-            " class="mt-4 text-xs font-mono text-zinc-600 hover:text-zinc-400 relative z-10 transition-colors">
+            <button onclick="window.closeEdgeUpsell()" class="mt-4 text-xs font-mono text-zinc-600 hover:text-zinc-400 relative z-10 transition-colors">
                 [ ABORT ]
             </button>
         </div>
@@ -1773,12 +1940,9 @@
                 <span class="w-2 h-2 rounded-full bg-[var(--accent)] animate-pulse"></span>
                 EDGE ELECTRIFY ENVIRONMENT
             </span>
-            <button onclick="
-                document.getElementById('edge-fullscreen-container').classList.add('hidden');
-                document.getElementById('edge-fullscreen-container').classList.remove('flex');
-            " class="text-zinc-500 hover:text-white transition-colors font-mono text-sm tracking-widest">[ EXIT ]</button>
+            <button onclick="window.closeEdgeElectrify()" class="text-zinc-400 hover:text-white transition-colors font-mono text-sm tracking-widest">[ BACK TO APEX ]</button>
         </div>
-        <iframe src="../../../applings/EdgeElectrify/Edge Electrify and Line Art/edge_electrify.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
+        <iframe src="https://keystoneconstellation.com/applings/edge_electrify/index.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
     </div>
 
     </div><!-- END apex-3d-scene -->
@@ -1795,22 +1959,115 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260726-contrast7';
-        import { HandlerDispatcher } from './js/handler-dispatcher.js';
-
-        // Initialize universal handler dispatcher (handles data-handler attributes)
-        const dispatcher = new HandlerDispatcher();
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260802-deadcoderemoved1';
+        import './js/handler-dispatcher.js';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
         window.inspectorEditMode = false;
+        window.editMode = false;
 
         let inspector = null;
-        let editMode = false;
+
+        const editBtn = document.getElementById('edit-mode-btn');
+
+        function setEditModeState(active) {
+            const isActive = !!active;
+            window.editMode = isActive;
+            window.inspectorEditMode = isActive;
+            document.body.classList.toggle('edit-mode', isActive);
+            if (editBtn) {
+                editBtn.classList.toggle('apex-edit-btn-active', isActive);
+            }
+        }
+
+        window.__apexSetEditModeState = setEditModeState;
+
+        // Narrow, isolated nav-label editing. Deliberately never touches
+        // ElementDetector's selection gate, editSession, or the lockdown
+        // overlay - see potch.md for the documented second-open freeze that
+        // happened the last time nav controls were routed through the
+        // general inspector. Writes straight into the same edits/localStorage
+        // object the rest of the editor already uses, so save/reload replay
+        // (applyAllSavedEdits) needs no changes at all.
+        function initNavLabelEditing(inspectorInstance) {
+            document.querySelectorAll('.nav-edit-pencil').forEach((pencil) => {
+                pencil.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const target = document.getElementById(pencil.getAttribute('data-edit-target'));
+                    if (target) startNavLabelEdit(target, inspectorInstance);
+                });
+            });
+        }
+
+        function startNavLabelEdit(target, inspectorInstance) {
+            const originalText = target.textContent;
+            target.setAttribute('contenteditable', 'true');
+            target.focus();
+            const range = document.createRange();
+            range.selectNodeContents(target);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+
+            let finished = false;
+            const finish = (commit) => {
+                if (finished) return;
+                finished = true;
+                target.removeAttribute('contenteditable');
+                target.removeEventListener('blur', onBlur);
+                target.removeEventListener('keydown', onKeydown);
+                const newText = target.textContent.trim();
+                if (commit && newText && newText !== originalText) {
+                    saveNavLabel(target, newText, inspectorInstance);
+                } else {
+                    target.textContent = originalText;
+                }
+            };
+            const onBlur = () => finish(true);
+            const onKeydown = (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+                if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+            };
+            target.addEventListener('blur', onBlur);
+            target.addEventListener('keydown', onKeydown);
+        }
+
+        function saveNavLabel(target, newText, inspectorInstance) {
+            const pairEl = target.hasAttribute('data-nav-pair')
+                ? document.getElementById(target.getAttribute('data-nav-pair'))
+                : null;
+
+            if (!inspectorInstance || !inspectorInstance.detector || typeof inspectorInstance.detector.getUniqueSelector !== 'function') {
+                target.textContent = newText;
+                if (pairEl) pairEl.textContent = newText;
+                console.warn('[APEX] Nav label changed live but could not be persisted (inspector not ready).');
+                return;
+            }
+            try {
+                inspectorInstance.detector._setTextNodes(target, newText);
+                const selector = inspectorInstance.detector.getUniqueSelector(target);
+                if (selector) {
+                    inspectorInstance.edits[selector] = Object.assign({}, inspectorInstance.edits[selector], { textContent: newText });
+                }
+                if (pairEl) {
+                    inspectorInstance.detector._setTextNodes(pairEl, newText);
+                    const pairSelector = inspectorInstance.detector.getUniqueSelector(pairEl);
+                    if (pairSelector) {
+                        inspectorInstance.edits[pairSelector] = Object.assign({}, inspectorInstance.edits[pairSelector], { textContent: newText });
+                    }
+                }
+                inspectorInstance.saveEdits();
+            } catch (err) {
+                console.warn('[APEX] Nav label save failed:', err);
+            }
+        }
 
         function initInspector(isUserAction = false) {
             if (!inspector) {
                 inspector = new MagnifyingGlassInspector();
                 window.inspector = inspector; // Expose to window for theme toggle access
+                initNavLabelEditing(inspector); // one-time wiring, guarded by the same !inspector check as above
             }
 
             if (isUserAction) {
@@ -1820,35 +2077,35 @@
             }
         }
 
+        function exitEditMode() {
+            initInspector(true);
+            setEditModeState(false);
+            if (inspector && inspector.isActive) {
+                inspector.deactivate();
+            }
+        }
+
         function toggleEditMode(e) {
             initInspector(true);
-            editMode = !editMode;
+            const isCurrentlyActive = !!(inspector && inspector.isActive);
 
-            if (editMode) {
-                document.body.classList.add('edit-mode');
-                window.inspectorEditMode = true;
+            if (!isCurrentlyActive) {
+                setEditModeState(true);
                 inspector.activate(e);
                 if (editBtn) {
-                    editBtn.classList.add('apex-edit-btn-active');
                     editBtn.classList.remove('apex-edit-btn-pulse');
                     void editBtn.offsetWidth;
                     editBtn.classList.add('apex-edit-btn-pulse');
                 }
             } else {
-                document.body.classList.remove('edit-mode');
-                window.inspectorEditMode = false;
-                inspector.deactivate();
-                if (editBtn) {
-                    editBtn.classList.remove('apex-edit-btn-active');
-                }
+                exitEditMode();
             }
         }
 
         // Export customized functions to window for HTML buttons
+        window.exitEditMode = exitEditMode;
         window.toggleEditMode = toggleEditMode;
 
-        // Attach button listener
-        const editBtn = document.getElementById('edit-mode-btn');
         if (editBtn) {
             editBtn.addEventListener('click', toggleEditMode);
         }
@@ -1890,7 +2147,58 @@
                 location.reload();
             }
         }
+        const edgeUpsellModal = document.getElementById('edge-upsell-modal');
+        const edgeFullscreenContainer = document.getElementById('edge-fullscreen-container');
+        let edgeOverlayHistoryOpen = false;
 
+        function openEdgeUpsell() {
+            if (!edgeUpsellModal) return;
+            edgeUpsellModal.classList.remove('hidden');
+            edgeUpsellModal.classList.add('flex');
+        }
+
+        function closeEdgeUpsell() {
+            if (!edgeUpsellModal) return;
+            edgeUpsellModal.classList.add('hidden');
+            edgeUpsellModal.classList.remove('flex');
+        }
+
+        function openEdgeElectrify() {
+            closeEdgeUpsell();
+            if (!edgeFullscreenContainer) return;
+            edgeFullscreenContainer.classList.remove('hidden');
+            edgeFullscreenContainer.classList.add('flex');
+            if (!edgeOverlayHistoryOpen) {
+                history.pushState({ apexEdgeOverlay: true }, '', '#edge-electrify');
+                edgeOverlayHistoryOpen = true;
+            }
+        }
+
+        function closeEdgeElectrify(fromHistory = false) {
+            closeEdgeUpsell();
+            if (edgeFullscreenContainer) {
+                edgeFullscreenContainer.classList.add('hidden');
+                edgeFullscreenContainer.classList.remove('flex');
+            }
+            if (!fromHistory && edgeOverlayHistoryOpen) {
+                edgeOverlayHistoryOpen = false;
+                if (location.hash === '#edge-electrify') {
+                    history.back();
+                }
+            }
+        }
+
+        window.addEventListener('popstate', () => {
+            if (edgeFullscreenContainer && !edgeFullscreenContainer.classList.contains('hidden')) {
+                edgeOverlayHistoryOpen = false;
+                closeEdgeElectrify(true);
+            }
+        });
+
+        window.openEdgeUpsell = openEdgeUpsell;
+        window.closeEdgeUpsell = closeEdgeUpsell;
+        window.openEdgeElectrify = openEdgeElectrify;
+        window.closeEdgeElectrify = closeEdgeElectrify;
         // Initialize inspector on page load
         window.addEventListener('DOMContentLoaded', () => {
             initInspector();
@@ -1899,6 +2207,48 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,3 +1,8 @@
+# Local artifacts / AI context dumps - not site content
+nul
+ai_bundle_axxilak_part*of8.txt
+gemini.user.js
+
 archives/Project Analyzer/
 archives/reviewToSeeIfPirated.txt
 _Z_Rescue/
