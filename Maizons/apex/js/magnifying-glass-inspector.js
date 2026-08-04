@@ -954,15 +954,42 @@ export default class MagnifyingGlassInspector {
         document.documentElement.style.overflow = 'hidden';
         document.body.classList.add('ax-editing');
         this.lockdownOverlay.style.display = 'block';
+        // The EDIT button carries data-allow-during-edit="true" - a signal
+        // that it's meant to stay clickable through the lockdown overlay -
+        // but nothing ever actually implemented that. Real browser hit-
+        // testing puts this overlay on top of the button once a session is
+        // active, swallowing every real click before it reaches the
+        // button's own handler; only ever worked before something was
+        // selected, since the overlay is display:none until then. Raising
+        // the button's own z-index doesn't fix this: its ancestor <nav> has
+        // its own stacking context (position + z-index:100), so nothing
+        // inside it can out-rank this overlay no matter its own z-index.
+        // Simplest correct fix: let clicks landing on the button's own
+        // screen rect through, regardless of what visually covers it.
+        const isOnEditButton = (e) => {
+            const editBtn = document.getElementById('edit-mode-btn');
+            if (!editBtn) return false;
+            const r = editBtn.getBoundingClientRect();
+            return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        };
         this.lockdownOverlay.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
+            // Not blocked entirely: the overlay and the button are unrelated
+            // elements in the DOM (the button isn't an ancestor of the
+            // overlay), so a click landing on the overlay never bubbles to
+            // the button's own listener on its own - it has to be forwarded
+            // explicitly, not just "not blocked".
+            if (isOnEditButton(e)) {
+                document.getElementById('edit-mode-btn').click();
+            }
             return false;
         };
         // During edit, clicks on the locked page can still be meaningful if
         // they land inside the selected text element: use them to reposition
         // the mirrored caret in both the live element and Quill.
         this.lockdownOverlay.onmousedown = (e) => {
+            if (isOnEditButton(e)) return;
             const activeEl = this.editSession.element;
             if (activeEl && this.palette && typeof this.palette.syncCaretFromPagePoint === 'function') {
                 const rect = activeEl.getBoundingClientRect();

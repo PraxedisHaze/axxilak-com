@@ -14,6 +14,22 @@
 
 ---
 
+## 2026-08-04 - EDIT button unreachable through the lockdown overlay once something was selected
+
+**WHO**: Claude, at Timothy's live, frustrated report: EDIT opens and closes fine with nothing selected, but once an element is selected, clicking EDIT does nothing at all - only × worked. Root-caused after every one of my own automated tests kept "passing," because I'd been testing by dispatching events directly on the target element, which bypasses real browser hit-testing entirely.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (`_startEditSession()`'s lockdown overlay `onclick`/`onmousedown`), cache-bust bump.
+
+**WHY**: The EDIT button carries `data-allow-during-edit="true"` - a leftover signal that it was *meant* to stay clickable through the full-screen lockdown overlay during an active session - but nothing anywhere ever actually implemented that. Real hit-testing puts the overlay (`#apex-lockdown-overlay`, covers the full viewport, `display:block` once a session starts) visually on top of the button, so a genuine click lands on the overlay and gets swallowed before it ever reaches the button's own listener. Confirmed directly: `document.elementFromPoint()` at the button's own coordinates returned the overlay, not the button. My own testing never caught this all session because `element.dispatchEvent()` fires directly on whatever element you call it on, skipping the browser's real point-in-space hit-testing that decides what a real click actually lands on. A z-index bump on the button alone doesn't fix it either - its ancestor `<nav>` has its own stacking context (`position` + explicit `z-index:100`), which caps anything inside it well below the overlay's 19998 regardless of the child's own z-index.
+
+**FIX**: The overlay's own click handler now checks whether the click's coordinates fall inside the EDIT button's live bounding rect, and if so, explicitly calls `edit-mode-btn.click()` to forward it - not just declining to block, since the overlay and the button are unrelated elements in the DOM (the button isn't an ancestor of the overlay), so a click on the overlay could never bubble to the button's listener on its own. First attempt at this fix only skipped the block without forwarding, which didn't work - caught by testing the real failure mode (dispatching on `document.elementFromPoint()`'s actual answer) rather than re-checking the easy way.
+
+**LOVE GATE 7**: no harm; reversible; fixes a real, live, frustrating defect at its actual root; scoped to two handlers already specific to this one overlay; verified against real hit-testing semantics, not the flawed direct-dispatch method used earlier.
+
+**EVIDENCE**: `document.elementFromPoint()` at the EDIT button's coordinates during an active session confirmed the overlay, not the button. Dispatching a full click sequence on that actual overlay element (matching what a real click hits): editor now closes correctly with no pending changes, and correctly shows the unsaved-changes prompt when there are real pending changes - both re-verified through this same real path, not just the direct-dispatch shortcut.
+
+---
+
 ## 2026-08-04 - Theme toggle: silent auto-close, then a broken fix, then a real fix
 
 **WHO**: Claude, at Timothy's report: "I click edit, I click theme, editor closes, theme changes" - recalled this as a known-bad pattern.
