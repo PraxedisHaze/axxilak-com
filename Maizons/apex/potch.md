@@ -1,3 +1,19 @@
+## 2026-08-04 - Close/Cancel reverted back to a full Edit Mode exit
+
+**WHO**: Claude, at Timothy's direction after live-testing the earlier same-day "stay in Edit Mode" fix and hitting real confusion.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (`palette.onCancel`), cache-bust bump.
+
+**WHY**: Earlier today, Close/Cancel was changed to deselect-and-stay-in-Edit-Mode instead of exiting, specifically so a second element could be picked without re-clicking EDIT. Live-tested by Timothy: after ×, the EDIT button stayed green (correctly reflecting "still active") - but the button is a literal on/off toggle keyed to that same flag, so the very next click read "already on" and flipped it fully off in one step, requiring a *second* click to actually reopen. Internally consistent (verified: every state transition was clean, no genuinely broken/stuck state), but not what a person expects from a green button that doesn't open anything when clicked. Timothy's call: "a human expects that, when they close the editor, they close the editor" - the × should always fully exit and the button should always flip to match, full stop.
+
+**FIX**: Reverted `onCancel` to call `this.deactivate()` + `__apexSetEditModeState(false)` again (undoing the same-day re-assert-active change). Left a comment explaining why, so a future pass doesn't re-attempt the same "improvement" without knowing it was already tried and reverted same-day.
+
+**LOVE GATE 7**: no harm; reversible; directly matches explicit, live-tested direction; verified live (close → button correctly blue/inactive → one click cleanly reopens, no double-click needed).
+
+**EVIDENCE**: Before revert: close → button green/active/isActive:true → 1 click → blue/inactive/isActive:false → 2nd click needed to reopen. After revert: close → button blue/inactive/isActive:false immediately → 1 click → green/active/isActive:true, editor open.
+
+---
+
 ## 2026-08-04 - Two real reopen bugs in Container Glow/Gradient, found running QA section 4
 
 **WHO**: Claude, running QA_CHECKLIST section 4 (Visual Effects) at Timothy's direction to finish Apex and get it online.

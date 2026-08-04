@@ -173,25 +173,22 @@ export default class MagnifyingGlassInspector {
         this.palette = new ToolPalette();
         this.palette.debug = this.debug;
         this.palette.onCancel = () => {
-            // Close/Cancel should just deselect the current element and
-            // drop back into hover mode so the next one can be picked
-            // straight away - it shouldn't exit Edit Mode entirely.
-            // _cancelEditSession() (via the shared _endEditSession(), also
-            // used by Save) does the real cleanup: reverts pending changes,
-            // tears down the lockdown overlay, restores nav/scroll - but it
-            // also unconditionally flips Edit Mode off, since that shared
-            // function is what a genuine full exit uses too. Don't touch
-            // that shared function (Save relies on the same exit behavior);
-            // instead re-assert "still in Edit Mode" right after, only on
-            // this path.
+            // REVERTED 2026-08-04 (was briefly "stay in Edit Mode after
+            // Close" earlier the same day): that left the EDIT button green
+            // while the palette was closed, but the button is a literal
+            // on/off toggle keyed to this same active state - so the very
+            // next click read "already on" and turned it fully off in one
+            // step, needing a second click to reopen. Technically consistent,
+            // but confusing: a green button that doesn't open anything on
+            // click. Timothy's direction, after hitting this live: closing
+            // the editor should close the editor, full stop - the × always
+            // fully exits Edit Mode and the button always flips to match.
             if (this.editSession.active) {
                 this._cancelEditSession();
             }
-            if (this.isActive) {
-                document.body.classList.add('edit-mode');
-                if (typeof window.__apexSetEditModeState === 'function') {
-                    window.__apexSetEditModeState(true);
-                }
+            this.deactivate();
+            if (typeof window.__apexSetEditModeState === 'function') {
+                window.__apexSetEditModeState(false);
             }
         };
 
