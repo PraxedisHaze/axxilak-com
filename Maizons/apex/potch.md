@@ -14,6 +14,23 @@
 
 ---
 
+## 2026-08-04 - Direct element switching, at last: the overlay fix generalized
+
+**WHO**: Claude, at Timothy's direct challenge ("This is a substandard product. How are we going to sell this?") after confirming close-then-reselect was still required even right after a Save. Given today already proved the lockdown-overlay code was safely touchable (the EDIT-button fix above), reversed the earlier "defer this" call from much earlier in the day.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (new `_processContentClick()` shared with the normal document click handler, new `_staysLiveDuringEdit()` shared with `_disableNavButtons()`, lockdown overlay `onclick`/`onmousedown` rewritten around both).
+
+**WHY**: The switch-cleanly / discard-prompt logic already existed in the document-level click handler, but was provably unreachable - the same root cause as the EDIT-button bug, just never generalized. Fixed by extracting that logic into `_processContentClick(rawTarget)` so it can be fed either `e.target` (normal path, nothing covering the page) or whatever `document.elementFromPoint()` finds under the overlay (new path). Two real bugs caught fixing this, both by testing against real hit-testing instead of direct-dispatch:
+
+1. **First version stripped `edit-mode` state on switch.** Switching without pending changes reuses `_endEditSession()` for cleanup, which (correctly, for a real exit) strips the `edit-mode` body class and button state - wrong here since editing genuinely continues on the new element. Fixed by re-asserting both after the new session starts.
+2. **Theme toggle regressed the moment direct-switching shipped.** The overlay's click handler used to special-case only the EDIT button by id; generalizing to "forward to whatever's really underneath" without also generalizing "which buttons count as live" meant the theme button - live only because of an earlier, separate fix - stopped being reachable again, silently. Fixed by extracting `_staysLiveDuringEdit()` as the one shared definition of "which buttons survive the nav-disable sweep," used by both the sweep itself and the overlay's forwarding, so they can't drift apart a second time.
+
+**LOVE GATE 7**: no harm; reversible; directly answers the explicit "how do we sell this" pressure with a real fix, not a promise; every path re-verified through real hit-testing after each of the two bugs found while building this, not just re-run the easy way.
+
+**EVIDENCE**: Full suite verified live via `document.elementFromPoint()` + dispatch on the real topmost element (not direct-dispatch): clean switch (no pending changes) preserves `edit-mode` state; dirty switch shows the styled prompt and both Save-then-switch and Discard-then-switch work correctly; same-element click is a no-op; locked elements remain unselectable; EDIT button and theme toggle (both with and without pending changes) still work correctly through the overlay after the generalization.
+
+---
+
 ## 2026-08-04 - EDIT button unreachable through the lockdown overlay once something was selected
 
 **WHO**: Claude, at Timothy's live, frustrated report: EDIT opens and closes fine with nothing selected, but once an element is selected, clicking EDIT does nothing at all - only × worked. Root-caused after every one of my own automated tests kept "passing," because I'd been testing by dispatching events directly on the target element, which bypasses real browser hit-testing entirely.

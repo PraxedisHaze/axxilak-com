@@ -389,74 +389,13 @@ export default class MagnifyingGlassInspector {
             // Block other palette clicks
             if (isOverPalette) return;
 
-            // Check the ACTUAL clicked element, not the previously highlighted one
-            let clickedElement = e.target;
-
-            // Walk up to find an editable element
-            while (clickedElement && clickedElement !== document.body) {
-                // Skip if internal UI
-                if (this.detector._isInternal(clickedElement)) {
-                    return;
+            if (this._processContentClick(e.target)) {
+                if (this.debug) {
+                    console.log('[APEX] BLOCKING click on:', e.target.tagName);
                 }
-
-                // Found an editable element
-                if (this.detector._isEditable(clickedElement)) {
-                    break;
-                }
-
-                clickedElement = clickedElement.parentElement;
+                e.preventDefault();
+                e.stopImmediatePropagation();
             }
-
-            // No editable element found in stack
-            if (!clickedElement || clickedElement === document.body) {
-                return;
-            }
-
-            // Prefer text overlay sibling over bare image
-            clickedElement = this.detector.resolveTextSibling(clickedElement);
-            if (!clickedElement.dataset.axId) {
-                this.detector.axIdCounter += 1;
-                clickedElement.dataset.axId = `ax-${this.detector.axIdCounter}`;
-            }
-
-            // Block data-handler execution on editable content elements
-            if (this.debug) {
-                console.log('[APEX] BLOCKING click on:', clickedElement.tagName, 'text:', clickedElement.innerText?.slice(0, 20));
-            }
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            // 3D MODE: Just select the element (no edit session, no lockdown)
-            if (this.palette.view3DActive) {
-                const data = this.detector._extractElementData(clickedElement);
-                this.highlightElement(clickedElement); // Update highlight for consistency
-                this.palette.show();
-                this.palette.update(data);
-                    return;
-            }
-
-            // NORMAL MODE: Start edit session
-            if (this.editSession.active) {
-                const currentEl = this.editSession.element;
-                const hasPendingChanges = Object.keys(this.editSession.pendingChanges || {}).length > 0;
-
-                // Clicking the already-active element should not restart or block the session.
-                if (currentEl === clickedElement) {
-                    return;
-                }
-
-                // If nothing is dirty, switch targets cleanly without a scary discard prompt.
-                if (!hasPendingChanges) {
-                    this._endEditSession();
-                } else if (confirm('You have unsaved changes. Discard them?')) {
-                    this._cancelEditSession();
-                } else {
-                    return;
-                }
-            }
-
-            // Start new edit session on the actual clicked element
-            this._startEditSession(clickedElement);
         }, { capture: true });
 
         // DEPTH PROBE SCROLLING
@@ -862,8 +801,7 @@ export default class MagnifyingGlassInspector {
 
         // Disable ALL buttons except EDIT/toolbar/palette/theme (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
-            const isThemeToggle = (btn.getAttribute('data-handler') || '').startsWith('toggleTheme');
-            if (btn.id !== 'edit-mode-btn' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container') && !isThemeToggle) { // Skip EDIT, toolbar, palette, and theme-toggle buttons - theme has to keep working (it safely exits edit mode itself via requestExit before switching) rather than going silently inert
+            if (!this._staysLiveDuringEdit(btn)) {
                 // Store original onclick attribute
                 this.editSession.disabledButtons.push({
                     button: btn,
@@ -964,24 +902,38 @@ export default class MagnifyingGlassInspector {
         // the button's own z-index doesn't fix this: its ancestor <nav> has
         // its own stacking context (position + z-index:100), so nothing
         // inside it can out-rank this overlay no matter its own z-index.
-        // Simplest correct fix: let clicks landing on the button's own
-        // screen rect through, regardless of what visually covers it.
-        const isOnEditButton = (e) => {
-            const editBtn = document.getElementById('edit-mode-btn');
-            if (!editBtn) return false;
-            const r = editBtn.getBoundingClientRect();
-            return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        // Find whatever is genuinely under the overlay at a point (hide it
+        // for one elementFromPoint call, then restore). Used both to
+        // forward clicks to buttons that are supposed to stay live during
+        // edit (EDIT, theme toggle, toolbar/palette - see
+        // _staysLiveDuringEdit()) and for direct element switching -
+        // neither the button nor arbitrary page content is an ancestor of
+        // this overlay, so nothing reaches them just by declining to block.
+        const findRealTargetAt = (e) => {
+            this.lockdownOverlay.style.pointerEvents = 'none';
+            const under = document.elementFromPoint(e.clientX, e.clientY);
+            this.lockdownOverlay.style.pointerEvents = 'auto';
+            return under;
         };
         this.lockdownOverlay.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
-            // Not blocked entirely: the overlay and the button are unrelated
-            // elements in the DOM (the button isn't an ancestor of the
-            // overlay), so a click landing on the overlay never bubbles to
-            // the button's own listener on its own - it has to be forwarded
-            // explicitly, not just "not blocked".
-            if (isOnEditButton(e)) {
-                document.getElementById('edit-mode-btn').click();
+            const under = findRealTargetAt(e);
+            if (!under) return false;
+
+            const liveBtn = under.closest('button');
+            if (liveBtn && this._staysLiveDuringEdit(liveBtn)) {
+                liveBtn.click();
+                return false;
+            }
+
+            // Direct element switching: hand the real target to the same
+            // selection logic a normal click uses when nothing covers the
+            // page. Previously any click here was just swallowed - moving
+            // to a different element always required closing the editor
+            // first, even right after a Save with nothing pending.
+            if (!this.palette.container.contains(under)) {
+                this._processContentClick(under);
             }
             return false;
         };
@@ -989,7 +941,9 @@ export default class MagnifyingGlassInspector {
         // they land inside the selected text element: use them to reposition
         // the mirrored caret in both the live element and Quill.
         this.lockdownOverlay.onmousedown = (e) => {
-            if (isOnEditButton(e)) return;
+            const underDown = findRealTargetAt(e);
+            const liveBtnDown = underDown && underDown.closest('button');
+            if (liveBtnDown && this._staysLiveDuringEdit(liveBtnDown)) return;
             const activeEl = this.editSession.element;
             if (activeEl && this.palette && typeof this.palette.syncCaretFromPagePoint === 'function') {
                 const rect = activeEl.getBoundingClientRect();
@@ -1018,6 +972,20 @@ export default class MagnifyingGlassInspector {
         } catch (err) {
             console.error('[APEX] Failed to disable nav buttons:', err);
         }
+    }
+
+    // Single source of truth for "which buttons keep working during an
+    // active edit session" - used both to decide what the nav-disable sweep
+    // leaves alone, and by the lockdown overlay's click forwarding (a real
+    // click on one of these lands on the overlay, not the button, so it has
+    // to be forwarded explicitly either way). Previously this criteria was
+    // duplicated inline in the sweep and the theme button's overlay
+    // forwarding only checked its own id, not this - which is exactly how
+    // the theme button regressed silently when direct-switching was added.
+    _staysLiveDuringEdit(btn) {
+        if (!btn) return false;
+        const isThemeToggle = (btn.getAttribute('data-handler') || '').startsWith('toggleTheme');
+        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle;
     }
 
     _disableNavButtons() {
@@ -1423,6 +1391,81 @@ export default class MagnifyingGlassInspector {
     // changes check at all) - a duplicate-logic bug in the same family as
     // the earlier double-wired theme toggle. One shared method now; both
     // callers get the same real behavior automatically, can't drift apart.
+    // Shared "the user clicked something that might be a new editable
+    // target" logic. rawTarget is wherever the click actually hit-tested to
+    // - normally e.target, but when a session is active the lockdown
+    // overlay covers the page, so the overlay's own click handler passes in
+    // whatever document.elementFromPoint() finds underneath it instead (see
+    // the overlay's onclick below). Previously this logic only ever ran
+    // when nothing covered the page, i.e. only for the very first
+    // selection - moving directly from one element to another required
+    // closing the editor first, every time, even right after a Save.
+    // Returns true if the click was actually handled (so the caller knows
+    // whether to preventDefault/stopPropagation).
+    _processContentClick(rawTarget) {
+        if (!rawTarget) return false;
+
+        let clickedElement = rawTarget;
+        while (clickedElement && clickedElement !== document.body) {
+            if (this.detector._isInternal(clickedElement)) return false;
+            if (this.detector._isEditable(clickedElement)) break;
+            clickedElement = clickedElement.parentElement;
+        }
+        if (!clickedElement || clickedElement === document.body) return false;
+
+        clickedElement = this.detector.resolveTextSibling(clickedElement);
+        if (!clickedElement.dataset.axId) {
+            this.detector.axIdCounter += 1;
+            clickedElement.dataset.axId = `ax-${this.detector.axIdCounter}`;
+        }
+
+        if (this.palette.view3DActive) {
+            const data = this.detector._extractElementData(clickedElement);
+            this.highlightElement(clickedElement);
+            this.palette.show();
+            this.palette.update(data);
+            return true;
+        }
+
+        // _endEditSession() (reached via _cancelEditSession()/_saveEditSession()
+        // when switching away from a prior element) also strips the
+        // edit-mode body class and button state as part of its shared
+        // teardown - correct for a real exit, wrong here since editing is
+        // genuinely continuing on the new element. Re-assert both after
+        // starting the new session so the EDIT button doesn't go visually
+        // inactive mid-switch.
+        const startNew = () => {
+            this._startEditSession(clickedElement);
+            document.body.classList.add('edit-mode');
+            if (typeof window.__apexSetEditModeState === 'function') {
+                window.__apexSetEditModeState(true);
+            }
+        };
+
+        if (this.editSession.active) {
+            const currentEl = this.editSession.element;
+            if (currentEl === clickedElement) return true;
+
+            // Real unsaved edits get the same styled prompt every other
+            // exit path uses now, not the native confirm() this used to
+            // call - and not a silent discard either.
+            const hasPendingChanges = !!(this.palette && this.palette.isDirty) || Object.keys(this.editSession.pendingChanges || {}).length > 0;
+            if (!hasPendingChanges) {
+                this._endEditSession();
+                startNew();
+            } else {
+                this._showUnsavedPrompt(
+                    () => { this._saveEditSession(); startNew(); },
+                    () => { this._cancelEditSession(); startNew(); }
+                );
+            }
+            return true;
+        }
+
+        startNew();
+        return true;
+    }
+
     // onComplete (optional) runs once the exit has actually finished - either
     // immediately (nothing pending) or after the user resolves the unsaved-
     // changes prompt. Used by toggleTheme() (index.html) so the theme flip
