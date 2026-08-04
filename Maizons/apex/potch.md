@@ -1,3 +1,19 @@
+## 2026-08-04 - Discard didn't undo the 3-second auto-save, only the live page
+
+**WHO**: Claude, at Timothy's report (with screenshot: `capture_20260803_223111.png`) - typed stray characters into "Scale Your"/"Digital Authority.", never clicked Save, yet the typos survived a genuine page refresh.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (`_startEditSession()` now snapshots pre-edit localStorage state, `_cancelEditSession()` now restores it), cache-bust bump.
+
+**WHY**: A pre-existing "FIX 2" feature auto-saves pending changes to localStorage every 3 seconds while a session is active, specifically to prevent losing work on a crash. That's a real, legitimate feature - but `_cancelEditSession()` only ever reverted the *live DOM* back to the original state; it never touched `this.edits[selector]` or re-persisted. So any edit left open for more than 3 seconds got auto-committed to localStorage, and Discard (both old and the new prompt's Discard button) only fixed what was *visible*, not what was *saved*. Looked completely successful until the next reload replayed the stale, "discarded" edit right back.
+
+**FIX**: `_startEditSession()` now snapshots whatever is currently in `this.edits` for the element's selector (and its resolved container-style target selector, if different) before any typing happens. `_cancelEditSession()` restores those exact snapshots - including deleting the key entirely if nothing existed there before this session - and re-persists via `saveEdits()`, undoing whatever auto-save wrote in between.
+
+**LOVE GATE 7**: no harm; reversible; fixes a real, live-reproduced, screenshot-confirmed defect with a genuine data-integrity angle (silently keeping content the user explicitly chose to discard); scoped to session start/cancel only, doesn't touch the auto-save timer itself (still valuable for its actual crash-safety purpose); verified through the real failure mode, not assumed.
+
+**EVIDENCE**: Typed a typo into "Fast-Track Build", waited 3.4s (past the auto-save interval), confirmed `this.edits[selector].textContent` held the typo. Closed → prompt appeared → Discard: live text reverted to "Fast-Track Build" AND `this.edits[selector]` was gone entirely. Then did a genuine fresh page navigation (not just a DOM check) and confirmed the heading still reads "Fast-Track Build" - the typo never came back.
+
+---
+
 ## 2026-08-04 - EDIT button silently discarding pending changes (missed by the unsaved-prompt fix)
 
 **WHO**: Claude, at Timothy's report: "clicking the edit button without saving does nothing. It should do the same thing the x does."

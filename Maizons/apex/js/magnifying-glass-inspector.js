@@ -832,6 +832,23 @@ export default class MagnifyingGlassInspector {
         this.editSession.pendingChanges = {};
         this.editSession.disabledButtons = []; // Track buttons we disable
 
+        // Snapshot whatever is currently saved in localStorage for this
+        // element (and its resolved container-style target, if a different
+        // selector) before any edits happen. The 3-second auto-save timer
+        // below persists in-progress edits independently of Save/Cancel -
+        // without this snapshot, Discard only reverted the live page, and
+        // the auto-saved (supposedly discarded) edit silently survived and
+        // came back on the next reload.
+        const snapshotSelector = this.detector.getUniqueSelector(el);
+        this.editSession.originalEditsSnapshot = {
+            selector: snapshotSelector,
+            value: (snapshotSelector && this.edits[snapshotSelector]) ? JSON.parse(JSON.stringify(this.edits[snapshotSelector])) : undefined
+        };
+        const containerTargetSelector = this.editSession.containerOriginalState?.selector;
+        this.editSession.originalContainerEditsSnapshot = (containerTargetSelector && containerTargetSelector !== snapshotSelector)
+            ? { selector: containerTargetSelector, value: this.edits[containerTargetSelector] ? JSON.parse(JSON.stringify(this.edits[containerTargetSelector])) : undefined }
+            : null;
+
         // FIX 2: Auto-save pending changes every 3 seconds (prevents context loss on crash)
         if (this.editSession.autoSaveTimer) clearInterval(this.editSession.autoSaveTimer);
         this.editSession.autoSaveTimer = setInterval(() => {
@@ -1534,6 +1551,30 @@ export default class MagnifyingGlassInspector {
                 }
             }
         }
+
+        // Undo whatever the 3-second auto-save wrote to localStorage during
+        // this session - reverting the live DOM above isn't enough on its
+        // own, since auto-save persists independently of this Cancel.
+        const snap = this.editSession.originalEditsSnapshot;
+        const containerSnap = this.editSession.originalContainerEditsSnapshot;
+        let editsChanged = false;
+        if (snap && snap.selector) {
+            if (snap.value === undefined) {
+                if (this.edits[snap.selector] !== undefined) { delete this.edits[snap.selector]; editsChanged = true; }
+            } else {
+                this.edits[snap.selector] = snap.value;
+                editsChanged = true;
+            }
+        }
+        if (containerSnap && containerSnap.selector) {
+            if (containerSnap.value === undefined) {
+                if (this.edits[containerSnap.selector] !== undefined) { delete this.edits[containerSnap.selector]; editsChanged = true; }
+            } else {
+                this.edits[containerSnap.selector] = containerSnap.value;
+                editsChanged = true;
+            }
+        }
+        if (editsChanged) this.saveEdits();
 
         // Clean up session
         this._endEditSession();
