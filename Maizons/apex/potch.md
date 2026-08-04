@@ -1,3 +1,19 @@
+## 2026-08-04 - Unsaved-changes prompt added to Close/Cancel
+
+**WHO**: Claude, at Timothy's request, following the Close-fully-exits revert above.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (new `unsavedPrompt` element + `_showUnsavedPrompt()`, `onCancel` branches on real pending changes), cache-bust bump.
+
+**WHY**: With Close/Cancel back to a full, silent discard, real unsaved edits could be lost with no warning at all. Timothy's request: a styled prompt ("You didn't save your changes. Would you like to?" Save/Discard), not a native `confirm()` - this codebase already has several native confirms elsewhere (delete, reset) that don't match the product's visual polish.
+
+**FIX**: A small styled modal (dark card, accent border, reusing the existing `.btn-save`/`.btn-cancel` classes for visual consistency), built once in the constructor and shown only when `onCancel` fires with real pending changes (`palette.isDirty` or a non-empty `pendingChanges` map) - the common case of closing with nothing changed is untouched, no extra step. Save button saves then fully exits; Discard button reverts (existing `_cancelEditSession()` logic, unchanged) then fully exits.
+
+**LOVE GATE 7**: no harm; reversible; directly matches the explicit request; the no-changes fast path is provably unaffected; verified live on all three branches.
+
+**EVIDENCE**: No-changes close: prompt never shown, exits immediately (unchanged from before this change). With changes: prompt appears, Edit Mode stays active while it's up. Discard: color reverted to its prior saved value, prompt closes, Edit Mode exits. Save: color updated, prompt closes, Edit Mode exits, and the new color survived a genuine fresh page reload (confirmed via localStorage replay), not just the live preview.
+
+---
+
 ## 2026-08-04 - Close/Cancel reverted back to a full Edit Mode exit
 
 **WHO**: Claude, at Timothy's direction after live-testing the earlier same-day "stay in Edit Mode" fix and hitting real confusion.

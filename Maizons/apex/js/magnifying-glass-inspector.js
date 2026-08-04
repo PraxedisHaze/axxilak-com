@@ -71,6 +71,33 @@ export default class MagnifyingGlassInspector {
         `;
         document.body.appendChild(this.lockdownOverlay);
 
+        // Unsaved-changes prompt: shown by _showUnsavedPrompt() instead of
+        // silently discarding when Close/Cancel is clicked with real
+        // pending edits. Built once here, reused every time.
+        this.unsavedPrompt = document.createElement('div');
+        this.unsavedPrompt.id = 'apex-unsaved-prompt';
+        this.unsavedPrompt.setAttribute('data-anothen-internal', '');
+        this.unsavedPrompt.style.cssText = `
+            position: fixed;
+            inset: 0;
+            z-index: 21000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+        `;
+        this.unsavedPrompt.innerHTML = `
+            <div style="background:#18181b; border:1px solid var(--accent); border-radius:8px; padding:24px; max-width:300px; width:calc(100% - 32px); text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <p style="color:#fff; font-weight:700; font-size:14px; margin:0 0 6px;">You didn't save your changes.</p>
+                <p style="color:#a1a1aa; font-size:12px; margin:0 0 20px;">Would you like to save before closing?</p>
+                <div style="display:flex; gap:10px;">
+                    <button id="apex-unsaved-save-btn" class="btn-save" style="flex:1; height:40px; font-size:11px;">Save</button>
+                    <button id="apex-unsaved-discard-btn" class="btn-cancel" style="flex:1; height:40px; font-size:11px;">Discard</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(this.unsavedPrompt);
+
         // Create 3D control toolbar (minimal, floats above everything)
         this.controlToolbar = document.createElement('div');
         this.controlToolbar.id = 'apex-3d-toolbar';
@@ -183,13 +210,30 @@ export default class MagnifyingGlassInspector {
             // click. Timothy's direction, after hitting this live: closing
             // the editor should close the editor, full stop - the × always
             // fully exits Edit Mode and the button always flips to match.
+            const finishExit = () => {
+                this.deactivate();
+                if (typeof window.__apexSetEditModeState === 'function') {
+                    window.__apexSetEditModeState(false);
+                }
+            };
+
+            // Real unsaved edits get a styled prompt instead of a silent
+            // discard - only when there's something to actually lose.
+            const hasPendingChanges = this.editSession.active &&
+                (!!(this.palette && this.palette.isDirty) || Object.keys(this.editSession.pendingChanges || {}).length > 0);
+
+            if (hasPendingChanges) {
+                this._showUnsavedPrompt(
+                    () => { this._saveEditSession(); finishExit(); },
+                    () => { this._cancelEditSession(); finishExit(); }
+                );
+                return;
+            }
+
             if (this.editSession.active) {
                 this._cancelEditSession();
             }
-            this.deactivate();
-            if (typeof window.__apexSetEditModeState === 'function') {
-                window.__apexSetEditModeState(false);
-            }
+            finishExit();
         };
 
         this.detector.onDetect = (data) => {
@@ -1358,6 +1402,26 @@ export default class MagnifyingGlassInspector {
         } else {
             el.style[property] = value;
         }
+    }
+
+    // Shows the styled unsaved-changes prompt (not a native confirm()) and
+    // wires its two buttons to the given callbacks for exactly this one
+    // decision. Callbacks are re-bound each call rather than kept as
+    // persistent listeners, since there's never more than one prompt
+    // showing at a time and this avoids any stacking-listener risk.
+    _showUnsavedPrompt(onSave, onDiscard) {
+        const prompt = this.unsavedPrompt;
+        if (!prompt) { onDiscard(); return; }
+
+        const saveBtn = prompt.querySelector('#apex-unsaved-save-btn');
+        const discardBtn = prompt.querySelector('#apex-unsaved-discard-btn');
+
+        const hide = () => { prompt.style.display = 'none'; };
+
+        saveBtn.onclick = () => { hide(); onSave(); };
+        discardBtn.onclick = () => { hide(); onDiscard(); };
+
+        prompt.style.display = 'flex';
     }
 
     _saveEditSession() {
