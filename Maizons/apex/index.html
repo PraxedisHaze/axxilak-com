@@ -1705,19 +1705,24 @@
             if (window.__themeToggleInFlight) return;
             window.__themeToggleInFlight = true;
             setTimeout(() => { window.__themeToggleInFlight = false; }, 50);
-            // Close editor before transition (covers the UI change)
-            try {
-                if (window.inspector && window.inspector.isActive) {
-                    window.inspector.deactivate();
-                    document.body.classList.remove('edit-mode');
-                    window.editMode = false;
-                }
-            } catch (err) {
-                console.error('[APEX] Failed to close editor during theme switch:', err);
-            }
 
-            if (window.AxxilakTransition) {
-                window.AxxilakTransition.trigger(() => {
+            const runThemeFlip = () => {
+                if (window.AxxilakTransition) {
+                    window.AxxilakTransition.trigger(() => {
+                        const body = document.body;
+                        const icon = document.getElementById('theme-icon');
+
+                        if (body.getAttribute('data-theme') === 'light') {
+                            body.removeAttribute('data-theme');
+                            icon.src = 'icons/sun.svg';
+                            localStorage.setItem('theme', 'dark');
+                        } else {
+                            body.setAttribute('data-theme', 'light');
+                            icon.src = 'icons/moon.svg';
+                            localStorage.setItem('theme', 'light');
+                        }
+                    });
+                } else {
                     const body = document.body;
                     const icon = document.getElementById('theme-icon');
 
@@ -1730,21 +1735,24 @@
                         icon.src = 'icons/moon.svg';
                         localStorage.setItem('theme', 'light');
                     }
-                });
-            } else {
-                const body = document.body;
-                const icon = document.getElementById('theme-icon');
-
-                if (body.getAttribute('data-theme') === 'light') {
-                    body.removeAttribute('data-theme');
-                    icon.src = 'icons/sun.svg';
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    body.setAttribute('data-theme', 'light');
-                    icon.src = 'icons/moon.svg';
-                    localStorage.setItem('theme', 'light');
                 }
+            };
+
+            // Close editor before transition (covers the UI change) - but
+            // route through requestExit() rather than deactivate() directly,
+            // so real unsaved edits get the same Save/Discard prompt every
+            // other exit path gets instead of being silently dropped. The
+            // theme flip itself waits for that decision (runThemeFlip is the
+            // completion callback) rather than barging ahead of it.
+            try {
+                if (window.inspector && window.inspector.isActive) {
+                    window.inspector.requestExit(runThemeFlip);
+                    return;
+                }
+            } catch (err) {
+                console.error('[APEX] Failed to close editor during theme switch:', err);
             }
+            runThemeFlip();
         }
 
         // Check saved preference on load
@@ -1959,8 +1967,8 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-autosaverevert1';
-        import './js/handler-dispatcher.js';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-themesafeexit2';
+        import './js/handler-dispatcher.js?v=editor-20260804-themesafeexit2';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
         window.inspectorEditMode = false;

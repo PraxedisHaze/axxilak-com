@@ -14,6 +14,26 @@
 
 ---
 
+## 2026-08-04 - Theme toggle: silent auto-close, then a broken fix, then a real fix
+
+**WHO**: Claude, at Timothy's report: "I click edit, I click theme, editor closes, theme changes" - recalled this as a known-bad pattern.
+
+**WHAT**: `js/handler-dispatcher.js` (edit-mode guard), `js/magnifying-glass-inspector.js` (`requestExit()` now accepts an optional completion callback; theme toggle excluded from the nav-disable sweep), `index.html` (`toggleTheme()` routes through `requestExit()`), cache-bust bump.
+
+**WHY - three real, stacked issues, found via a stack-trace capture on `deactivate`:**
+
+1. `toggleTheme()` has always deliberately auto-closed the editor before switching themes (covers the visual transition) - but it called `inspector.deactivate()` directly, completely bypassing today's unsaved-changes prompt. A real edit could be silently discarded by switching themes, no warning, same class of bug as the EDIT-button one fixed minutes earlier.
+2. A separate, older guard in `HandlerDispatcher` was *supposed* to block theme switching during edit mode with a tooltip ("Exit editor to switch theme") - but it never actually blocked anything, because `attachHandlers()` binds the same button independently and always let the real `toggleTheme()` through regardless (the well-documented double-wiring). The tooltip was lying about what was actually about to happen.
+3. First attempt at fixing #2 (removing the tooltip-block) introduced a real bug of its own: a bare `return` inside the guard's nested `if` exits the *entire* click handler function in JavaScript, not just that block - so it skipped the real dispatch below it entirely. Caught this by instrumenting `toggleTheme`/`requestExit` call counts directly rather than trusting the diff looked right. Separately, unrelated to the JS bug: the theme button's `onclick` gets forcibly stripped by the same "disable all nav buttons during an active session" sweep every other button gets - so once an element was actually selected, theme toggle went fully inert (zero feedback) rather than either working or showing the tooltip.
+
+**FIX**: `toggleTheme()` now calls `inspector.requestExit(runThemeFlip)` - the same safe, Save/Discard-aware exit path every other exit uses - with the actual theme-flip logic as the completion callback, so it only runs after a real decision (or immediately, if nothing was pending). `requestExit()` extended to accept that optional callback. HandlerDispatcher's guard restructured to not use an early `return` for the toggleTheme exception. Theme toggle added to the nav-disable sweep's exclusion list (alongside EDIT/toolbar/palette buttons) so its handler is never stripped mid-session.
+
+**LOVE GATE 7**: no harm; reversible; fixes a real reported defect plus two bugs found while fixing it (including one in my own first attempt, caught before calling it done); verified live at each layer - the visual theme-flip animation itself couldn't be confirmed through this automated browser (same rAF/canvas-transition limitation as the earlier smooth-scroll finding, confirmed via an unrelated baseline test that failed identically), but every verifiable safety property (prompt appears with pending changes, edit mode respects the decision, button stays responsive mid-session) checked out.
+
+**EVIDENCE**: Root cause found via `Error().stack` captured inside a wrapped `deactivate()`, showing the direct call chain `toggleTheme → btn.onclick → deactivate`. After fix: with pending changes, clicking theme shows the unsaved prompt (previously: silent discard, or later, complete inertness); Save/Discard both correctly resolve and exit; theme button's `onclick` confirmed still present after selecting an element (previously null/stripped); baseline hover-mode-close scenario re-verified unaffected.
+
+---
+
 ## 2026-08-04 - EDIT button silently discarding pending changes (missed by the unsaved-prompt fix)
 
 **WHO**: Claude, at Timothy's report: "clicking the edit button without saving does nothing. It should do the same thing the x does."

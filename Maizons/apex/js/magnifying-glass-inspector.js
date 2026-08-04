@@ -860,9 +860,10 @@ export default class MagnifyingGlassInspector {
         // ENABLE BUTTON DISABLE GUARD: Tell HandlerDispatcher to block button clicks
         window.inspectorEditMode = true;
 
-        // Disable ALL buttons except EDIT button (pointer-events doesn't block onclick handlers, so disable directly)
+        // Disable ALL buttons except EDIT/toolbar/palette/theme (pointer-events doesn't block onclick handlers, so disable directly)
         document.querySelectorAll('button').forEach(btn => {
-            if (btn.id !== 'edit-mode-btn' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container')) { // Skip EDIT, toolbar, and palette buttons
+            const isThemeToggle = (btn.getAttribute('data-handler') || '').startsWith('toggleTheme');
+            if (btn.id !== 'edit-mode-btn' && !btn.id.startsWith('toolbar-') && !btn.closest('#palette-container') && !isThemeToggle) { // Skip EDIT, toolbar, palette, and theme-toggle buttons - theme has to keep working (it safely exits edit mode itself via requestExit before switching) rather than going silently inert
                 // Store original onclick attribute
                 this.editSession.disabledButtons.push({
                     button: btn,
@@ -1395,12 +1396,17 @@ export default class MagnifyingGlassInspector {
     // changes check at all) - a duplicate-logic bug in the same family as
     // the earlier double-wired theme toggle. One shared method now; both
     // callers get the same real behavior automatically, can't drift apart.
-    requestExit() {
+    // onComplete (optional) runs once the exit has actually finished - either
+    // immediately (nothing pending) or after the user resolves the unsaved-
+    // changes prompt. Used by toggleTheme() (index.html) so the theme flip
+    // waits for a real decision instead of barging through unsaved edits.
+    requestExit(onComplete) {
         const finishExit = () => {
             this.deactivate();
             if (typeof window.__apexSetEditModeState === 'function') {
                 window.__apexSetEditModeState(false);
             }
+            if (typeof onComplete === 'function') onComplete();
         };
 
         const hasPendingChanges = this.editSession.active &&
