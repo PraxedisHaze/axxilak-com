@@ -14,6 +14,22 @@
 
 ---
 
+## 2026-08-04 - Escape key silently discarding pending edits (Codex audit finding)
+
+**WHO**: Codex, running the read-only audit Timothy requested after tonight's session (`CODEX_AUDIT_PROMPT_20260804.md`). Fixed by Claude immediately after.
+
+**WHAT**: `js/magnifying-glass-inspector.js` (global keydown handler's Escape case), cache-bust bump.
+
+**WHY**: The Escape-key handler called `_cancelEditSession()` directly - the same class of bug as the EDIT button and theme toggle earlier tonight, just a fourth independent exit path that never got migrated to the unified `requestExit()` flow. Result: pressing Escape with real unsaved edits discarded them instantly, no prompt, no warning - worse than a no-op. Codex verified with a sentinel value that disappeared silently on Escape, editor state cleared, prompt never shown.
+
+**FIX**: Escape now calls `this.requestExit()` instead of `this._cancelEditSession()` directly - same one-line shape as every other fix in this family tonight.
+
+**LOVE GATE 7**: no harm; reversible; fixes a real, audit-confirmed defect; one-line change matching an already-established pattern; verified live both with and without pending changes.
+
+**EVIDENCE**: With a pending color change: Escape now shows the styled prompt, edit mode stays active, the pending color is still visibly applied (not discarded). Without pending changes: Escape still exits cleanly and immediately, unchanged from before.
+
+---
+
 ## 2026-08-04 - Direct element switching, at last: the overlay fix generalized
 
 **WHO**: Claude, at Timothy's direct challenge ("This is a substandard product. How are we going to sell this?") after confirming close-then-reselect was still required even right after a Save. Given today already proved the lockdown-overlay code was safely touchable (the EDIT-button fix above), reversed the earlier "defer this" call from much earlier in the day.

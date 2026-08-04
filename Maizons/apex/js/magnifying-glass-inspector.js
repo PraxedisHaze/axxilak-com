@@ -419,10 +419,15 @@ export default class MagnifyingGlassInspector {
         document.addEventListener('keydown', (e) => {
             if (!this.isActive || this.isPreviewMode) return;
 
-            // Handle Escape key - exit edit session
+            // Handle Escape key - exit edit session. Routes through
+            // requestExit() (same as Close/Cancel/EDIT/theme toggle), not
+            // _cancelEditSession() directly - calling that alone bypasses
+            // the unsaved-changes prompt entirely, silently discarding real
+            // pending edits with no warning. Found by Codex's audit,
+            // 2026-08-04.
             if (e.key === 'Escape' && this.editSession.active) {
                 e.preventDefault();
-                this._cancelEditSession();
+                this.requestExit();
                 return;
             }
 
