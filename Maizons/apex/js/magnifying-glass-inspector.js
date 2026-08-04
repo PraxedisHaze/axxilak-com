@@ -199,42 +199,7 @@ export default class MagnifyingGlassInspector {
         this._setupCounterPersistence(counterKey);
         this.palette = new ToolPalette();
         this.palette.debug = this.debug;
-        this.palette.onCancel = () => {
-            // REVERTED 2026-08-04 (was briefly "stay in Edit Mode after
-            // Close" earlier the same day): that left the EDIT button green
-            // while the palette was closed, but the button is a literal
-            // on/off toggle keyed to this same active state - so the very
-            // next click read "already on" and turned it fully off in one
-            // step, needing a second click to reopen. Technically consistent,
-            // but confusing: a green button that doesn't open anything on
-            // click. Timothy's direction, after hitting this live: closing
-            // the editor should close the editor, full stop - the × always
-            // fully exits Edit Mode and the button always flips to match.
-            const finishExit = () => {
-                this.deactivate();
-                if (typeof window.__apexSetEditModeState === 'function') {
-                    window.__apexSetEditModeState(false);
-                }
-            };
-
-            // Real unsaved edits get a styled prompt instead of a silent
-            // discard - only when there's something to actually lose.
-            const hasPendingChanges = this.editSession.active &&
-                (!!(this.palette && this.palette.isDirty) || Object.keys(this.editSession.pendingChanges || {}).length > 0);
-
-            if (hasPendingChanges) {
-                this._showUnsavedPrompt(
-                    () => { this._saveEditSession(); finishExit(); },
-                    () => { this._cancelEditSession(); finishExit(); }
-                );
-                return;
-            }
-
-            if (this.editSession.active) {
-                this._cancelEditSession();
-            }
-            finishExit();
-        };
+        this.palette.onCancel = () => this.requestExit();
 
         this.detector.onDetect = (data) => {
             if (!this.isActive || this.isPreviewMode) return;
@@ -1402,6 +1367,40 @@ export default class MagnifyingGlassInspector {
         } else {
             el.style[property] = value;
         }
+    }
+
+    // The one real exit path out of Edit Mode - used by both the palette's
+    // ×/Cancel buttons (via onCancel above) and the page's own EDIT button
+    // (via exitEditMode() in index.html). Was previously two separate,
+    // independently-written implementations, which is exactly how the ×
+    // button got an unsaved-changes prompt while the EDIT button silently
+    // discarded (deactivate() -> _endEditSession() directly, no pending-
+    // changes check at all) - a duplicate-logic bug in the same family as
+    // the earlier double-wired theme toggle. One shared method now; both
+    // callers get the same real behavior automatically, can't drift apart.
+    requestExit() {
+        const finishExit = () => {
+            this.deactivate();
+            if (typeof window.__apexSetEditModeState === 'function') {
+                window.__apexSetEditModeState(false);
+            }
+        };
+
+        const hasPendingChanges = this.editSession.active &&
+            (!!(this.palette && this.palette.isDirty) || Object.keys(this.editSession.pendingChanges || {}).length > 0);
+
+        if (hasPendingChanges) {
+            this._showUnsavedPrompt(
+                () => { this._saveEditSession(); finishExit(); },
+                () => { this._cancelEditSession(); finishExit(); }
+            );
+            return;
+        }
+
+        if (this.editSession.active) {
+            this._cancelEditSession();
+        }
+        finishExit();
     }
 
     // Shows the styled unsaved-changes prompt (not a native confirm()) and

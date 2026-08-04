@@ -1959,7 +1959,7 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-unsavedprompt1';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-sharedexit1';
         import './js/handler-dispatcher.js';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
@@ -2079,9 +2079,15 @@
 
         function exitEditMode() {
             initInspector(true);
-            setEditModeState(false);
             if (inspector && inspector.isActive) {
-                inspector.deactivate();
+                // requestExit() handles the unsaved-changes prompt (if
+                // there's anything pending) and the actual deactivate +
+                // button-state flip itself - same shared path the palette's
+                // own ×/Cancel buttons use, so this button can't drift out
+                // of sync with them again.
+                inspector.requestExit();
+            } else {
+                setEditModeState(false);
             }
         }
 

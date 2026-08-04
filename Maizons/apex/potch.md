@@ -1,3 +1,19 @@
+## 2026-08-04 - EDIT button silently discarding pending changes (missed by the unsaved-prompt fix)
+
+**WHO**: Claude, at Timothy's report: "clicking the edit button without saving does nothing. It should do the same thing the x does."
+
+**WHAT**: `js/magnifying-glass-inspector.js` (new `requestExit()` method, `onCancel` now just calls it), `index.html` (`exitEditMode()` now calls `inspector.requestExit()`), cache-bust bump.
+
+**WHY**: The unsaved-changes prompt added moments earlier only wired into `palette.onCancel` - the path × and the palette's own Cancel button use. The page's EDIT button, when clicked to exit an active session, goes through a completely separate function (`exitEditMode()` → `inspector.deactivate()` → `_endEditSession()` directly), which never checked for pending changes at all. Live-verified: it wasn't a no-op as it first looked - it silently discarded, no save, no revert, no prompt. Same duplicate-implementation shape as the theme-toggle double-wiring bug from earlier this week: two independently written exit paths, only one got the new behavior.
+
+**FIX**: Extracted the branching logic (check pending changes → show prompt → save-and-exit or discard-and-exit) out of `onCancel` into a real method, `requestExit()`, on the inspector itself. Both `onCancel` and `exitEditMode()` now call this one method - there is no longer a second place this logic could be written differently.
+
+**LOVE GATE 7**: no harm; reversible; directly fixes the reported defect; the refactor removes a duplication risk rather than adding one; verified live on all three paths (clean exit, discard, save) through the EDIT button specifically, matching × exactly.
+
+**EVIDENCE**: EDIT button with no pending changes: exits immediately, no prompt (unchanged). With pending changes: prompt appears, Edit Mode stays active until a choice is made. Discard: reverts to the true original color, exits. Save: new color persists, exits. All three match the × button's behavior exactly.
+
+---
+
 ## 2026-08-04 - Unsaved-changes prompt added to Close/Cancel
 
 **WHO**: Claude, at Timothy's request, following the Close-fully-exits revert above.
