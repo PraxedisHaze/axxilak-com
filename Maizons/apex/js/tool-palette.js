@@ -249,13 +249,13 @@
                             <div class="palette-control mt-4">
                                 <label class="palette-label">Container Gradient (box/background)</label>
                                 <div class="flex items-center gap-2 mb-2">
-                                    <input type="color" id="input-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.backgroundColor)}" aria-label="Container gradient start">
+                                    <input type="color" id="input-grad-color1" class="palette-input--color" value="${containerGradientState.color1}" aria-label="Container gradient start">
                                     <span class="text-[9px] text-zinc-500">→</span>
-                                    <input type="color" id="input-grad-color2" class="palette-input--color" value="${this.rgbToHex(styles.color)}" aria-label="Container gradient end">
+                                    <input type="color" id="input-grad-color2" class="palette-input--color" value="${containerGradientState.color2}" aria-label="Container gradient end">
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <input type="range" id="input-grad-angle" min="0" max="360" step="1" value="180" class="flex-1 accent-[var(--accent)]" aria-label="Container gradient angle">
-                                    <span id="grad-angle-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">180°</span>
+                                    <input type="range" id="input-grad-angle" min="0" max="360" step="1" value="${containerGradientState.angle}" class="flex-1 accent-[var(--accent)]" aria-label="Container gradient angle">
+                                    <span id="grad-angle-value" class="text-[9px] font-mono text-zinc-400 min-w-[30px]">${containerGradientState.angle}°</span>
                                 </div>
                             </div>
 
@@ -1011,22 +1011,31 @@
         }
         const colors = boxShadow.match(/#[0-9a-fA-F]{6}|rgba?\([^\)]+\)/g) || [];
         const color = colors.length ? this.rgbToHex(colors[colors.length - 1]) : fallbackColor;
-        const blurMatches = [...boxShadow.matchAll(/(?:^|\s)(\d+)px(?![^,]*inset)/g)]
-            .map(m => parseInt(m[1], 10))
-            .filter(n => !isNaN(n));
 
+        // Split into per-layer shadows on top-level commas (not commas inside
+        // an rgb()/rgba() color). Each layer has its own [offsetX, offsetY,
+        // blur, (spread)] numbers - the browser's computed-style form always
+        // adds a trailing 0px spread the authored string didn't have, which
+        // previously threw off a flat "Nth number overall" index and made
+        // reopen show 0 instead of the real value.
+        const layers = boxShadow.split(/,(?![^(]*\))/).map(s => s.trim());
         let blur = 0;
-        if (blurMatches.length >= 4) {
+        if (layers.length >= 4) {
             // Generated container glow shadows use the fixed multiplier series
-            // [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4]. The 4th value is the user's
-            // actual base slider value; the largest value is 4x and was causing
-            // reopen to snap to the max.
-            blur = blurMatches[3];
-        } else if (blurMatches.length) {
-            blur = Math.round(Math.max(...blurMatches) / 4);
+            // [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4]. Layer index 3 (multiplier 1)
+            // is the user's actual base slider value.
+            const layerNumbers = (layers[3].match(/[\d.]+px/g) || []).map(n => parseFloat(n));
+            // [offsetX, offsetY, blur, (spread)] - blur is always the 3rd number.
+            blur = layerNumbers.length >= 3 ? layerNumbers[2] : 0;
+        } else if (layers.length) {
+            const allBlurs = layers.map(layer => {
+                const nums = (layer.match(/[\d.]+px/g) || []).map(n => parseFloat(n));
+                return nums.length >= 3 ? nums[2] : (nums[0] || 0);
+            });
+            blur = Math.round(Math.max(...allBlurs));
         }
 
-        blur = Math.max(0, Math.min(50, blur));
+        blur = Math.max(0, Math.min(50, Math.round(blur)));
         return { color, blur };
     }
 

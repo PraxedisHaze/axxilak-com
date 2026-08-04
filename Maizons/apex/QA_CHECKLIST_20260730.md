@@ -28,38 +28,37 @@ Test against the real running editor (not just code review). Mark each: PASS / F
 - [x] Backspace/Delete no longer deletes the whole element when a page click lands just outside the selected element's box — FAIL → FIXED 2026-08-02. Reported as "SYSTEM ONLINE v2.0 container... can't replace, only delete." Root cause: a global delete-element keyboard shortcut only checked whether focus was in the textarea, and a click landing just outside the element's rect left focus on `<body>` without restoring it. Full record in `potch.md`.
 
 ## 4. Visual Effects
-- [ ] Text Color changes apply live
-- [ ] Text Gradient (letters) applies live, visible while editing
-- [ ] Text Glow applies live, visible while editing
-- [ ] **Container Glow applies live, visible WHILE SELECTED — this was just root-caused (CSS `!important` collision, index.html lines ~1075-1078, ~1219-1222, ~1244-1249) — verify the fix actually landed and the glow is visible during editing, not just after close**
-- [ ] Container Glow persists correctly on reopen (shows the real value, not 0, not a clamped/wrong number)
-- [ ] Container Gradient (box/background) applies live and persists on reopen
+- [x] Text Color changes apply live — PASS
+- [x] Text Gradient (letters) applies live, visible while editing — PASS (background-clip:text + transparent fill confirmed live)
+- [x] Text Glow applies live, visible while editing — PASS (multi-layer text-shadow confirmed live)
+- [x] Container Glow applies live, visible WHILE SELECTED — PASS, confirmed live (box-shadow applied directly to the selected element)
+- [x] Container Glow persists correctly on reopen — FOUND & FIXED 2026-08-04: `parseBoxShadowControlState()` picked the blur value by flat index across *all* numbers in the computed box-shadow string, but the browser's computed form has 4 numbers per shadow layer (offsetX/offsetY/blur/spread) where the authored string only had 3 — the flat index landed on an offset (always 0), not the blur. Rewrote to split into per-layer segments first, then take the 3rd number within the correct layer. Verified across 4 blur/color combinations, then live via a real select→set→save→close→reopen cycle (18px orange glow round-tripped exactly).
+- [x] Container Gradient (box/background) applies live and persists on reopen — FOUND & FIXED 2026-08-04: applies live correctly, but on reopen the color1/color2/angle inputs were never wired to the actual parsed gradient state at all — the template hardcoded `value="${this.rgbToHex(styles.backgroundColor)}"`/`styles.color`/`"180"` (the element's own unrelated background/text color, and a hardcoded angle), completely ignoring `containerGradientState` which was computed correctly one line above but never used. Wired the three inputs to `containerGradientState.color1/.color2/.angle`. Verified live: save→close→reopen now shows the exact colors/angle that were set.
 
 ## 5. Typography
-- [ ] Font size slider + number input stay in sync
-- [ ] Body/Heading/Display preset buttons apply correct sizes
-- [ ] Font size row wraps cleanly at narrow palette widths (previously fixed — regression check)
-- [ ] Font family dropdown applies live
+- [x] Font size slider + number input stay in sync — PASS, both directions
+- [x] Body/Heading/Display preset buttons apply correct sizes — PASS, all 3 verified (16/32/48px)
+- [x] Font size row wraps cleanly at narrow palette widths — PASS at 320px against the now-responsive palette (no overflow)
+- [x] Font family dropdown applies live — PASS
 
 ## 6. Save / Cancel / Close
 - [x] Save commits changes, session stays open (by design), pending-changes clears — PASS, verified programmatically
-- [x] Cancel with pending changes reverts to original state (text, styles, container glow, everything) — PASS for text; styles/glow revert not independently re-tested this pass
-- [x] Close button (×) behaves the same as Cancel (discard) — CONFIRMED, and confirmed surprising: live-tested 2026-08-02, clicking × doesn't just discard the current element's edits, it exits Edit Mode entirely (body loses `edit-mode`/`ax-lens-active`, EDIT button returns to its pre-edit pulse state). Combined with the dead switch-element logic above, today's real workflow to edit a second element is: select → edit → × (exits Edit Mode) → click EDIT again → select next. Works, but not what "switches cleanly" implies. Same recommendation: flag for Timothy, not fixed this pass.
-- [ ] After Save, glow/effects persist on page after eventually closing
+- [x] Cancel with pending changes reverts to original state (text, styles, container glow, everything) — PASS, fully re-verified 2026-08-04: set text color + container glow as pending changes (both applied live correctly), Cancel reverted both back to the exact original (white, no shadow).
+- [x] Close button (×) behaves the same as Cancel (discard) — FIXED 2026-08-02 (superseding the note this line originally had): both × and Cancel now correctly deselect and drop back into hover mode within Edit Mode, rather than exiting Edit Mode entirely. Took two passes (the real behavior lived in the shared session-teardown function, not just the `onCancel` wrapper); verified select→close→select-again works with zero extra clicks. The separate, still-unfixed issue is the *first* click's switch logic (clicking a second element directly, mid-session, is dead code from the lockdown overlay) — that's still real and still flagged for Timothy, but is now a smaller gap than before this fix.
+- [x] After Save, glow/effects persist on page after eventually closing — PASS, verified 2026-08-04 (container glow survived save→close)
 - [x] **Saved edits survive an actual page reload** — FAIL → FIXED 2026-08-02: this was the most severe bug found tonight. Every saved edit was keyed to an element ID that only got assigned reactively on click and never persisted, so on a fresh reload zero elements had any ID and every saved edit silently failed to replay — no edit had ever survived a refresh for any element. Fixed by assigning IDs deterministically (DOM order) once on every load, before replay runs. Verified: same H1 edit persisted across 2 separate fresh reloads. Full record in `potch.md`. **Old localStorage edit data from before this fix should be cleared once, not trusted.**
 
-## 7. Contact Form — NEW, not yet scoped
-- [ ] Describe exact issue Timothy is seeing (get intake: what you did / what happened / what should happen)
-- [ ] Blank submit does NOT show false success (previously fixed — regression check)
-- [ ] Valid submit opens mailto draft with correct subject/body (previously fixed — regression check)
-- [ ] Whatever the new issue is — reproduce live before diagnosing
+## 7. Contact Form
+- [x] No specific issue was ever reported this pass — ran the two regression checks below cold, both clean.
+- [x] Blank submit does NOT show false success — PASS. Native `reportValidity()` correctly blocks submission before any network call; success box stays hidden.
+- [x] Valid submit — PASS, though the checklist's "opens mailto draft" description is stale/inaccurate: current implementation is a real AJAX POST to Formspree (`fetch`, not `mailto:`), better than a mailto link. Verified (fetch mocked to avoid a live third-party POST during testing, not the real endpoint): correct POST+FormData to the real Formspree URL, green "Transmission Received" success shown, form reset, button text updates. Code's failure path (network/non-OK response → red "Transmission Failed" message) read correctly but wasn't separately live-triggered.
 
 ## 8. Nav & Page Behavior (outside editor)
-- [ ] Solutions/About links scroll to correct sections
-- [ ] Get Started button works
+- [x] Solutions/About links scroll to correct sections — INCONCLUSIVE via automated testing: code is correct (proper `querySelector` + `scrollIntoView`, verified in both `attachHandlers()` and `HandlerDispatcher`), and `scrollIntoView({behavior:'instant'})` on the same target works perfectly. But `{behavior:'smooth'}` (what the real buttons use) never completes in this automated browser — same class of limitation as the earlier `:hover`/native-paste gaps. Needs a real click to confirm, but nothing in the code looks wrong.
+- [x] Get Started button works — same `scrollTo()` handler, same inconclusive-for-smooth-scroll caveat as above.
 - [x] Theme toggle (dark/light) actually changes visible theme — FAIL → FIXED 2026-08-02: root cause was two independent handler-wiring systems (`attachHandlers()` in index.html + `HandlerDispatcher` class) both bound the same button, so every real click fired `toggleTheme()` twice, flipping the theme and immediately flipping it back. Guarded `toggleTheme()` against the re-entrant call. Verified live both directions (light→dark, dark→light), single real click each time, zero console errors. Full record in `potch.md`.
-- [ ] Edge Electrify link (clock icon) points to the live Keystone-hosted copy, resolves correctly
-- [ ] Axxilak.com brand stamp (bottom-right) links out correctly
+- [x] Edge Electrify link (clock icon) points to the live Keystone-hosted copy, resolves correctly — PASS. Modal opens correctly; the actual Keystone iframe target (`https://keystoneconstellation.com/applings/edge_electrify/index.html`) returns a real 200 OK, not broken/404.
+- [x] Axxilak.com brand stamp (bottom-right) links out correctly — PASS (`href="https://axxilak.com"`, `target="_blank"`).
 
 ## 9. Cross-Cutting / Regression
 - [x] Do a full cycle 3x in a row on 3 different elements — PASS. Ran 2026-08-02 after tonight's fixes (footer-link lock, cursor scoping, 3D removal, mixed-content text, live-caret sweep, Cancel/Close edit-mode-stay): 3 rounds × (text leaf, mixed-content paragraph, media image) select→close. Identical, clean results every round — `body.edit-mode` never dropped, mixed-content box showed the full sentence every time, no drift by round 3.

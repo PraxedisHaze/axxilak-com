@@ -1,3 +1,22 @@
+## 2026-08-04 - Two real reopen bugs in Container Glow/Gradient, found running QA section 4
+
+**WHO**: Claude, running QA_CHECKLIST section 4 (Visual Effects) at Timothy's direction to finish Apex and get it online.
+
+**WHAT**: `js/tool-palette.js` (`parseBoxShadowControlState()`, and the Container Gradient template markup), cache-bust bump.
+
+**WHY**: Both bugs share a symptom — the effect stays correctly applied on the live page, but reopening the editor on that element shows wrong values in the controls, which would read to a customer as "my setting got lost," and risks them overwriting a real, still-applied effect thinking it's unset.
+
+1. **Container Glow blur snapped to 0 on reopen.** `parseBoxShadowControlState()` picked the "user's real blur value" by a flat numeric index (position 3) across every number in the box-shadow string. The authored shadow has 3 numbers per layer (`0 0 Npx`); the browser's *computed* form (what reopen actually reads) normalizes to 4 per layer (`0px 0px Npx 0px`, adding a spread). That shift means index 3 lands on an offset value (always 0), not the blur. Color parsing was already correct (whole-string regex, unaffected by per-layer counts) — confirmed by direct function calls before touching anything.
+2. **Container Gradient color1/color2/angle were never wired to real state at all**, in any circumstance, reopen or not — a genuinely separate bug from #1, not the same root cause. `containerGradientState` was computed correctly one line above the template, then never referenced: the three inputs hardcoded `value="${this.rgbToHex(styles.backgroundColor)}"` / `styles.color` (the element's own unrelated background/text color) / a literal `"180"`. Found by tracing the exact same symptom shape as #1, then noticing the direct parser call was correct while the *live rendered input* wasn't — which only makes sense if the template itself never consulted the parsed value.
+
+**IMPACT AUDIT**: for #1, re-derived the fix from the actual generation code (`updateGlow()`'s fixed multiplier series `[0.25,0.5,0.75,1,1.5,2,3,4]`) rather than patching the index guess again — split into per-layer segments on top-level commas, then take the 3rd number *within* the correct layer (index 3 of 8), which is robust to the offset-count mismatch either way. For #2, wired the three inputs directly to the already-correct `containerGradientState` fields — no change to the parsing logic itself, which was fine.
+
+**LOVE GATE 7**: no harm; reversible; both are real, live-reproduced defects with a plausible customer-confusion/overwrite risk, not cosmetic; scoped narrowly (one function's blur math, one template's three `value=` attributes); verified live before and after for both.
+
+**EVIDENCE**: #1 verified against 4 blur/color combinations via direct calls, then live: select → set 18px orange glow → save → close → reopen → shows exactly 18/#ff8800. #2 verified live: select → set gradient #111111→#eeeeee → save → close → reopen → shows exactly those two colors and the angle, all three previously wrong.
+
+---
+
 ## 2026-08-02 - Removed the dead palette-container fallback (archived, not deleted)
 
 **WHO**: Claude, at Timothy's direction ("archive, just in case, but yes") after flagging the dead `createElement` fallback in `ToolPalette`'s constructor as a footgun during the mobile-palette fix above.
