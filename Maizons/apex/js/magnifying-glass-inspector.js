@@ -2463,6 +2463,30 @@ export default class MagnifyingGlassInspector {
             `;
             label.innerText = labelText;
             document.body.appendChild(label);
+
+            // Small icons and short labels need their lattice tag beside them.
+            // Putting it above a compact element is exactly where it hides the
+            // word Timothy is trying to inspect.
+            if (rect.width <= 120 || rect.height <= 28) {
+                const gap = 4;
+                const labelWidth = label.offsetWidth;
+                const labelHeight = label.offsetHeight;
+                const rightLeft = rect.right + window.scrollX + gap;
+                const leftLeft = rect.left + window.scrollX - labelWidth - gap;
+                const canFitRight = rect.right + labelWidth + gap <= window.innerWidth;
+                const canFitLeft = rect.left - labelWidth - gap >= 0;
+                const left = canFitRight ? rightLeft : (canFitLeft ? leftLeft : rightLeft);
+                const top = Math.max(
+                    window.scrollY + 2,
+                    Math.min(
+                        rect.top + window.scrollY + ((rect.height - labelHeight) / 2),
+                        window.scrollY + window.innerHeight - labelHeight - 2
+                    )
+                );
+                label.style.left = `${Math.round(left)}px`;
+                label.style.top = `${Math.round(top)}px`;
+                label.style.transform = 'none';
+            }
         });
     }
 
