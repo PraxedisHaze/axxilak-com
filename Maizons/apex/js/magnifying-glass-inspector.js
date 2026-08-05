@@ -989,8 +989,10 @@ export default class MagnifyingGlassInspector {
     // the theme button regressed silently when direct-switching was added.
     _staysLiveDuringEdit(btn) {
         if (!btn) return false;
-        const isThemeToggle = (btn.getAttribute('data-handler') || '').startsWith('toggleTheme');
-        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle;
+        const handler = btn.getAttribute('data-handler') || '';
+        const isThemeToggle = handler.startsWith('toggleTheme');
+        const isEditToggle = handler.startsWith('toggleEditMode');
+        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle || isEditToggle;
     }
 
     _disableNavButtons() {
@@ -1250,28 +1252,37 @@ export default class MagnifyingGlassInspector {
     _bufferEdit(property, value) {
         if (!this.editSession.active) return;
 
-        // VIDEO SOURCE: Embed video in element via innerHTML
+        // VIDEO SOURCE: Build media with DOM APIs so user input is never parsed as markup.
         if (property === 'videoSrc') {
-            const el = this.editSession.element;
-            const url = value;
+            const url = this._normalizeMediaUrl(value);
+            if (!url) return;
+
             const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([\w-]+)/);
             const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+            const media = document.createElement(ytMatch || vimeoMatch ? 'iframe' : 'video');
+            media.style.cssText = 'width:100%;height:100%;min-height:200px;' + (media.tagName === 'VIDEO' ? 'object-fit:cover;' : 'border:none;');
 
-            let embedHTML;
             if (ytMatch) {
-                embedHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}" style="width:100%;height:100%;min-height:200px;border:none;" allowfullscreen></iframe>`;
+                media.src = `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}`;
+                media.allowFullscreen = true;
             } else if (vimeoMatch) {
-                embedHTML = `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1" style="width:100%;height:100%;min-height:200px;border:none;" allowfullscreen></iframe>`;
+                media.src = `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1&muted=1&loop=1`;
+                media.allowFullscreen = true;
             } else {
-                embedHTML = `<video src="${url}" autoplay loop muted playsinline style="width:100%;height:100%;min-height:200px;object-fit:cover;"></video>`;
+                media.src = url;
+                media.autoplay = true;
+                media.loop = true;
+                media.muted = true;
+                media.playsInline = true;
             }
 
+            const embedHTML = media.outerHTML;
+            const el = this.editSession.element;
             this.editSession.pendingChanges['innerHTML'] = embedHTML;
-            el.innerHTML = embedHTML;
+            el.replaceChildren(media);
             this.palette.setDirty(true);
             return;
         }
-
         // IMAGE SOURCE: Change src (for <img>) or backgroundImage (for others)
         if (property === 'imageSrc') {
             const el = this.editSession.element;
@@ -2414,6 +2425,18 @@ export default class MagnifyingGlassInspector {
         document.querySelectorAll('.depth-map-overlay').forEach(el => el.remove());
         if (this.lens) this.lens.setProbe(false);
     }
+    _normalizeMediaUrl(rawValue) {
+        const raw = (rawValue ?? '').toString().trim();
+        if (!raw) return null;
+        if (/^data:video\//i.test(raw)) return raw;
+        try {
+            const url = new URL(raw, document.baseURI);
+            return ['http:', 'https:', 'blob:'].includes(url.protocol) ? url.href : null;
+        } catch (error) {
+            return null;
+        }
+    }
+
     _normalizeEditableHref(rawValue) {
         const raw = (rawValue ?? '').toString().trim();
         if (!raw) return '#';
@@ -2463,6 +2486,30 @@ export default class MagnifyingGlassInspector {
             `;
             label.innerText = labelText;
             document.body.appendChild(label);
+
+            // Small icons and short labels need their lattice tag beside them.
+            // Putting it above a compact element is exactly where it hides the
+            // word Timothy is trying to inspect.
+            if (rect.width <= 120 || rect.height <= 28) {
+                const gap = 4;
+                const labelWidth = label.offsetWidth;
+                const labelHeight = label.offsetHeight;
+                const rightLeft = rect.right + window.scrollX + gap;
+                const leftLeft = rect.left + window.scrollX - labelWidth - gap;
+                const canFitRight = rect.right + labelWidth + gap <= window.innerWidth;
+                const canFitLeft = rect.left - labelWidth - gap >= 0;
+                const left = canFitRight ? rightLeft : (canFitLeft ? leftLeft : rightLeft);
+                const top = Math.max(
+                    window.scrollY + 2,
+                    Math.min(
+                        rect.top + window.scrollY + ((rect.height - labelHeight) / 2),
+                        window.scrollY + window.innerHeight - labelHeight - 2
+                    )
+                );
+                label.style.left = `${Math.round(left)}px`;
+                label.style.top = `${Math.round(top)}px`;
+                label.style.transform = 'none';
+            }
         });
     }
 

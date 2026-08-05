@@ -88,19 +88,11 @@ class HandlerDispatcher {
                 console.log('[HandlerDispatcher] Edit mode active - target:', target.getAttribute('data-handler'), 'inPalette:', !!inPalette, 'inInternal:', !!inInternal);
 
                 const handlerAttr = target.getAttribute('data-handler') || '';
-                // toggleTheme is deliberately not blocked here: index.html's
-                // own toggleTheme() already handles edit mode itself now (via
-                // inspector.requestExit(), the same safe Save/Discard-aware
-                // exit every other path uses) before flipping the theme. This
-                // used to show an "Exit editor to switch theme" tooltip and
-                // block - but attachHandlers() binds this same button
-                // independently and always let the real toggleTheme() through
-                // regardless, so the tooltip was lying about what was about
-                // to happen. NOTE: a bare `return` here would exit this whole
-                // click handler and skip the real dispatch below entirely -
-                // that was a real bug in an earlier version of this fix. The
-                // guard below only blocks handlers OTHER than toggleTheme.
-                if (!inPalette && !inInternal && !handlerAttr.startsWith('toggleTheme')) {
+                // Theme and Edit are the two navigation controls deliberately
+                // kept live during an active edit session. Theme routes through
+                // requestExit(); Edit is the actual exit control on mobile.
+                const staysLiveHandler = handlerAttr.startsWith('toggleTheme') || handlerAttr.startsWith('toggleEditMode');
+                if (!inPalette && !inInternal && !staysLiveHandler) {
                     console.log('[HandlerDispatcher] BLOCKING click on:', target.getAttribute('data-handler'));
                     e.stopImmediatePropagation();
                     e.preventDefault();

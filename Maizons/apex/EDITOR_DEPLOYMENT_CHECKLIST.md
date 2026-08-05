@@ -1,5 +1,7 @@
 # Apex Editor Deployment Checklist
 
+> Historical deployment template (last updated 2026-02-06). It predates the current Apex lifecycle and should not be used as operational instruction. For current behavior and verification, use `QA_CHECKLIST_20260730.md`, `potch.md`, and the current source.
+
 ## Quick Reference: Deploying Editor to Each Webling
 
 ### Phase 1: File Setup

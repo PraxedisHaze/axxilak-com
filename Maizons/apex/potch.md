@@ -1,3 +1,64 @@
+## 2026-08-04 - Hidden Snake game is phone-playable and always closable
+
+**WHO**: Codex / Vale, after Timothy found that the blue-dot Snake game had neither phone controls nor a reliable responsive close path.
+
+**WHAT**: Scaled the canvas with CSS while retaining its 400x400 internal grid, added a touch D-pad using `pointerdown`, unified keyboard and touch direction changes through `setSnakeDirection()`, and rebuilt the modal as a scroll-safe phone overlay. Its 44px close control is fixed at top-right, independent of panel scroll position.
+
+**WHY**: The old game was keyboard-only, its 400px canvas overflowed common phone widths, and its sole close action could disappear with centered overflowing content.
+
+**EVIDENCE**: Phone-size browser layout exposed Move Up/Left/Down/Right plus Close Snake game. The real hit-test target at the close point was `BUTTON`; a physical click at that exact point closed the modal. The dot's rapid triple-click opening mechanic is inherently timing-sensitive in CLI automation, so the modal was opened for layout-only inspection after separately real-hit-testing the dot; no claim of a synthetic triple-click proof.
+
+**LOVE GATE 7**: direct repair of a user-observed mobile trap; no external service, saved content, or game rules changed.
+
+---
+## 2026-08-04 - Mobile palette no longer covers the selectable page
+
+**WHO**: Codex / Vale, after Timothy found that responsive Edit Mode left no usable lattice/page surface to click.
+
+**WHAT**: Added a narrow-screen override for `#palette-container`: a true bottom sheet capped at `42vh`, overriding ToolPalette's desktop inline geometry (`top: 5rem; bottom: 1.5rem; max-height: calc(100vh - 6.5rem)`). The panel remains internally scrollable for all controls.
+
+**WHY**: The earlier responsive class cap was defeated by ToolPalette's inline layout. On a 720px phone viewport the palette occupied almost the entire usable page, so editor entry succeeded but selection could not—making mobile editing functionally impossible.
+
+**EVIDENCE**: At 375x720, entering Edit through the real header button left the hero heading as the real `document.elementFromPoint()` target. A physical click on that point selected it. The resulting palette measured top=406px, bottom=708px, height=302px, leaving 406px of live page above it for selection. No direct-dispatch click proof used.
+
+**LOVE GATE 7**: a constrained responsive geometry correction directly tied to a real user-observed failure; desktop geometry is unchanged.
+
+---
+## 2026-08-04 - Mobile navigation now exposes Theme and EDIT
+
+**WHO**: Codex / Vale, after Timothy found that responsive mode hid both controls during the pre-publish check.
+
+**WHAT**: Added mobile Theme and EDIT controls, then moved them from the dropdown into the always-visible mobile header after Timothy caught the dropdown contrast failure. Both use the single delegated `data-handler` system. Mobile EDIT is included in the inspector's shared live-control definition and in HandlerDispatcher's active-edit exception, so the lockdown overlay can forward a real hit-tested click to it after a selection. Both desktop and mobile EDIT controls now share active visual state and `aria-pressed`.
+
+**WHY**: The desktop navigation used `hidden md:flex`, while the mobile dropdown had only Solutions, About, and Get Started. So the editor and theme were impossible to reach at phone widths—explicitly deferred earlier, but a real publication blocker once responsive mode was checked.
+
+**EVIDENCE**: At 375x720, real hit-testing and physical clicks initially proved Theme and EDIT worked, but Timothy correctly found their dropdown presentation unreadable in dark mode because the white dropdown inherited white text. They now live in the always-visible mobile header, avoiding both the contrast defect and the overlaying-menu interaction. Browser: zero errors (one pre-existing Tailwind CDN warning). JS syntax and `git diff --check` pass.
+
+**LOVE GATE 7**: small, reversible, accessibility-aware correction that makes the paid editor reachable at the viewport sizes it claims to support. No direct-dispatch click proof was used.
+
+---
+## 2026-08-04 - Codex ship-readiness repair pass: single handler authority, deferred Edge load, safe media markup
+
+**WHO**: Codex / Vale, with Timothy's authorization to repair the confirmed audit blockers while Claude was unavailable.
+
+**WHAT**:
+- Removed the retired `attachHandlers()` binder from `index.html`. `HandlerDispatcher` is now the sole dispatcher for every `data-handler` action.
+- Removed the no-longer-needed theme debounce that only masked that duplicate binding.
+- Changed Edge Electrify's remote iframe from eager `src` loading to `data-src`, assigned exactly when the full-screen Edge view opens.
+- Rebuilt the `videoSrc` path in `js/magnifying-glass-inspector.js` with DOM APIs and an allow-listed URL normalizer rather than interpolating raw input into `innerHTML`.
+- Marked `EDITOR_DEPLOYMENT_CHECKLIST.md` as historical so its obsolete Quill/old-lifecycle instructions cannot be mistaken for current release guidance.
+
+**WHY**: The duplicate binding was a real mobile release blocker: the menu button opened the menu in its inline listener and immediately closed it in the delegated listener. The remote Edge iframe also created an unnecessary startup request before a user chose to open Edge. The media control accepted a quote-bearing direct-video URL and interpolated it as HTML, allowing stored markup injection.
+
+**EVIDENCE**:
+- Syntax: `node --check` passed for the inspector and dispatcher; `git diff --check` passed.
+- Real mobile hit-test at 375x720: `document.elementFromPoint(348, 32)` returned the `BUTTON` carrying `data-handler="toggleMobileMenu()"`; a physical mouse down/up at that exact point left the mobile menu open. No direct dispatch was used for this behavior test.
+- Fresh local page load: the Edge iframe's actual `src` attribute is `null`, so Apex no longer starts the remote Edge app just by loading. Opening Edge still depends on the separately deployed remote Edge app; its observed photo request is not a functional dependency or a release blocker.
+- Browser media sanity: `_normalizeMediaUrl()` rejected `javascript:`, percent-encoded a quote-bearing direct-video URL, and did not retain injected markup in the normalized URL. The media node is now constructed with `document.createElement()` and persisted from `outerHTML`.
+
+**LOVE GATE 7**: scoped, reversible local repairs to observed release blockers; no deployment, deletion, or external service mutation; every click behavior assertion above used the browser's actual hit-test target first.
+
+---
 ## 2026-08-04 - Discard didn't undo the 3-second auto-save, only the live page
 
 **WHO**: Claude, at Timothy's report (with screenshot: `capture_20260803_223111.png`) - typed stray characters into "Scale Your"/"Digital Authority.", never clicked Save, yet the typos survived a genuine page refresh.
@@ -1072,3 +1133,21 @@ This preserves the honest split for tonight:
 - buyers are no longer implicitly stuck with protected demo navigation furniture in the header
 
 
+
+## 2026-08-04 - Compact lattice-label placement
+
+**WHY**: Timothy found the editable Electrify icon at the bottom of the page, but its green lattice label obscured the icon word itself.
+
+**CHANGED**: In `showLatticeLabels()`, compact elements (120px wide or 28px high or smaller) now place their label beside the element, choosing the right side when it fits and the left side otherwise. The top coordinate is constrained to the visible viewport. Larger elements retain the previous above-element label placement. Bumped both edited module imports to `editor-20260804-mobileheader3`.
+
+**PROOF**: `node --check js/magnifying-glass-inspector.js` and `git diff --check` pass. The label remains pointer-events-none and editor-internal; only its visual placement changes.
+
+## 2026-08-04 - Apex ships its own Tailwind stylesheet
+
+**WHY**: The release browser baseline showed Tailwind's explicit production warning because `index.html` loaded `https://cdn.tailwindcss.com` at runtime. A sellable Webling should not rely on the development CDN compiler for its layout.
+
+**CHANGED**: Replaced that script with `./css/tailwind-apex.css?v=20260804`. The local minified file is generated only from `index.html` and `js/**/*.js`, so it contains the utility classes Apex actually uses and leaves other Axxilak pages untouched.
+
+**REBUILD**: From `Maizons/apex`, pipe `@tailwind base; @tailwind components; @tailwind utilities;` into `npx --yes tailwindcss@3.4.17 -i - -o .\css\tailwind-apex.css --content .\index.html,.\js\**\*.js --minify`.
+
+**ACCEPTANCE TARGET**: fresh canonical browser load has no Tailwind CDN warning, preserves desktop and 375px mobile layout, and retains the editor's real-hit-target entry/selection behavior.

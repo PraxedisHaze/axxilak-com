@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APEX | Professional Webling</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/tailwind-apex.css?v=20260804">
     <!-- Editor dependencies -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,53 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <style>
+        /* === SNAKE: PHONE-SAFE BOARD AND TOUCH CONTROLS === */
+        #snake-modal {
+            align-items: safe center;
+            justify-content: center;
+        }
+        .snake-game-panel {
+            max-height: calc(100dvh - 1.5rem);
+            overflow-y: auto;
+        }
+        #snake-canvas {
+            display: block;
+            width: min(400px, calc(100vw - 3rem));
+            height: auto;
+            aspect-ratio: 1;
+        }
+        #snake-touch-controls {
+            display: none;
+        }
+        @media (max-width: 639px) {
+            #snake-touch-controls {
+                display: grid;
+                grid-template-columns: repeat(3, 3rem);
+                grid-template-rows: repeat(2, 2.6rem);
+                justify-content: center;
+                gap: 0.4rem;
+                margin-top: 0.9rem;
+            }
+            #snake-touch-controls button {
+                border: 1px solid var(--accent);
+                border-radius: 0.25rem;
+                color: var(--accent);
+                background: #090f1d;
+                font-size: 1rem;
+                font-weight: 700;
+                touch-action: manipulation;
+            }
+            #snake-touch-controls button:active {
+                background: var(--accent);
+                color: #fff;
+            }
+            #snake-touch-controls [data-snake-direction="up"] { grid-column: 2; }
+            #snake-touch-controls [data-snake-direction="left"] { grid-column: 1; grid-row: 2; }
+            #snake-touch-controls [data-snake-direction="down"] { grid-column: 2; grid-row: 2; }
+            #snake-touch-controls [data-snake-direction="right"] { grid-column: 3; grid-row: 2; }
+            .snake-keyboard-help { display: none; }
+        }
+
         /* === THEME TRANSITION OVERLAY === */
         #theme-transition-overlay {
             position: fixed;
@@ -358,18 +405,19 @@
                 <button data-handler="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
-                <button id="edit-mode-btn" data-ax-locked="true" data-allow-during-edit="true"
+                <button id="edit-mode-btn" data-ax-locked="true" data-allow-during-edit="true" data-edit-mode-control
                     class="px-3 py-1 border border-[var(--accent)] text-[var(--accent)] rounded-sm hover:bg-[var(--accent)]/10 transition text-xs font-bold"
                     aria-label="Edit Mode">
                     EDIT
                 </button>
             </div>
 
-            <!-- Mobile Menu Button -->
-            <button class="md:hidden text-2xl focus:outline-none"
-                data-handler="toggleMobileMenu()" aria-label="Open Menu">
-                &#9776;
-            </button>
+            <!-- Mobile editor controls stay visible; only page navigation belongs in the dropdown. -->
+            <div class="md:hidden flex items-center gap-3">
+                <button data-handler="toggleTheme()" class="theme-toggle text-sm font-bold" aria-label="Toggle Dark Mode">Theme</button>
+                <button data-handler="toggleEditMode()" data-ax-locked="true" data-allow-during-edit="true" data-edit-mode-control class="px-2 py-1 text-xs font-bold border border-[var(--accent)] text-[var(--accent)] rounded-sm" aria-label="Edit Mode" aria-pressed="false">EDIT</button>
+                <button class="text-2xl focus:outline-none" data-handler="toggleMobileMenu()" aria-label="Open Menu">&#9776;</button>
+            </div>
         </div>
 
         <!-- Mobile Menu Dropdown -->
@@ -571,16 +619,22 @@
 
     <!-- SNAKE GAME (Hidden) -->
     <div id="snake-modal"
-        class="fixed inset-0 bg-black/90 z-[20000] hidden flex items-center justify-center backdrop-blur-md">
-        <div class="bg-black border-2 border-[var(--accent)] p-4 rounded shadow-[0_0_50px_rgba(37,99,235,0.5)]">
-            <div class="flex justify-between items-center mb-4 text-[var(--accent)] font-mono text-xs">
+        class="fixed inset-0 bg-black/90 z-[20000] hidden overflow-y-auto p-3 backdrop-blur-md">
+        <button type="button" onclick="closeSnake()" aria-label="Close Snake game" class="fixed top-3 right-3 z-10 min-w-11 min-h-11 border border-[var(--accent)] bg-black text-[var(--accent)] font-mono font-bold rounded hover:text-white">&#215;</button>
+        <div class="snake-game-panel w-full max-w-[400px] mx-auto my-auto bg-black border-2 border-[var(--accent)] p-4 rounded shadow-[0_0_50px_rgba(37,99,235,0.5)]">
+            <div class="flex justify-between items-center mb-4 pr-10 text-[var(--accent)] font-mono text-xs">
                 <span>> APEX_SNAKE_PROTOCOL.EXE</span>
-                <button onclick="closeSnake()" class="hover:text-white">[X]</button>
             </div>
             <canvas id="snake-canvas" width="400" height="400"
                 class="border border-[var(--accent)] bg-[#050505]"></canvas>
+            <div id="snake-touch-controls" aria-label="Snake direction controls">
+                <button type="button" data-snake-direction="up" aria-label="Move up">&#9650;</button>
+                <button type="button" data-snake-direction="left" aria-label="Move left">&#9664;</button>
+                <button type="button" data-snake-direction="down" aria-label="Move down">&#9660;</button>
+                <button type="button" data-snake-direction="right" aria-label="Move right">&#9654;</button>
+            </div>
             <div class="mt-4 text-center font-mono text-xs text-zinc-500">
-                SCORE: <span id="snake-score" class="text-white">0</span> | WASD or ARROWS to Move
+                SCORE: <span id="snake-score" class="text-white">0</span> <span class="snake-keyboard-help">| WASD or ARROWS to Move</span>
             </div>
         </div>
     </div>
@@ -1350,6 +1404,17 @@
             min-height: 0 !important;
         }
 
+        /* A phone editor must leave enough of the live page exposed to select
+           the next element. ToolPalette sets desktop-safe inline top/bottom
+           geometry, so this explicit narrow-screen rule overrides it. */
+        @media (max-width: 639px) {
+            #palette-container {
+                top: auto !important;
+                bottom: 0.75rem !important;
+                max-height: 42vh !important;
+            }
+        }
+
         /* Sticky Header Container */
         #palette-container .palette-header {
             position: sticky !important;
@@ -1678,34 +1743,30 @@
             sCtx.fillRect(food.x * 20, food.y * 20, 18, 18);
         }
 
+        function setSnakeDirection(direction) {
+            switch (direction) {
+                case 'up': if (dy !== 1) { dx = 0; dy = -1; } break;
+                case 'down': if (dy !== -1) { dx = 0; dy = 1; } break;
+                case 'left': if (dx !== 1) { dx = -1; dy = 0; } break;
+                case 'right': if (dx !== -1) { dx = 1; dy = 0; } break;
+            }
+        }
+
         document.addEventListener('keydown', (e) => {
             if (modal.classList.contains('hidden')) return;
-            switch (e.key) {
-                case 'ArrowUp': case 'w': if (dy !== 1) { dx = 0; dy = -1; } break;
-                case 'ArrowDown': case 's': if (dy !== -1) { dx = 0; dy = 1; } break;
-                case 'ArrowLeft': case 'a': if (dx !== 1) { dx = -1; dy = 0; } break;
-                case 'ArrowRight': case 'd': if (dx !== -1) { dx = 1; dy = 0; } break;
-            }
+            const directions = { ArrowUp: 'up', w: 'up', ArrowDown: 'down', s: 'down', ArrowLeft: 'left', a: 'left', ArrowRight: 'right', d: 'right' };
+            if (directions[e.key]) setSnakeDirection(directions[e.key]);
+        });
+
+        document.querySelectorAll('[data-snake-direction]').forEach((control) => {
+            control.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                setSnakeDirection(control.dataset.snakeDirection);
+            });
         });
 
         // Theme Toggle... (closes editor during transition)
         function toggleTheme() {
-            // Two independent handler-wiring systems both bind this button
-            // (attachHandlers() here in index.html, and HandlerDispatcher in
-            // handler-dispatcher.js), so a single click calls this twice.
-            // Two calls flip the theme, then flip it right back - looks like
-            // the button does nothing. A short, local, self-clearing guard
-            // (not AxxilakTransition.active) absorbs the near-simultaneous
-            // second call: both dispatchers fire on the same native click in
-            // the same tick, well under 50ms apart, so 50ms is plenty - and
-            // unlike the transition engine's own `active` flag (which can get
-            // stuck true if its rAF loop stalls, e.g. a backgrounded tab),
-            // this always clears on its own and can never leave the button
-            // permanently unresponsive.
-            if (window.__themeToggleInFlight) return;
-            window.__themeToggleInFlight = true;
-            setTimeout(() => { window.__themeToggleInFlight = false; }, 50);
-
             const runThemeFlip = () => {
                 if (window.AxxilakTransition) {
                     window.AxxilakTransition.trigger(() => {
@@ -1865,45 +1926,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             typeBootLine();
-            if (typeof attachHandlers === 'function') attachHandlers();
         });
-
-        // === APEX HANDLER UTILITY ===
-        function attachHandlers() {
-            document.querySelectorAll('[data-handler]').forEach(btn => {
-                const handlerStr = btn.dataset.handler;
-                if (handlerStr.startsWith('scrollTo(')) {
-                    const selector = handlerStr.match(/'(.*?)'/)[1];
-                    btn.onclick = (e) => {
-                        e.preventDefault();
-                        const target = document.querySelector(selector);
-                        if (target) target.scrollIntoView({ behavior: 'smooth' });
-                        // If it's a mobile menu item, close the menu
-                        const mobileMenu = document.getElementById('mobile-menu');
-                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
-                            mobileMenu.classList.add('hidden');
-                        }
-                    };
-                } else if (handlerStr === 'toggleTheme()') {
-                    btn.onclick = () => window.toggleTheme();
-                } else if (handlerStr === 'toggleEditMode()') {
-                    btn.onclick = (e) => window.toggleEditMode(e);
-                } else if (handlerStr === 'toggleMobileMenu()') {
-                    btn.onclick = () => {
-                        const menu = document.getElementById('mobile-menu');
-                        if (menu) menu.classList.toggle('hidden');
-                    };
-                } else if (handlerStr === 'closeSnake()') {
-                    btn.onclick = () => window.closeSnake();
-                } else if (handlerStr === 'showThanks(event)') {
-                    btn.onclick = (e) => window.showThanks(e);
-                } else if (handlerStr === 'exportApex()') {
-                    btn.onclick = () => window.exportApex();
-                } else if (handlerStr === 'resetApex()') {
-                    btn.onclick = () => window.resetApex();
-                }
-            });
-        }
     </script>
 
     <!-- OLD EDITOR SYSTEM REMOVED - Replaced by new lens/detector/palette integration -->
@@ -1950,7 +1973,7 @@
             </span>
             <button onclick="window.closeEdgeElectrify()" class="text-zinc-400 hover:text-white transition-colors font-mono text-sm tracking-widest">[ BACK TO APEX ]</button>
         </div>
-        <iframe src="https://keystoneconstellation.com/applings/edge_electrify/index.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
+        <iframe id="edge-electrify-frame" data-src="https://keystoneconstellation.com/applings/edge_electrify/index.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
     </div>
 
     </div><!-- END apex-3d-scene -->
@@ -1967,8 +1990,8 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-escapefix1';
-        import './js/handler-dispatcher.js?v=editor-20260804-themesafeexit2';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-mobileheader3';
+        import './js/handler-dispatcher.js?v=editor-20260804-mobileheader3';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
         window.inspectorEditMode = false;
@@ -1983,9 +2006,10 @@
             window.editMode = isActive;
             window.inspectorEditMode = isActive;
             document.body.classList.toggle('edit-mode', isActive);
-            if (editBtn) {
-                editBtn.classList.toggle('apex-edit-btn-active', isActive);
-            }
+            document.querySelectorAll('[data-edit-mode-control]').forEach((control) => {
+                control.classList.toggle('apex-edit-btn-active', isActive);
+                control.setAttribute('aria-pressed', String(isActive));
+            });
         }
 
         window.__apexSetEditModeState = setEditModeState;
@@ -2163,6 +2187,7 @@
         }
         const edgeUpsellModal = document.getElementById('edge-upsell-modal');
         const edgeFullscreenContainer = document.getElementById('edge-fullscreen-container');
+        const edgeElectrifyFrame = document.getElementById('edge-electrify-frame');
         let edgeOverlayHistoryOpen = false;
 
         function openEdgeUpsell() {
@@ -2180,6 +2205,9 @@
         function openEdgeElectrify() {
             closeEdgeUpsell();
             if (!edgeFullscreenContainer) return;
+            if (edgeElectrifyFrame && !edgeElectrifyFrame.getAttribute('src')) {
+                edgeElectrifyFrame.setAttribute('src', edgeElectrifyFrame.dataset.src);
+            }
             edgeFullscreenContainer.classList.remove('hidden');
             edgeFullscreenContainer.classList.add('flex');
             if (!edgeOverlayHistoryOpen) {
