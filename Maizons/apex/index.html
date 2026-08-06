@@ -18,6 +18,9 @@
             align-items: safe center;
             justify-content: center;
         }
+        #snake-modal:not(.hidden) {
+            display: flex;
+        }
         .snake-game-panel {
             max-height: calc(100dvh - 1.5rem);
             overflow-y: auto;
@@ -297,8 +300,13 @@
             border-color: #e5e7eb !important;
         }
 
-        /* Override Tailwind bg-white and bg-apex for these specific cases */
-        .bg-white { background-color: transparent !important; }
+        /* theme-aware supplies the nav palette, but must not cancel the
+           authored sticky positioning of the application header. */
+        nav.theme-aware {
+            position: sticky;
+        }
+
+        /* Override Tailwind bg-white and bg-apex for these specific cases */        .bg-white { background-color: transparent !important; }
         [data-theme="light"] .bg-white { background-color: #ffffff !important; }
         
         .bg-apex { background-color: transparent !important; }
@@ -358,9 +366,6 @@
             flex: 1;
         }
 
-        [data-ax-id] {
-            position: relative;
-        }
 
         body.edit-mode [data-ax-id] {
             cursor: pointer;
@@ -399,9 +404,9 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
-                <span class="nav-label-group"><button id="nav-solutions-btn" data-nav-pair="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link hover:text-[var(--accent)] transition">Solutions</button><button class="nav-edit-pencil" data-edit-target="nav-solutions-btn" aria-label="Edit Solutions label" title="Edit label">&#9998;</button></span>
-                <span class="nav-label-group"><button id="nav-about-btn" data-nav-pair="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link hover:text-[var(--accent)] transition">About</button><button class="nav-edit-pencil" data-edit-target="nav-about-btn" aria-label="Edit About label" title="Edit label">&#9998;</button></span>
-                <span class="nav-label-group"><button id="nav-getstarted-btn" data-nav-pair="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button><button class="nav-edit-pencil" data-edit-target="nav-getstarted-btn" aria-label="Edit Get Started label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-solutions-btn" data-nav-pair="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link hover:text-[var(--accent)] transition">Solutions</button><button class="nav-edit-pencil" data-edit-target="nav-solutions-btn" aria-label="Edit Solutions label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-about-btn" data-nav-pair="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" data-ax-editable="true" class="btn-link hover:text-[var(--accent)] transition">About</button><button class="nav-edit-pencil" data-edit-target="nav-about-btn" aria-label="Edit About label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-getstarted-btn" data-nav-pair="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button><button class="nav-edit-pencil" data-edit-target="nav-getstarted-btn" aria-label="Edit Get Started label" title="Edit label">&#9998;</button></span>
                 <button data-handler="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
@@ -423,9 +428,9 @@
         <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu"
             class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
-            <button id="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
-            <button id="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
-            <button id="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
+            <button id="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
+            <button id="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" data-ax-editable="true" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
+            <button id="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
         </div>
     </nav>
 
@@ -452,8 +457,8 @@
                 Built for speed, optimized for conversion, crystallized for the future.
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize Project</button>
-                <button data-handler="scrollTo('#solutions')" class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View Solutions</button>
+                <button data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize Project</button>
+                <button data-handler="scrollTo('#solutions')" data-ax-editable="true" class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View Solutions</button>
             </div>
         </div>
     </header>
@@ -684,8 +689,8 @@
                 <div class="flex flex-col gap-6">
                     <div class="text-xs font-bold uppercase tracking-widest text-zinc-500"><span class="apex-stat-text">Navigation</span></div>
                     <nav class="flex flex-col gap-4">
-                        <button data-handler="scrollTo('#solutions')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
-                        <button data-handler="scrollTo('#about-text')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">About</button>
+                        <button data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
+                        <button data-handler="scrollTo('#about-text')" data-ax-editable="true" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">About</button>
                         <a href="https://axxilak.com" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left" data-ax-locked="true">Axxilak.com</a>
                         <a href="/free-stuff.html" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left" data-ax-locked="true">Free Stuff</a>
                     </nav>
@@ -731,7 +736,7 @@
             display: block !important;
         }
 
-        /* Nav label editing (narrow, isolated path — see potch.md for why the
+        /* Nav label editing (narrow, isolated path â€” see potch.md for why the
            general inspector is deliberately never opened to nav elements).
            Pencil icons only ever exist to toggle contenteditable on their one
            paired label and write straight to the same edits/localStorage
@@ -761,7 +766,7 @@
 
         /* Nav uses Tailwind's `sticky`, which positions relative to actual
            scroll offset. Scroll gets locked (overflow:hidden) when edit mode
-           opens, but locking doesn't reset the offset itself — if you were
+           opens, but locking doesn't reset the offset itself â€” if you were
            scrolled down when you clicked into edit mode, the sticky nav
            renders that far above the viewport and, with scroll locked, can
            never come back into view for the rest of the session. Pin it to
@@ -776,7 +781,7 @@
             padding-top: 93px !important;
         }
 
-        /* Live caret � shows where the editor caret is mirrored onto the actual
+        /* Live caret ï¿½ shows where the editor caret is mirrored onto the actual
            on-page element being edited, so typing feels like it's happening in
            place instead of only inside the separate editor panel. */
         .ax-live-caret {
@@ -795,7 +800,7 @@
 
         /* While the crosshair is active, hide every native cursor (including
            the hand/pointer browsers show over links and buttons) so the tiny
-           crosshair is the only thing you see — except inside the palette
+           crosshair is the only thing you see â€” except inside the palette
            panel itself, which still needs a real pointer to be usable. */
         body.ax-lens-active :not(#palette-container):not(#palette-container *) {
             cursor: none !important;
@@ -824,6 +829,15 @@
             cursor: grabbing;
         }
 
+        /* Only the top bar moves the editor; fields and controls keep their
+           normal precise cursors. */
+        #palette-container .palette-header { cursor: grab; }
+        #palette-container .palette-header:active { cursor: grabbing; }
+        #palette-container button:not(:disabled) { cursor: pointer; }
+        #palette-container input,
+        #palette-container textarea,
+        #palette-container select { cursor: text; }
+
         /* Dark theme editor fields: keep strong light-on-dark contrast */
         #palette-container .palette-input,
         #palette-container input,
@@ -850,6 +864,57 @@
             color: #f472b6 !important;
         }
 
+        /* Palette actions use a semantic surface, not raw dark utility classes.
+           This keeps Media and Layout legible in both editor themes. */
+        #palette-container .palette-action-button,
+        #palette-container .palette-layout-button {
+            color: #ecfccb !important;
+            background: #27272a !important;
+            border: 1px solid #52525b !important;
+        }
+        #palette-container .palette-action-button:hover,
+        #palette-container .palette-layout-button:hover {
+            color: #ffffff !important;
+            background: #3f3f46 !important;
+            border-color: #a3e635 !important;
+        }
+        #palette-container .palette-delete-button {
+            color: #fecaca !important;
+            border-color: #b91c1c !important;
+            background: #450a0a !important;
+        }
+        #palette-container .palette-help {
+            color: #d4d4d8;
+            font-size: 10px;
+            line-height: 1.35;
+            margin: 0;
+        }
+        #palette-container .palette-help-button {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            padding: 0;
+            border-radius: 999px;
+            font: 700 11px/16px sans-serif;
+            text-align: center;
+        }
+        #palette-container .palette-media-help {
+            margin: 6px 0 8px;
+            padding: 7px 8px;
+            border: 1px solid #52525b;
+            border-left: 3px solid #a3e635;
+            border-radius: 3px;
+            background: #18181b;
+            color: #e4e4e7;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+        #palette-container .palette-media-rights {
+            margin: 7px 0 0;
+            color: #b4b4bd;
+            font-size: 9px;
+            line-height: 1.35;
+        }
         /* ===== LIGHT THEME ===== */
         [data-theme="light"] #palette-container {
             color: #003366;
@@ -902,6 +967,46 @@
             color: #4a2f00 !important;
         }
 
+        [data-theme="light"] #palette-container .palette-action-button,
+        [data-theme="light"] #palette-container .palette-layout-button {
+            color: #3b2600 !important;
+            background: #f5ecd8 !important;
+            border-color: #9d7b35 !important;
+        }
+        [data-theme="light"] #palette-container .palette-action-button:hover,
+        [data-theme="light"] #palette-container .palette-layout-button:hover {
+            color: #1f1300 !important;
+            background: #eadbb8 !important;
+            border-color: #6b4f13 !important;
+        }
+        [data-theme="light"] #palette-container .palette-delete-button {
+            color: #7f1d1d !important;
+            background: #fee2e2 !important;
+            border-color: #b91c1c !important;
+        }
+        [data-theme="light"] #palette-container .palette-help {
+            color: #5f4a22 !important;
+        }
+        [data-theme="light"] #palette-container .palette-media-help {
+            background: #fffaf0;
+            color: #3b2600;
+            border-color: #c8a24b;
+            border-left-color: #8a650f;
+        }
+        [data-theme="light"] #palette-container .palette-media-rights {
+            color: #5f4a22;
+        }
+        #palette-container #btn-advanced-toggle.advanced-open {
+            color: #1a2e05 !important;
+            background: #a3e635 !important;
+            border-color: #d9f99d !important;
+            box-shadow: 0 0 14px rgba(163, 230, 53, 0.35);
+        }
+        [data-theme="light"] #palette-container #btn-advanced-toggle.advanced-open {
+            color: #243100 !important;
+            background: #c8e66a !important;
+            border-color: #6b7f15 !important;
+        }
         [data-theme="light"] #palette-container .palette-section-header:hover {
             background: #eadbb8 !important;
         }
@@ -917,6 +1022,7 @@
         [data-theme="light"] #palette-container .palette-selected-path,
         [data-theme="light"] #palette-container #dirty-indicator,
         [data-theme="light"] #palette-container .btn-cancel,
+        [data-theme="light"] #palette-container .btn-export,
         [data-theme="light"] #palette-container #btn-advanced-toggle,
         [data-theme="light"] #palette-container #btn-reset-toggle,
         [data-theme="light"] #palette-container #btn-close-palette {
@@ -929,10 +1035,37 @@
         }
 
         [data-theme="light"] #palette-container .btn-cancel,
+        [data-theme="light"] #palette-container .btn-export,
         [data-theme="light"] #palette-container #btn-advanced-toggle,
         [data-theme="light"] #palette-container #btn-reset-toggle {
             border-color: #bfa56a !important;
             background: #fffaf0 !important;
+        }
+        /* Reset options are a light-theme menu, not dark text in a dark carryover panel. */
+        [data-theme="light"] #palette-container #reset-dropdown {
+            background: #fffaf0 !important;
+            border-color: #bfa56a !important;
+        }
+
+        [data-theme="light"] #palette-container #btn-reset-element-all {
+            color: #4a2f00 !important;
+            background: transparent !important;
+        }
+
+        [data-theme="light"] #palette-container #btn-reset-page {
+            color: #7f1d1d !important;
+            background: #fee2e2 !important;
+            border-top-color: #e7b8b8 !important;
+        }
+
+        [data-theme="light"] #palette-container #btn-reset-element-all:hover {
+            color: #1f1300 !important;
+            background: #eadbb8 !important;
+        }
+
+        [data-theme="light"] #palette-container #btn-reset-page:hover {
+            color: #7f1d1d !important;
+            background: #fecaca !important;
         }
         body:not([data-theme="light"]) #palette-container .lattice-id-value {
             color: #e2e8f0;
@@ -965,6 +1098,17 @@
             border-color: #d9c08a !important;
         }
 
+        /* Advanced selector paths are reference text, not faded decoration. */
+        #palette-container .palette-selector-value {
+            color: #e4e4e7;
+            background: #111827;
+            border: 1px solid #3f3f46;
+        }
+        [data-theme="light"] #palette-container .palette-selector-value {
+            color: #111111 !important;
+            background: #fffaf0 !important;
+            border-color: #bfa56a !important;
+        }
         /* Tool Palette Control Styles */
         .tool-palette {
             font-family: Inter, sans-serif;
@@ -1118,7 +1262,20 @@
             outline-offset: 2px !important;
             position: relative !important;
             z-index: 9999 !important;
-            animation: none !important;
+            animation: apex-selection-outline-in 0.22s ease-out both !important;
+        }
+
+
+        /* Selection frames should arrive, not pop into existence. The Architect
+           image already had this character through its authored transition; make
+           it the shared editor language without changing normal page borders. */
+        @keyframes apex-selection-outline-in {
+            from { outline-color: transparent; }
+            to { outline-color: #00ff00; }
+        }
+        @keyframes apex-danger-outline-in {
+            from { outline-color: transparent; }
+            to { outline-color: #ef4444; }
         }
 
         /* Grayscale mode: desaturate everything except highlighted element */
@@ -1269,7 +1426,7 @@
         .apex-highlighted.apex-danger-target {
             outline: 3px solid #ef4444 !important;
             outline-offset: 2px !important;
-            animation: none !important;
+            animation: apex-danger-outline-in 0.22s ease-out both !important;
         }
 
         .apex-edit-locked {
@@ -1293,7 +1450,7 @@
         #solutions .apex-highlighted.apex-danger-target {
             outline: 2px solid #00ff00 !important;
             outline-offset: -2px !important;
-            animation: none !important;
+            animation: apex-selection-outline-in 0.22s ease-out both !important;
             position: static !important;
             z-index: auto !important;
             filter: none !important;
@@ -1358,13 +1515,13 @@
             align-items: center;
             gap: 8px;
             padding: 4px 8px;
-            background: #00ff00;
-            color: #000;
+            background: #1d4ed8;
+            color: #eff6ff;
             font-family: 'JetBrains Mono', monospace;
             font-size: 10px;
             font-weight: bold;
-            border-radius: 2px 2px 0 0;
-            box-shadow: 0 -4px 15px rgba(0, 255, 0, 0.3);
+            border-radius: 999px; border: 1px solid #93c5fd;
+            box-shadow: 0 0 16px rgba(37, 99, 235, 0.45);
             transition: opacity 0.2s, transform 0.2s;
             transform: translateY(0);
         }
@@ -1374,6 +1531,8 @@
             opacity: 0;
             pointer-events: none;
         }
+
+        .context-selected { background: rgba(255,255,255,.18); padding: 2px 5px; border-radius: 999px; font-size: 8px; letter-spacing: .08em; }
 
         .context-tag {
             background: rgba(0, 0, 0, 0.1);
@@ -1411,7 +1570,55 @@
             #palette-container {
                 top: auto !important;
                 bottom: 0.75rem !important;
-                max-height: 42vh !important;
+                height: 55dvh !important;
+                max-height: 55dvh !important;
+            }
+            #palette-container .palette-header {
+                padding: 0.5rem 0.75rem !important;
+            }
+            #palette-container .palette-selected-id,
+            #palette-container .palette-selected-path {
+                display: none !important;
+            }
+            #palette-container .palette-primary {
+                padding: 0.5rem 0.75rem !important;
+                padding-bottom: 0.5rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            #palette-container #input-content {
+                min-height: 4.5rem !important;
+                height: 4.5rem !important;
+                max-height: 4.5rem !important;
+            }
+            #palette-container .palette-primary .palette-control.mt-4 {
+                margin-top: 0.5rem !important;
+            }
+            #palette-container .palette-content {
+                padding: 0 0.75rem !important;
+            }
+            #palette-container .palette-section-header {
+                min-height: 2.5rem !important;
+                padding: 0.5rem 0.75rem !important;
+            }
+
+            /* Before an element is selected, standby is only a quiet status chip.
+               It must never occupy the same hit-test plane as the live page. */
+            #palette-container.palette-standby {
+                left: auto !important;
+                right: 0.75rem !important;
+                bottom: 0.75rem !important;
+                width: auto !important;
+                height: auto !important;
+                max-height: none !important;
+                pointer-events: none !important;
+            }
+            #palette-container.palette-standby .p-12 {
+                padding: 0.75rem 1rem !important;
+            }
+            #palette-container.palette-standby .w-8 {
+                width: 1.25rem !important;
+                height: 1.25rem !important;
+                margin-bottom: 0.35rem !important;
             }
         }
 
@@ -1590,6 +1797,28 @@
             cursor: not-allowed !important;
         }
 
+        .btn-export {
+            width: 100% !important;
+            height: 40px !important;
+            background: #172554 !important;
+            color: #dbeafe !important;
+            font-size: 0.75rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.08em !important;
+            text-transform: uppercase !important;
+            border: 1px solid #3b82f6 !important;
+            border-radius: 6px !important;
+            transition: all 150ms !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+        }
+
+        .btn-export:hover {
+            color: #ffffff !important;
+            background: #1d4ed8 !important;
+            box-shadow: 0 0 14px rgba(59, 130, 246, 0.35) !important;
+        }
+
         /* Font Size Presets Consolidation */
         .font-preset-buttons {
             display: flex !important;
@@ -1646,6 +1875,7 @@
         .palette-section-header:focus,
         .btn-save:focus,
         .btn-cancel:focus,
+        .btn-export:focus,
         .font-preset-btn:focus {
             outline: none !important;
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2) !important;
@@ -1655,7 +1885,7 @@
 
     <!-- ... Templates ... -->
 
-    <script src="../engines/transitions/precision-blueprint.js"></script>
+
     <script>
         // Snake Game Logic
         const snakeCanvas = document.getElementById('snake-canvas');
@@ -1978,7 +2208,7 @@
 
     </div><!-- END apex-3d-scene -->
 
-    <script src="../../coherence_engine.js"></script>
+
 
     <!-- === MAGNIFYING GLASS INSPECTOR APPLING === -->
     <!-- Component dependencies (ES modules loaded below) -->
@@ -1990,7 +2220,7 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260804-mobileheader3';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260806-nav-editable-override1';
         import './js/handler-dispatcher.js?v=editor-20260804-mobileheader3';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
@@ -2115,7 +2345,7 @@
                 // requestExit() handles the unsaved-changes prompt (if
                 // there's anything pending) and the actual deactivate +
                 // button-state flip itself - same shared path the palette's
-                // own ×/Cancel buttons use, so this button can't drift out
+                // own Ã—/Cancel buttons use, so this button can't drift out
                 // of sync with them again.
                 inspector.requestExit();
             } else {
@@ -2151,8 +2381,21 @@
         window.exportApex = function() {
             const doc = document.documentElement.cloneNode(true);
 
-            // Remove inspector elements
-            doc.querySelectorAll('.lens-container, #palette-container, .depth-map-overlay').forEach(el => el.remove());
+            // Remove editor-only UI and session artifacts. The export remains a
+            // normal page, never an accidentally locked editing session.
+            doc.querySelectorAll([
+                '.lens-container',
+                '#palette-container',
+                '.depth-map-overlay',
+                '#apex-lockdown-overlay',
+                '#apex-context-bar',
+                '#apex-unsaved-prompt',
+                '#apex-3d-toolbar',
+                '#axxilak-maker-stamp',
+                '#apex-print-styles',
+                '.lattice-label-overlay',
+                '.ax-live-caret'
+            ].join(', ')).forEach(el => el.remove());
 
             // Remove inspector scripts (both module and non-module)
             doc.querySelectorAll('script[type="module"], script:not([src])').forEach(script => {
@@ -2160,6 +2403,10 @@
                     script.remove();
                 }
             });
+
+            // These parent-repository scripts are unused by the page itself.
+            // Removing their references makes the downloaded HTML portable.
+            doc.querySelectorAll('script[src*="precision-blueprint.js"], script[src*="coherence_engine.js"]').forEach(script => script.remove());
 
             const cleanHTML = "<!DOCTYPE html>\n" + doc.outerHTML;
             const blob = new Blob([cleanHTML], { type: 'text/html' });

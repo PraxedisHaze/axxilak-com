@@ -1,10 +1,12 @@
 import { MagnifyingGlass } from './lens-ui.js?v=editor-20260729-crosshair1';
-import ElementDetector from './elementDetector.js?v=editor-20260802-mixedcontent1';
-import { ToolPalette } from './tool-palette.js?v=editor-20260804-gradreopen1';
+import ElementDetector from './elementDetector.js?v=editor-20260806-nav-editable-override1';
+import { ToolPalette } from './tool-palette.js?v=editor-20260805-control-contract1';
 
 export default class MagnifyingGlassInspector {
     constructor(weblingName = null) {
         this.isActive = false;
+
+        this.labelOpacity = 1;
 
         // Derive editsKey from webling name (passed in or from window.WEBLAND_NAME)
         const name = weblingName || window.WEBLAND_NAME || 'apex';
@@ -70,6 +72,13 @@ export default class MagnifyingGlassInspector {
             cursor: default;
         `;
         document.body.appendChild(this.lockdownOverlay);
+
+        // The shield owns clicks while editing, but it must not turn the page
+        // into a frozen canvas. Let normal wheel movement navigate the page.
+        this.lockdownOverlay.addEventListener('wheel', (event) => {
+            if (!this.editSession.active) return;
+            window.scrollBy({ top: event.deltaY, left: event.deltaX, behavior: 'auto' });
+        }, { passive: true });
 
         // Unsaved-changes prompt: shown by _showUnsavedPrompt() instead of
         // silently discarding when Close/Cancel is clicked with real
@@ -165,6 +174,20 @@ export default class MagnifyingGlassInspector {
         // Highlight state
         this.highlightedElement = null;
         this.contextBar = this._initContextBar();
+        window.addEventListener('scroll', () => {
+            if (!this.isActive || !this.highlightedElement || this.isPreviewMode) return;
+            const rect = this.highlightedElement.getBoundingClientRect();
+            const isVisible = rect.bottom > 0 && rect.top < window.innerHeight && rect.right > 0 && rect.left < window.innerWidth;
+            if (!isVisible) {
+                this.contextBar.classList.add('hidden');
+                this.lens.hide();
+                return;
+            }
+            this.updateContextBar(this.highlightedElement);
+            this.lens.moveTo(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            this.lens.show();
+            this.lens.setSearching(true);
+        }, { passive: true });
         this.hintTimer = null;
         this.isPreviewMode = false;
         this.reticleZ = 0; // Depth Probe Value
@@ -215,11 +238,6 @@ export default class MagnifyingGlassInspector {
             // Note: setCenterDot() doesn't accept parameters; red dot always on (design choice)
             this.lens.setCenterDot();
 
-            // Start hint timer if we found something new
-            if (this.highlightedElement !== data.element) {
-                this._startHintTimer();
-            }
-
             if (this.debug) {
                 const tag = data?.element?.tagName || 'UNKNOWN';
                 console.log('[APEX][detect]', tag, data?.selector || '(no-selector)', data?.textContent || '(no-text)');
@@ -250,6 +268,10 @@ export default class MagnifyingGlassInspector {
                 return;
             }
 
+            if (property === 'zIndex') {
+                value = Math.max(0, Math.trunc(Number(value) || 0));
+            }
+
             if (property === 'depthMap') {
                 value ? this.visualizeDepth(this.palette.currentElement, this.reticleZ) : this.clearDepthMap();
                 return;
@@ -261,19 +283,31 @@ export default class MagnifyingGlassInspector {
                 // something else still tries to flip it on.
                 return;
             }
+            if (property === 'labelOpacity') {
+                this.labelOpacity = Math.max(0.15, Math.min(1, Number(value) || 1));
+                this.contextBar.style.opacity = this.labelOpacity;
+                return;
+            }
             if (property === 'toggleLabels') {
-                value ? this.showLatticeLabels() : this.clearLatticeLabels();
+                this.clearLatticeLabels();
                 return;
             }
 
             if (property === 'select-parent') {
                 const parent = value && value.parentElement;
                 if (!parent || parent === document.body || this.detector._isInternal(parent)) return;
-                if (this.editSession.active) this._cancelEditSession();
-                this._startEditSession(parent);
+                // Follow the same switch path as a real content click so pending work
+                // gets the Save/Discard decision instead of a silent cancel.
+                this._processContentClick(parent);
                 return;
             }
 
+            if (property === 'delete') {
+                const target = value || this.palette.currentElement;
+                if (!target || !confirm('Delete this item permanently?')) return;
+                this.applyEdit(target, 'delete', true);
+                return;
+            }
             // Session control actions
             if (property === 'save-session') {
                 this._saveEditSession();
@@ -281,6 +315,13 @@ export default class MagnifyingGlassInspector {
             }
             if (property === 'cancel-session') {
                 this._cancelEditSession();
+                return;
+            }
+            if (property === 'export-project') {
+                // Export is a save-and-download action, not an exit. Preserve the
+                // active session so the user can keep refining after the file lands.
+                this._saveEditSession();
+                if (typeof window.exportApex === 'function') window.exportApex();
                 return;
             }
             if (property === 'peek-toggle') {
@@ -601,36 +642,6 @@ export default class MagnifyingGlassInspector {
         }
     }
 
-    _startHintTimer() {
-        this._clearHintTimer();
-        this.hintTimer = setTimeout(() => {
-            if (this.isActive && this.highlightedElement && !this.isPreviewMode) {
-                const bar = this.contextBar;
-                const originalHTML = bar.innerHTML;
-                bar.innerHTML = `
-                    <span class="context-tag">Ritual</span>
-                    <div class="w-[1px] h-3 bg-black/20 mx-1"></div>
-                    <span class="animate-pulse">HOLD SHIFT TO LOCK YOUR GAZE</span>
-                `;
-                setTimeout(() => {
-                    if (this.isActive && this.contextBar === bar) {
-                        bar.innerHTML = originalHTML;
-                        // Restore tag if it changed
-                        const tag = this.highlightedElement?.tagName.toLowerCase();
-                        if (tag) bar.querySelector('.context-tag').innerText = tag;
-                    }
-                }, 3000);
-            }
-        }, 1500);
-    }
-
-    _clearHintTimer() {
-        if (this.hintTimer) {
-            clearTimeout(this.hintTimer);
-            this.hintTimer = null;
-        }
-    }
-
     deactivate() {
         // Safety net: end any active edit session before full deactivation
         if (this.editSession.active) this._endEditSession();
@@ -687,18 +698,16 @@ export default class MagnifyingGlassInspector {
 
         this.contextBar.innerHTML = `
             <span class="context-tag">${tag}</span>
-            <div class="w-[1px] h-3 bg-black/20 mx-1"></div>
-            ${isLocked ? '<span class="opacity-50 text-[8px]">LOCKED</span>' : '<span class="text-red-700 opacity-80 animate-pulse">PRESS DEL TO REMOVE</span>'}
+            <span class="context-selected">SELECTED</span>
         `;
         
+        this.contextBar.style.opacity = this.labelOpacity;
         this.contextBar.classList.remove('hidden');
 
         // Position at top-left of element, accounting for scroll
         const top = rect.top + window.scrollY;
         const left = rect.left + window.scrollX;
 
-        // Default position: sit just above the element's top-left corner.
-        let barTop = rect.top - 20;
         let barLeft = rect.left;
 
         // Keep the context bar from trampling the persistent lower-left
@@ -707,6 +716,8 @@ export default class MagnifyingGlassInspector {
         const stamp = document.getElementById('axxilak-maker-stamp');
         const barWidth = this.contextBar.offsetWidth || 160;
         const barHeight = this.contextBar.offsetHeight || 24;
+        // Put the whole label outside the selected field, never partly over it.
+        let barTop = rect.top - barHeight - 8;
         if (stamp) {
             const stampRect = stamp.getBoundingClientRect();
             const overlapsStamp = !(
@@ -858,7 +869,7 @@ export default class MagnifyingGlassInspector {
         this.palette.update(data);
 
         // Keep every selected target visibly framed. The original jump bug
-        // traced to 'apex-edit-locked' specifically (it pulses/animates —
+        // traced to 'apex-edit-locked' specifically (it pulses/animates â€”
         // see its CSS, `animation: apex-edit-pulse`), not to the plain,
         // static 'apex-highlighted' outline used here. Excluding text roles
         // from the pulsing lock chrome (above) stays; excluding them from a
@@ -890,11 +901,10 @@ export default class MagnifyingGlassInspector {
             }
         }
 
-        // LOCK DOWN PAGE - Nothing else can be clicked except the editor/palette
+        // Lock clicks with the overlay, but keep the document scrollable so
+        // selecting one element never traps the editor at one vertical spot.
         this._previousBodyOverflow = document.body.style.overflow;
         this._previousDocOverflow = document.documentElement.style.overflow;
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
         document.body.classList.add('ax-editing');
         this.lockdownOverlay.style.display = 'block';
         // The EDIT button carries data-allow-during-edit="true" - a signal
@@ -1225,6 +1235,7 @@ export default class MagnifyingGlassInspector {
         return {
             textContent: data.role === 'text' ? this.detector._getTextNodes(el) : '',
             color: styles.color,
+            fontSize: styles.fontSize,
             backgroundColor: styles.backgroundColor,
             zIndex: styles.zIndex,
             whiteSpace: styles.whiteSpace,
@@ -1240,6 +1251,7 @@ export default class MagnifyingGlassInspector {
             innerHTML: el.innerHTML,
             boxShadow: styles.boxShadow || 'none',
             textShadow: styles.textShadow || 'none',
+            filter: styles.filter || 'none',
             backgroundImage: styles.backgroundImage || 'none',
             backgroundClip: styles.backgroundClip || 'border-box',
             webkitBackgroundClip: styles.webkitBackgroundClip || '',
@@ -1393,15 +1405,17 @@ export default class MagnifyingGlassInspector {
             const newPos = currentPos === 'static' ? 'relative' : currentPos;
             el.style.position = newPos;
             el.style.zIndex = value;
+        } else if (property === 'transform') {
+            el.style.setProperty('transform', value, 'important');
         } else {
             el.style[property] = value;
         }
     }
 
     // The one real exit path out of Edit Mode - used by both the palette's
-    // ×/Cancel buttons (via onCancel above) and the page's own EDIT button
+    // Ã—/Cancel buttons (via onCancel above) and the page's own EDIT button
     // (via exitEditMode() in index.html). Was previously two separate,
-    // independently-written implementations, which is exactly how the ×
+    // independently-written implementations, which is exactly how the Ã—
     // button got an unsaved-changes prompt while the EDIT button silently
     // discarded (deactivate() -> _endEditSession() directly, no pending-
     // changes check at all) - a duplicate-logic bug in the same family as
@@ -1429,7 +1443,7 @@ export default class MagnifyingGlassInspector {
         }
         if (!clickedElement || clickedElement === document.body) return false;
 
-        clickedElement = this.detector.resolveTextSibling(clickedElement);
+        clickedElement = this.detector.resolveMixedTextParent(this.detector.resolveTextSibling(clickedElement));
         if (!clickedElement.dataset.axId) {
             this.detector.axIdCounter += 1;
             clickedElement.dataset.axId = `ax-${this.detector.axIdCounter}`;
@@ -1625,7 +1639,7 @@ export default class MagnifyingGlassInspector {
             // Revert styles
             const styleProps = ['color', 'backgroundColor', 'zIndex', 'fontFamily',
                                'fontSize', 'opacity', 'margin', 'padding', 'transform', 'whiteSpace',
-                               'boxShadow', 'textShadow', 'backgroundImage', 'backgroundClip',
+                               'boxShadow', 'textShadow', 'filter', 'backgroundImage', 'backgroundClip',
                                'webkitBackgroundClip', 'webkitTextFillColor', 'backgroundSize', 'backgroundPosition'];
             styleProps.forEach(prop => {
                 if (original[prop] !== undefined) {
@@ -1719,6 +1733,7 @@ export default class MagnifyingGlassInspector {
 
         this.palette.setDirty(false);
         this.palette.hide();
+        this.clearLatticeLabels();
         this.contextBar.classList.add('hidden');
         document.querySelectorAll('.ax-live-caret').forEach(node => node.remove());
 
@@ -1937,6 +1952,7 @@ export default class MagnifyingGlassInspector {
         // 4. EXECUTION SHIELD: Final check before touching DOM
         if (value === undefined || value === null || String(value) === 'undefined' || String(value) === 'null') return;
         
+        if (property === 'zIndex') value = Math.max(0, Math.trunc(Number(value) || 0));
         const selector = this.detector.getUniqueSelector(el);
         if (!selector) return;
 
@@ -1978,16 +1994,20 @@ export default class MagnifyingGlassInspector {
             if (!this.edits[selector]) this.edits[selector] = {};
             this.edits[selector]['deleted'] = true;
             this.saveEdits();
-            // The deleted element is often the one the active edit session is
-            // pointed at. Without tearing the session down here, the lockdown
-            // overlay, scroll lock, and nav-button disable all stay stuck on
-            // a session that now references a detached node.
+            // Delete is distinct from Close/Cancel: it removes this item,
+            // then returns the editor to standby for the next selection.
             if (this.editSession.active && this.editSession.element === el) {
                 this._endEditSession();
+                if (this.isActive) {
+                    this.activate();
+                    document.body.classList.add('edit-mode');
+                    if (typeof window.__apexSetEditModeState === 'function') {
+                        window.__apexSetEditModeState(true);
+                    }
+                }
             }
             return;
         }
-
         if (property === 'textContent') {
             this.detector._setTextNodes(el, value);
             el.style.whiteSpace = typeof value === 'string' && /\r?\n/.test(value) ? 'pre-wrap' : 'normal';
@@ -2225,8 +2245,8 @@ export default class MagnifyingGlassInspector {
         const targetElement = stack[targetPos].element;
 
         // Swap z-index values
-        const currentZ = parseInt(window.getComputedStyle(element).zIndex) || 0;
-        const targetZ = parseInt(window.getComputedStyle(targetElement).zIndex) || 0;
+        const currentZ = Math.max(0, parseInt(window.getComputedStyle(element).zIndex) || 0);
+        const targetZ = Math.max(0, parseInt(window.getComputedStyle(targetElement).zIndex) || 0);
 
         element.style.zIndex = targetZ;
         targetElement.style.zIndex = currentZ;
@@ -2603,6 +2623,7 @@ export default class MagnifyingGlassInspector {
                     else if (prop === 'innerHTML') el.innerHTML = val;
                     else if (prop === 'src') el.src = val;
                     else if (prop === 'href') el.setAttribute('href', this._normalizeEditableHref(val));
+                    else if (prop === 'zIndex') el.style.zIndex = Math.max(0, Math.trunc(Number(val) || 0));
                     else if (prop != 'containerBoxShadow' && prop != 'containerBackgroundImage') el.style[prop] = val;
                 }
             } catch (e) {

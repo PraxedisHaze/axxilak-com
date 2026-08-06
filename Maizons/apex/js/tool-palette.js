@@ -1,4 +1,4 @@
-﻿class ToolPalette {
+class ToolPalette {
     constructor() {
         // The real palette-container/-content elements always ship as
         // static markup in index.html; the dead fallback that used to
@@ -86,6 +86,7 @@
         }
 
         this.currentElement = element;
+        this.container.classList.remove('palette-standby');
         this.container.classList.remove('hidden');
 
         // LATTICE FLOW DETECTION (Horizontal vs Vertical intuition)
@@ -103,6 +104,9 @@
 
         const childCount = element.children.length;
         const currentOpacity = styles.opacity || '1';
+        const inlineScaleMatch = (element.style.transform || '').match(/scale\(([-\d.]+)/);
+        const matrixScaleMatch = (styles.transform || '').match(/^matrix\(([-\d.]+)/);
+        const currentScale = Math.max(0.5, Math.min(2, parseFloat(inlineScaleMatch?.[1] || matrixScaleMatch?.[1] || '1') || 1));
         const targetPath = (() => {
             const parts = [];
             let node = element;
@@ -132,13 +136,13 @@
             <div class="tool-palette">
 
                 <!-- STICKY HEADER -->
-                <div class="palette-header palette-drag-handle relative pr-10">
+                <div class="palette-header palette-drag-handle">
                     <div class="palette-header-left">
                         <div class="palette-selected-label">Selected</div>
                         <div class="palette-selected-meta">${tagName} <span class="palette-selected-role">[${role.toUpperCase()}]</span></div>
                         <div class="palette-selected-id">ID: ${element.dataset.axId}</div><div class="palette-selected-id palette-selected-path" title="DOM path">${targetPath}</div>
                     </div>
-                    <button id="btn-close-palette" type="button" aria-label="Discard current changes and close editor" title="Discard current changes and close editor" class="absolute top-0 right-0 z-40 w-8 h-8 flex items-center justify-center border border-zinc-500 bg-zinc-900 text-zinc-200 hover:border-white hover:text-white transition-colors">&times;</button>
+
                 </div>
 
                 <!-- PRIMARY CONTROLS (NEVER SCROLL) -->
@@ -146,7 +150,7 @@
                     <!-- Plain Text Editor (temporary safe mode) -->
                     <div class="palette-control ${isMedia ? 'hidden' : ''}">
                         <label class="palette-label">Content ${isStructural ? '(Container)' : ''}</label>
-                        <textarea id="input-content" class="palette-input text-xs leading-relaxed resize-y" style="min-height: 120px; font-weight: 500;" placeholder="Edit text here...">${textContent || ''}</textarea>
+                        <textarea id="input-content" class="palette-input text-xs leading-relaxed resize-y" style="min-height: 120px; font-weight: 500; text-align: left; vertical-align: top;" placeholder="Edit text here...">${textContent || ''}</textarea>
                         <div class="text-[8px] text-zinc-500 mt-2">Plain text editing is active. Rich text styling is temporarily unavailable while we stabilize the editor.</div>
                     </div>
 
@@ -215,7 +219,7 @@
                                 <label class="palette-label">Text Gradient (letters)</label>
                                 <div class="flex items-center gap-2 mb-2">
                                     <input type="color" id="input-text-grad-color1" class="palette-input--color" value="${this.rgbToHex(styles.color)}" aria-label="Gradient start color">
-                                    <span class="text-[9px] text-zinc-500">→</span>
+                                    <span class="text-[9px] text-zinc-500">?</span>
                                     <input type="color" id="input-text-grad-color2" class="palette-input--color" value="#8b5cf6" aria-label="Gradient end color">
                                     <button id="btn-text-grad-clear" class="text-[8px] text-zinc-500 hover:text-amber-400 transition-colors ml-auto" title="Clear text gradient">× clear</button>
                                 </div>
@@ -250,7 +254,7 @@
                                 <label class="palette-label">Container Gradient (box/background)</label>
                                 <div class="flex items-center gap-2 mb-2">
                                     <input type="color" id="input-grad-color1" class="palette-input--color" value="${containerGradientState.color1}" aria-label="Container gradient start">
-                                    <span class="text-[9px] text-zinc-500">→</span>
+                                    <span class="text-[9px] text-zinc-500">?</span>
                                     <input type="color" id="input-grad-color2" class="palette-input--color" value="${containerGradientState.color2}" aria-label="Container gradient end">
                                 </div>
                                 <div class="flex items-center gap-3">
@@ -272,7 +276,7 @@
                             <!-- Image Upload -->
                             <div class="palette-control ${!(isImage || hasBgImage) ? 'hidden' : ''}">
                                 <label class="palette-label">Image Upload</label>
-                                <button id="btn-image-upload" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-sm transition-all border border-zinc-700 uppercase tracking-widest">
+                                <button id="btn-image-upload" class="palette-action-button w-full py-2 text-[10px] font-bold rounded-sm transition-all uppercase tracking-widest">
                                     Upload File
                                 </button>
                                 <input type="file" id="input-image-file" class="hidden" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml">
@@ -281,9 +285,16 @@
 
                             <!-- Media URL -->
                             <div class="palette-control mt-4">
-                                <label class="palette-label">Media URL</label>
-                                <input type="text" id="input-media-url" class="palette-input text-[10px] mb-2" value="${existingMediaSrc}" placeholder="Paste image or video URL..." aria-label="Media URL">
-                                <button id="btn-apply-url" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-[10px] font-bold rounded-sm transition-all border border-zinc-700 uppercase tracking-widest">
+                                <div class="flex items-center gap-2">
+                                    <label class="palette-label mb-0" for="input-media-url">Media URL</label>
+                                    <button type="button" id="media-url-help" class="palette-action-button palette-help-button" aria-expanded="true" aria-controls="media-url-help-text" aria-label="Hide or show direct image URL instructions">?</button>
+                                </div>
+                                <div id="media-url-help-text" role="tooltip" class="palette-media-help">
+                                    <strong>Any image:</strong> Right-click the full-size image, choose <em>Open image in new tab</em>, then copy the address from that new tab. Paste that direct image address here—not the page it came from. It works when the image is public and the new tab shows the image itself, not a gallery or download page.
+                                    <p class="palette-media-rights"><strong>Image rights:</strong> Use only images you own, have permission to use, or are licensed to use. You are responsible for confirming your rights to any image you add.</p>
+                                </div>
+                                <input type="text" id="input-media-url" class="palette-input text-[10px] mb-2" value="${existingMediaSrc}" placeholder="Paste image or video URL..." aria-label="Media URL" aria-describedby="media-url-help-text" title="For any image: right-click the full-size image, choose Open image in new tab, then copy the address from that new tab. Paste the direct image address here—not the page it came from.">
+                                <button id="btn-apply-url" class="palette-action-button w-full py-2 text-[10px] font-bold rounded-sm transition-all uppercase tracking-widest">
                                     Apply URL
                                 </button>
                                 <div id="media-status" class="text-[8px] font-mono text-zinc-500 hidden"></div>
@@ -300,32 +311,25 @@
                             <!-- Z-Index -->
                             <div class="palette-control ${isMedia ? 'opacity-30 pointer-events-none' : ''}">
                                 <label class="palette-label">Layer Depth (Z)</label>
-                                <input type="number" id="input-zindex" class="palette-input" value="${(styles.zIndex && styles.zIndex !== 'auto') ? styles.zIndex : 0}" aria-label="Z-index / layer depth">
+                                <input type="number" id="input-zindex" class="palette-input" min="0" step="1" value="${Math.max(0, parseInt(styles.zIndex, 10) || 0)}" aria-label="Layer depth, zero or greater">
                             </div>
 
-                            <!-- Structure & Hierarchy -->
-                            <div class="palette-control mt-6 pt-4 border-t border-zinc-800">
-                                <label class="palette-label text-[9px] mb-3">Structure & Hierarchy</label><button id="btn-select-parent" type="button" class="w-full mb-3 px-2 py-2 bg-zinc-800 text-zinc-300 text-[9px] font-bold uppercase tracking-widest rounded hover:bg-zinc-700 transition">Select parent container</button>
-                                <div class="grid grid-cols-4 gap-2">
-                                    <button id="btn-move-up" title="${isHorizontal ? 'Move Left' : 'Move Up'}" class="flex items-center justify-center p-2 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="${isHorizontal ? 'Move element left' : 'Move element up'}">
-                                        ${isHorizontal ?
-                                            `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>` :
-                                            `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>`
-                                        }
-                                    </button>
-                                    <button id="btn-move-down" title="${isHorizontal ? 'Move Right' : 'Move Down'}" class="flex items-center justify-center p-2 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="${isHorizontal ? 'Move element right' : 'Move element down'}">
-                                        ${isHorizontal ?
-                                            `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>` :
-                                            `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>`
-                                        }
-                                    </button>
-                                    <button id="btn-clone" title="Clone Element" class="flex items-center justify-center p-2 bg-zinc-800 text-zinc-400 rounded hover:bg-zinc-700 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="Clone element">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-                                    </button>
-                                    <button id="btn-delete" title="Delete Element" class="flex items-center justify-center p-2 bg-red-900/20 text-red-500/70 rounded hover:bg-red-900/40 transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="Delete element">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
+                            <!-- Spacing -->
+                            <div class="palette-control mt-5 pt-4 border-t border-zinc-800">
+                                <label class="palette-label text-[9px] mb-1">Space around this item</label>
+                                <p class="palette-help">Margin adds outside space. Padding adds breathing room inside the selected box.</p>
+                                <div class="grid grid-cols-2 gap-3 mt-3">
+                                    <div><label class="palette-label text-[9px]">Outside margin</label><input type="text" id="input-margin" class="palette-input text-[10px]" value="${styles.margin || ''}" placeholder="e.g. 20px" aria-label="Outside margin"></div>
+                                    <div><label class="palette-label text-[9px]">Inside padding</label><input type="text" id="input-padding" class="palette-input text-[10px]" value="${styles.padding || ''}" placeholder="e.g. 10px" aria-label="Inside padding"></div>
                                 </div>
+                            </div>
+                            <!-- Structure & Hierarchy -->
+                            <div class="palette-control mt-5 pt-4 border-t border-zinc-800">
+                                <label class="palette-label text-[9px] mb-1">Element actions</label>
+                                <p class="palette-help">Need to style the box around this item? Select it here.</p>
+                                <button id="btn-select-parent" type="button" class="palette-action-button w-full mt-3 px-2 py-2 text-[9px] font-bold uppercase tracking-widest rounded transition">Edit containing box</button>
+                                <button id="btn-delete" type="button" class="palette-layout-button palette-delete-button w-full mt-2 px-2 py-2 rounded transition ${isLocked ? 'opacity-30' : ''}" ${isLocked ? 'disabled' : ''} aria-label="Delete selected element">Delete this item</button>
+                                <p class="palette-help mt-2">Delete asks for confirmation and permanently removes only this selected item.</p>
                             </div>
                         </div>
                     </div>
@@ -346,13 +350,17 @@
                         </button>
                     </div>
 
+                    <button id="btn-export" class="btn-export" aria-label="Export customized HTML" title="Save this edit and download a clean HTML copy">
+                        EXPORT HTML
+                    </button>
+
                     <!-- Advanced & Reset dropdowns -->
                     <div class="flex gap-2">
-                        <button id="btn-advanced-toggle" class="flex-1 text-[9px] font-bold text-zinc-500 hover:text-[var(--accent)] uppercase tracking-widest transition-colors py-2 px-2 border border-zinc-700 rounded hover:border-zinc-600">
+                        <button id="btn-advanced-toggle" aria-expanded="false" class="flex-1 text-[9px] font-bold text-zinc-500 hover:text-[var(--accent)] uppercase tracking-widest transition-colors py-2 px-2 border border-zinc-700 rounded hover:border-zinc-600">
                             Advanced +
                         </button>
                         <button id="btn-reset-toggle" class="flex-1 text-[9px] font-bold text-amber-400 hover:text-amber-300 uppercase tracking-widest transition-colors py-2 px-2 border border-amber-400/30 rounded hover:border-amber-400/60">
-                            ↺ Reset
+                            ? Reset
                         </button>
                     </div>
 
@@ -368,15 +376,13 @@
                 </div>
 
                 <!-- Advanced Panel (initially hidden) -->
-                <div id="advanced-panel" class="hidden mb-4 p-3 bg-black/40 border border-zinc-800 rounded-sm">
-                    <div class="palette-control mb-4 border-b border-zinc-800 pb-3">
+                <div id="advanced-panel" class="hidden mb-4 p-3 bg-black/40 border border-zinc-800 rounded-sm">                    <div class="palette-control mb-4 border-b border-zinc-800 pb-3">
                         <label class="palette-label text-[9px] mb-2 flex justify-between">
-                            <span>Dev Visualizers</span>
-                            <span class="text-[7px] opacity-40 italic">Helicopter View</span>
+                            <span>Labels opacity</span>
+                            <span id="labels-opacity-value" class="text-[8px] opacity-70">100%</span>
                         </label>
-                        <button id="toggle-labels" class="w-full py-1.5 ${this.labelsActive ? 'bg-green-600' : 'bg-zinc-800'} text-white text-[9px] font-bold rounded-sm transition-all uppercase border border-white/5 hover:border-white/20">
-                            TOGGLE LATTICE LABELS
-                        </button>
+                        <input type="range" id="input-labels-opacity" min="0.15" max="1" step="0.05" value="1" class="w-full accent-[var(--accent)]" aria-label="Labels opacity">
+                        <p class="palette-help mt-2">Changes the selected-item badge only. The page itself is unchanged.</p>
                     </div>
 
                     <!-- 3D View removed from the base editor: needs a full overhaul, coming back as an advanced-editor upsell -->
@@ -394,7 +400,7 @@
 
                     <div class="palette-control mb-4">
                         <label class="palette-label text-[9px]">Selector</label>
-                        <div class="font-mono text-[10px] text-zinc-400 break-all bg-black/20 p-2 mt-1 border border-zinc-800/50">${selector}</div>
+                        <div class="palette-selector-value font-mono text-[10px] break-all p-2 mt-1">${selector}</div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -403,19 +409,8 @@
                             <input type="range" id="input-opacity" min="0" max="1" step="0.1" value="${currentOpacity}" class="w-full accent-[var(--accent)]" aria-label="Opacity">
                         </div>
                         <div class="palette-control">
-                            <label class="palette-label text-[9px]">Scale</label>
-                            <input type="range" id="input-scale" min="0.5" max="2" step="0.1" value="1" class="w-full accent-[var(--accent)]" aria-label="Scale">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3 mt-3">
-                        <div class="palette-control">
-                            <label class="palette-label text-[9px]">Margin</label>
-                            <input type="text" id="input-margin" class="palette-input text-[10px]" value="${styles.margin}" placeholder="e.g. 20px" aria-label="Margin">
-                        </div>
-                        <div class="palette-control">
-                            <label class="palette-label text-[9px]">Padding</label>
-                            <input type="text" id="input-padding" class="palette-input text-[10px]" value="${styles.padding}" placeholder="e.g. 10px" aria-label="Padding">
+                            <label class="palette-label text-[9px] flex justify-between"><span>Scale</span><span id="scale-value" class="opacity-70">${currentScale.toFixed(1)}x</span></label>
+                            <input type="range" id="input-scale" min="0.5" max="2" step="0.1" value="${currentScale}" class="w-full accent-[var(--accent)]" aria-label="Scale">
                         </div>
                     </div>
                 </div>
@@ -463,7 +458,8 @@
         // Wire the current palette save/cancel controls so every visible exit path behaves the same way.
         const saveBtns = [document.getElementById('btn-save')].filter(Boolean);
         const cancelBtns = [document.getElementById('btn-cancel')].filter(Boolean);
-        const closeBtn = document.getElementById('btn-close-palette');
+        const exportBtn = document.getElementById('btn-export');
+
         const contentInput = document.getElementById('input-content');
         const colorInput = document.getElementById('input-color');
         const hexInput = document.getElementById('hex-color');
@@ -473,20 +469,23 @@
         const fontSizeSlider = document.getElementById('input-font-size-slider');
         const fontSizePresets = document.querySelectorAll('[data-font-size-preset]');
         const labelsToggle = document.getElementById('toggle-labels');
+        const labelsOpacityInput = document.getElementById('input-labels-opacity');
+        const labelsOpacityValue = document.getElementById('labels-opacity-value');
         const view3DToggle = document.getElementById('toggle-3d'); // Declaration added
         const advancedToggle = document.getElementById('btn-advanced-toggle');
         const advancedPanel = document.getElementById('advanced-panel');
         const resetToggle = document.getElementById('btn-reset-toggle');
         const resetDropdown = document.getElementById('reset-dropdown');
         const parentBtn = document.getElementById('btn-select-parent');
-        const moveUpBtn = document.getElementById('btn-move-up');
-        const moveDownBtn = document.getElementById('btn-move-down');
-        const cloneBtn = document.getElementById('btn-clone');
+
+
+
         const deleteBtn = document.getElementById('btn-delete');
         
         // Advanced Controls
         const opacityInput = document.getElementById('input-opacity');
         const scaleInput = document.getElementById('input-scale');
+        const scaleValue = document.getElementById('scale-value');
         const marginInput = document.getElementById('input-margin');
         const paddingInput = document.getElementById('input-padding');
 
@@ -515,15 +514,11 @@
             };
         });
 
-        if (closeBtn) {
-            closeBtn.onclick = (e) => {
+        if (exportBtn) {
+            exportBtn.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (this.onCancel) {
-                    this.onCancel();
-                } else if (typeof window.exitEditMode === 'function') {
-                    window.exitEditMode();
-                }
+                if (this.onEdit) this.onEdit('export-project', true);
             };
         }
 
@@ -539,7 +534,10 @@
             opacityInput.oninput = (e) => { if (this.onEdit) this.onEdit('opacity', e.target.value); };
         }
         if (scaleInput) {
-            scaleInput.oninput = (e) => { if (this.onEdit) this.onEdit('transform', `scale(${e.target.value})`); };
+            scaleInput.oninput = (e) => {
+                if (scaleValue) scaleValue.textContent = `${Number(e.target.value).toFixed(1)}x`;
+                if (this.onEdit) this.onEdit('transform', `scale(${e.target.value})`);
+            };
         }
         if (marginInput) {
             marginInput.oninput = (e) => { 
@@ -559,7 +557,10 @@
         if (advancedToggle && advancedPanel) {
             advancedToggle.onclick = () => {
                 const isHidden = advancedPanel.classList.toggle('hidden');
+                advancedToggle.classList.toggle('advanced-open', !isHidden);
+                advancedToggle.setAttribute('aria-expanded', String(!isHidden));
                 advancedToggle.innerText = isHidden ? 'Advanced +' : 'Advanced -';
+                if (!isHidden) advancedPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             };
         }
 
@@ -571,14 +572,6 @@
                 if (this.onEdit) this.onEdit('select-parent', this.currentElement);
             };
         }
-        if (moveUpBtn && !moveUpBtn.disabled) {
-            moveUpBtn.onclick = () => { if (this.onEdit) this.onEdit('moveUp', this.currentElement); };
-        }
-
-        if (moveDownBtn && !moveDownBtn.disabled) {
-            moveDownBtn.onclick = () => { if (this.onEdit) this.onEdit('moveDown', this.currentElement); };
-        }
-
         if (contentInput) {
             let textSyncTimer = null;
             const syncTextContent = (value, delay = 60) => {
@@ -618,9 +611,6 @@
             colorInput.oninput = (e) => {
                 if (hexInput) hexInput.value = e.target.value;
                 if (this.onEdit) this.onEdit('color', e.target.value);
-                // Re-fire text glow if active (glow always follows text color)
-                const glowBlur = document.getElementById('input-text-glow-blur');
-                if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
             };
         }
         if (hexInput) {
@@ -629,15 +619,14 @@
                 if (!hex.startsWith('#')) hex = '#' + hex;
                 if (colorInput) colorInput.value = hex;
                 if (this.onEdit) this.onEdit('color', hex);
-                // Re-fire text glow if active (glow always follows text color)
-                const glowBlur = document.getElementById('input-text-glow-blur');
-                if (glowBlur && parseInt(glowBlur.value) > 0 && typeof updateTextGlow === 'function') updateTextGlow();
             };
         }
 
         if (zInput) {
             zInput.oninput = (e) => {
-                if (this.onEdit) this.onEdit('zIndex', e.target.value);
+                const layerDepth = Math.max(0, Math.trunc(Number(e.target.value) || 0));
+                e.target.value = layerDepth;
+                if (this.onEdit) this.onEdit('zIndex', layerDepth);
             };
         }
 
@@ -733,7 +722,7 @@
                                 showImageStatus(`Storage nearly full (${Math.round(used / 1024)}KB used). Rejected.`, true);
                                 return;
                             }
-                        } catch (err) { /* storage access error â€” proceed anyway */ }
+                        } catch (err) { /* storage access error — proceed anyway */ }
 
                         if (sizeKB > MAX_ENCODED_KB) {
                             showImageStatus(`${sizeKB}KB — large, may fill storage`, false);
@@ -753,6 +742,28 @@
         const mediaUrlInput = document.getElementById('input-media-url');
         const applyUrlBtn = document.getElementById('btn-apply-url');
         const mediaStatus = document.getElementById('media-status');
+        const mediaUrlHelp = document.getElementById('media-url-help');
+        const mediaUrlHelpText = document.getElementById('media-url-help-text');
+
+        if (mediaUrlHelp && mediaUrlHelpText) {
+            const setMediaHelpVisible = (visible) => {
+                mediaUrlHelpText.classList.toggle('hidden', !visible);
+                mediaUrlHelp.setAttribute('aria-expanded', String(visible));
+            };
+            mediaUrlHelp.onclick = () => setMediaHelpVisible(mediaUrlHelpText.classList.contains('hidden'));
+            mediaUrlHelp.onmouseenter = () => setMediaHelpVisible(true);
+            mediaUrlHelp.onmouseleave = () => {
+                if (document.activeElement !== mediaUrlHelp) setMediaHelpVisible(false);
+            };
+            mediaUrlHelp.onfocus = () => setMediaHelpVisible(true);
+            mediaUrlHelp.onblur = () => setMediaHelpVisible(false);
+            mediaUrlHelp.onkeydown = (event) => {
+                if (event.key === 'Escape') {
+                    setMediaHelpVisible(false);
+                    mediaUrlHelp.blur();
+                }
+            };
+        }
 
         const showMediaStatus = (msg, isError) => {
             if (!mediaStatus) return;
@@ -816,21 +827,22 @@
         if (glowColor) glowColor.oninput = updateGlow;
         if (glowBlur) glowBlur.oninput = updateGlow;
 
-        // TEXT GLOW controls (always uses current text color â€” no separate color picker)
+        // TEXT GLOW is a halo behind the letters. CSS text-shadow blurs through
+        // the glyph itself; filter: drop-shadow renders the source above its
+        // shadow, keeping the selected Text Color visibly intact.
         const textGlowBlur = document.getElementById('input-text-glow-blur');
         const textGlowColor = document.getElementById('input-text-glow-color');
         const updateTextGlow = () => {
             const color = textGlowColor ? textGlowColor.value : '#ffffff';
-            const blur = textGlowBlur ? parseInt(textGlowBlur.value) : 0;
+            const blur = textGlowBlur ? parseInt(textGlowBlur.value, 10) : 0;
             const label = document.getElementById('text-glow-blur-value');
             if (label) label.textContent = blur + 'px';
-            if (blur === 0) {
-                if (this.onEdit) this.onEdit('textShadow', 'none');
-                return;
-            }
-            const layers = [0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4];
-            const shadow = layers.map(m => `0 0 ${Math.round(blur * m)}px ${color}`).join(', ');
-            if (this.onEdit) this.onEdit('textShadow', shadow);
+
+            // Clear legacy text-shadow at every setting; previous versions used
+            // it and a saved zero-radius layer can otherwise keep tinting type.
+            if (this.onEdit) this.onEdit('textShadow', 'none');
+            const filter = blur > 0 ? `drop-shadow(0 0 ${blur}px ${color})` : 'none';
+            if (this.onEdit) this.onEdit('filter', filter);
         };
         if (textGlowColor) textGlowColor.oninput = updateTextGlow;
         if (textGlowBlur) textGlowBlur.oninput = updateTextGlow;
@@ -852,7 +864,7 @@
                 this.onEdit('backgroundClip', 'text');
                 this.onEdit('webkitTextFillColor', 'transparent');
             }
-            // Gray out Text Color â€” gradient overrides it
+            // Gray out Text Color — gradient overrides it
             const colorControl = document.getElementById('text-color-control');
             const colorLabel = document.getElementById('text-color-label');
             if (colorControl) { colorControl.style.opacity = '0.3'; colorControl.style.pointerEvents = 'none'; }
@@ -920,6 +932,13 @@
         if (maskColor) maskColor.oninput = updateTextMask;
         if (maskFade) maskFade.oninput = updateTextMask;
 
+        if (labelsOpacityInput) {
+            labelsOpacityInput.oninput = (event) => {
+                const value = Number(event.target.value);
+                if (labelsOpacityValue) labelsOpacityValue.textContent = `${Math.round(value * 100)}%`;
+                if (this.onEdit) this.onEdit('labelOpacity', value);
+            };
+        }
         if (labelsToggle) {
             labelsToggle.onclick = () => {
                 this.labelsActive = !this.labelsActive;
@@ -936,15 +955,9 @@
             };
         }
 
-        if (cloneBtn && !cloneBtn.disabled) {
-            cloneBtn.onclick = () => { if (this.onEdit) this.onEdit('clone', this.currentElement); };
-        }
         if (deleteBtn && !deleteBtn.disabled) {
             deleteBtn.onclick = () => {
-                if (confirm('Delete this element?')) {
-                    if (this.onEdit) this.onEdit('delete', this.currentElement);
-                    this.hide();
-                }
+                if (this.onEdit) this.onEdit('delete', this.currentElement);
             };
         }
 // Peek (reticle visibility toggle)
@@ -1052,6 +1065,7 @@
     }
 
     showStandby() {
+        this.container.classList.add('palette-standby');
         this.container.classList.remove('hidden');
         this.contentArea.innerHTML = `
             <div class="p-12 text-center">
@@ -1074,6 +1088,7 @@
     }
     hide() {
         if (!this.container) return; // Defensive check
+        this.container.classList.remove('palette-standby');
         this.container.classList.add('hidden');
     }
 

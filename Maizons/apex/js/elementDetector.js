@@ -115,7 +115,7 @@ export class ElementDetector {
       return null;
     }
 
-    element = this.resolveTextSibling(element);
+    element = this.resolveMixedTextParent(this.resolveTextSibling(element));
 
     if (!element.dataset.axId) {
       this.axIdCounter += 1;
@@ -171,7 +171,12 @@ export class ElementDetector {
     // Never treat live navigation / handler-driven controls as editable content.
     // They poison the editor lifecycle because the inspector starts trying to
     // edit the controls that are supposed to remain functional around it.
-    if ((tagName === 'button' || tagName === 'a') && (el.hasAttribute('data-handler') || el.closest('nav'))) {
+    // data-ax-editable="true" is an explicit override for either exclusion -
+    // it must short-circuit both the nav check and the data-handler check,
+    // not just the data-handler one, or tagging a nav button editable has no
+    // effect (the nav clause still fires and blocks it regardless).
+    if ((tagName === 'button' || tagName === 'a') && el.dataset.axEditable !== 'true' &&
+        (el.closest('nav') || el.hasAttribute('data-handler'))) {
       return false;
     }
 
@@ -276,6 +281,26 @@ export class ElementDetector {
     return el;
   }
 
+  // Inline formatting belongs to its readable sentence. Without this resolver,
+  // a real hit on a <span>/<strong> inside a mixed-content paragraph makes one
+  // phrase look like an isolated text container, even though it is only bold
+  // words in the same sentence. Plain-text editing operates at sentence level,
+  // so choose the nearest mixed text parent while leaving links/buttons alone.
+  resolveMixedTextParent(el) {
+    if (!el || !el.parentElement) return el;
+    const inlineFormattingTags = ['SPAN', 'STRONG', 'EM', 'B', 'I', 'SMALL'];
+    if (!inlineFormattingTags.includes(el.tagName)) return el;
+
+    const parent = el.closest('p, li, blockquote, h1, h2, h3, h4, h5, h6');
+    if (!parent || parent === el) return el;
+
+    const hasDirectText = Array.from(parent.childNodes)
+      .some(node => node.nodeType === 3 && node.textContent.trim().length > 0);
+    const hasInlineText = Array.from(parent.children)
+      .some(child => (child.textContent || '').trim().length > 0);
+
+    return hasDirectText && hasInlineText ? parent : el;
+  }
   // Read text from any depth with recursion limit (fixes 15-20 nested text elements)
   // FIX 5: Increased from 10 to 20 to handle deeper nesting
   _getTextNodes(el, maxDepth = 20) {
@@ -301,7 +326,7 @@ export class ElementDetector {
       if (hasDirectText && childrenWithText) {
         return (el.textContent || '').replace(/\s+/g, ' ').trim();
       }
-      if (hasDirectText) return text.trim();
+      if (hasDirectText) return text.replace(/\s+/g, ' ').trim();
 
       // Second pass: recurse into child elements to find nested text
       const structuralTags = ['DIV', 'SECTION', 'ARTICLE', 'HEADER', 'FOOTER', 'MAIN', 'NAV'];
