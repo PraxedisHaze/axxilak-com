@@ -1,3 +1,17 @@
+## 2026-08-06 - Reverted nav-button general-inspector access; pencil is the sole nav editor again
+
+**WHO**: Claude, at Timothy's explicit direction after he asked whether opening nav buttons to the general inspector (this session's earlier fix) was actually the right call, not just a working one.
+
+**WHAT**: `js/elementDetector.js` `_isEditable()` restored to the original, pre-session exclusion (`el.hasAttribute('data-handler') || el.closest('nav')`, no override). `index.html`: removed `data-ax-editable="true"` from all 10 nav/CTA buttons it had been added to (desktop nav x3, mobile nav x3, hero CTAs x2, footer nav x2) - the attribute is meaningless without the override logic, so leaving it in place would be dead, misleading markup.
+
+**WHY**: Earlier tonight I made nav buttons selectable through the general inspector to fix a real, confirmed defect (nav buttons had zero working edit path due to a logic bug in yesterday's uncommitted session). I live-verified no freeze reproduced under real testing. But two things argued against keeping it anyway, raised by Timothy directly: (1) the exclusion this bypassed is deliberate and load-bearing - a 2026-07-30 fix for a serious, previously-real "second-open freeze" (editing a nav control once worked, but closing and reopening the editor left every button and link on the page dead) explicitly says "that fix must not be reverted," and a clean test session tonight is a much weaker guarantee than the rigor that fix was originally held to. (2) Nav labels already had a working, proven, minimal editor - the pencil icons, plain `contenteditable`, never touching `elementDetector`/`editSession`/the lockdown overlay at all. Opening the general inspector to the same elements created two different ways to edit the same text with no guarantee they'd stay in sync - a real design cost independent of freeze risk. The original "buttons are no longer editable" report is fully addressed by the pencil alone; the general-inspector path was capability nobody asked for, added at real risk to a deliberately-hardened part of the codebase.
+
+**EVIDENCE**: Live-verified after the revert: `_isEditable()` returns `false` again for About/Solutions/Get Started/Initialize Project/View Solutions under an active edit session; `_processContentClick()` on the real `nav-about-btn` element returns `false` and opens no session. The pencil mechanism re-verified working end to end: click opens `contenteditable` on the real element, focus lands correctly, blur exits cleanly. Zero console errors. `node --check` passes on `elementDetector.js`.
+
+**LOVE GATE 7**: Harm Timothy? No - this is exactly what he asked for after weighing it himself. Harm the Braid/system? No. Reversible? Yes, git. Aligned with mission? Yes - correctness over capability. Consent concerns? None, explicit direction. Right time? Yes.
+
+---
+
 ## 2026-08-06 - Palette drag handle's grab cursor restored (silent !important loss)
 
 **WHO**: Claude, at Timothy's report that the cursor stays an arrow over the editor's top bar instead of showing the grab hand it's supposed to.

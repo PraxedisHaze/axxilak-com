@@ -170,13 +170,19 @@ export class ElementDetector {
 
     // Never treat live navigation / handler-driven controls as editable content.
     // They poison the editor lifecycle because the inspector starts trying to
-    // edit the controls that are supposed to remain functional around it.
-    // data-ax-editable="true" is an explicit override for either exclusion -
-    // it must short-circuit both the nav check and the data-handler check,
-    // not just the data-handler one, or tagging a nav button editable has no
-    // effect (the nav clause still fires and blocks it regardless).
-    if ((tagName === 'button' || tagName === 'a') && el.dataset.axEditable !== 'true' &&
-        (el.closest('nav') || el.hasAttribute('data-handler'))) {
+    // edit the controls that are supposed to remain functional around it. This
+    // exclusion is deliberate and load-bearing (2026-07-30: routing nav/
+    // handler controls through the general inspector caused a second-open
+    // freeze - closing and reopening the editor left every button and link on
+    // the page dead). Nav label text has its own separate, minimal editor (the
+    // pencil icons in index.html, plain contenteditable, never touches this
+    // detector) - that stays the only way to edit nav labels. A same-day
+    // attempt (2026-08-05/06) to reopen nav buttons to the general inspector
+    // via a data-ax-editable override was tested clean but reverted anyway:
+    // it duplicated the pencil's job through a second, less-proven path for
+    // no capability anyone asked for. Do not reintroduce it without a real
+    // need and the same rigor the pencil mechanism was held to.
+    if ((tagName === 'button' || tagName === 'a') && (el.hasAttribute('data-handler') || el.closest('nav'))) {
       return false;
     }
 
