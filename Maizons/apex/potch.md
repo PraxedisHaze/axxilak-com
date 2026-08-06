@@ -1,3 +1,19 @@
+## 2026-08-06 - Gallery photos: uploads were landing on the invisible caption overlay, not the image
+
+**WHO**: Claude, at Timothy's original report tonight ("I click on the middle picture, upload a new photo, it just swallowed my pic") - the bug that started the whole session, finally isolated and fixed after everything else got resolved first.
+
+**WHY**: The 3 gallery cards (Neural Grid / Sovereign Core / Apex Logic) each have a caption `<div>` (`opacity-0 group-hover:opacity-100`) absolutely positioned on top of the `<img>` for hit-testing. `elementDetector.js`'s `resolveTextSibling()` - built to let users reach a caption's text without precision-clicking a thin overlay - unconditionally redirects from an `<img>` to any text-bearing sibling, with no way to tell "a real always-visible caption" apart from "a decorative hover-reveal that happens to have text in it." Checking the sibling's *current* computed opacity doesn't work either: a real user's mouse genuinely triggers `:hover` while pointing at the photo, so the overlay is authentically visible at exactly the moment detection runs - the static authored class (`opacity-0`) is the only timing-independent signal. Separately, `_processContentClick()` (the actual click-to-select path, distinct from hover-preview) only ever walks *up* the DOM tree from the click target - since the image is a *sibling* of the overlay, not an ancestor of anything the walk visits, no click on that overlay could ever reach the image at all, regardless of the hover fix.
+
+**IMPACT AUDIT (before writing)**: grepped every use of `opacity-0` in the whole codebase - 4 total, not just the 3 gallery cards. The 4th is the Edge Electrify launcher's "ELECTRIFY" label. Checked live: that launcher's icon and label were *already* independently selectable/editable via the general inspector before this change, for unrelated reasons (Codex's own audit had flagged uncertainty about this element previously) - this fix only changes which one hover defaults to, it does not create new exposure there. Flagged as a separate, pre-existing gap, not touched here.
+
+**FIX**: `elementDetector.js` `resolveTextSibling()` now skips any sibling carrying the `opacity-0` class. `magnifying-glass-inspector.js` `_processContentClick()` gained a fallback (only runs when the normal ancestor walk finds nothing at all) that, for a click landing on empty space inside an `opacity-0` overlay, resolves to that overlay's `<img>` sibling instead.
+
+**EVIDENCE**: Live-verified with real hit-testing throughout. Hovering the photo now resolves to the actual `<img>` (`role: media`, matching its real lattice ID) instead of the caption div. Clicking empty overlay space opens a real session on the image; `imageSrc` edits now write directly to `el.src` on the real `<img>`, confirmed by reading the element's `.src` before/after. Clicking precisely on the caption text still correctly selects the caption span directly (original capability preserved, verified by clicking that exact text and confirming the span - not the image - was selected). Edge Electrify launcher re-tested afterward: icon click still opens its upsell modal normally. `node --check` passes on both files. Zero console errors.
+
+**LOVE GATE 7**: Harm Timothy? No - fixes the original reported defect, verified not to touch the Electrify launcher's actual function. Harm the Braid/system? No. Reversible? Yes. Aligned with mission? Yes. Consent concerns? None, explicit direction throughout. Right time? Yes.
+
+---
+
 ## 2026-08-06 - Nav-label pencils unreachable while another element's edit session was open
 
 **WHO**: Claude, after Timothy asked whether the standby-freeze fix was the only bug in how nav is managed - prompted a real audit rather than an assurance.

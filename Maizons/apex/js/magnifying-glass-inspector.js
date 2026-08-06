@@ -1,5 +1,5 @@
 import { MagnifyingGlass } from './lens-ui.js?v=editor-20260729-crosshair1';
-import ElementDetector from './elementDetector.js?v=editor-20260806-nav-exclusion-reverted1';
+import ElementDetector from './elementDetector.js?v=editor-20260806-gallery-image-select-fix1';
 import { ToolPalette } from './tool-palette.js?v=editor-20260806-standby-freeze-fix1';
 
 export default class MagnifyingGlassInspector {
@@ -1449,7 +1449,25 @@ export default class MagnifyingGlassInspector {
             if (this.detector._isEditable(clickedElement)) break;
             clickedElement = clickedElement.parentElement;
         }
-        if (!clickedElement || clickedElement === document.body) return false;
+
+        // Fallback only - the walk above already succeeds on its own for a
+        // precise click directly on real caption text (a <span> with its own
+        // text passes _isEditable immediately, no redirect needed). This only
+        // kicks in when that walk found nothing at all: a click that landed
+        // on empty space within a hover-reveal overlay (opacity-0, group-
+        // hover-only) sitting on top of an <img> for hit-testing. Mirrors
+        // resolveTextSibling in reverse - that walk only looks UP the DOM
+        // tree, never sideways, so the image (a sibling of the overlay, not
+        // an ancestor of anything in that chain) could never be reached by a
+        // real click on such an overlay at all without this.
+        if (!clickedElement || clickedElement === document.body) {
+            const revealOverlay = rawTarget.closest ? rawTarget.closest('.opacity-0') : null;
+            const imgSibling = revealOverlay && revealOverlay.parentElement
+                ? Array.from(revealOverlay.parentElement.children).find(c => c.tagName === 'IMG')
+                : null;
+            if (!imgSibling) return false;
+            clickedElement = imgSibling;
+        }
 
         clickedElement = this.detector.resolveMixedTextParent(this.detector.resolveTextSibling(clickedElement));
         if (!clickedElement.dataset.axId) {

@@ -272,12 +272,25 @@ export class ElementDetector {
 
   // When an image is detected, prefer a text-bearing sibling (overlay) in the same parent.
   // Returns the sibling if found, otherwise the original element.
+  //
+  // Exception: a sibling authored with a Tailwind `opacity-0` class (paired with
+  // a `group-hover:opacity-*` reveal) is a hover-reveal decoration, not a real
+  // caption target - checking its CURRENT computed opacity can't tell these
+  // apart from a genuine always-visible caption, because real `:hover` is
+  // authentically active for the whole time a real user is pointing at the
+  // image, which is exactly when this resolver runs. The static authored class
+  // is a reliable, timing-independent signal instead. Without this exception,
+  // an image with a hover-reveal caption (e.g. the gallery cards) could never
+  // be selected/edited on its own - every hover/click redirected to the
+  // caption overlay instead, so uploading a new photo silently landed on the
+  // overlay's background instead of the actual <img>.
   resolveTextSibling(el) {
     if (!el || el.tagName !== 'IMG' || !el.parentElement) return el;
     const textChildTags = ['SPAN', 'P', 'A', 'STRONG', 'EM', 'B', 'I', 'SMALL', 'LABEL', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
     for (const sibling of el.parentElement.children) {
       if (sibling === el) continue;
       if (this._isInternal(sibling)) continue;
+      if (sibling.classList.contains('opacity-0')) continue;
       const hasText = (sibling.innerText || '').trim().length > 0;
       const isTextContainer = textChildTags.includes(sibling.tagName) ||
         (sibling.children.length > 0 && sibling.children.length <= 3 &&
