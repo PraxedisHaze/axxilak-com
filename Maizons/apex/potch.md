@@ -1,3 +1,17 @@
+## 2026-08-06 - Palette drag handle's grab cursor restored (silent !important loss)
+
+**WHO**: Claude, at Timothy's report that the cursor stays an arrow over the editor's top bar instead of showing the grab hand it's supposed to.
+
+**WHAT**: `index.html`, `#palette-container .palette-header` / `:active` cursor rules given `!important`.
+
+**WHY**: `tool-palette.js` injects a runtime stylesheet with `#palette-container { cursor: default !important; }` so the editor gets a normal pointer everywhere by default. `!important` always beats a non-`!important` rule regardless of selector specificity, so the header's plain `cursor: grab` (and the container's own un-flagged `cursor: grab` a few lines above it) never actually applied - the arrow was silently winning the whole time this rule existed.
+
+**EVIDENCE**: Live in a real browser tab: `getComputedStyle()` on the header returned `"grab"` after the fix (previously the container-level default won instead). Zero console errors across load/edit-mode/select cycle.
+
+**LOVE GATE 7**: Harm Timothy? No - restores intended UX. Harm the Braid/system? No. Reversible? Yes. Aligned with mission? Yes. Consent concerns? None - his own reported defect. Right time? Yes.
+
+---
+
 ## 2026-08-06 - Nav buttons genuinely editable again; deferred Edge iframe restored; tool-palette.js encoding corruption repaired
 
 **WHO**: Claude, after Timothy's unreproduced report that "the buttons are no longer editable." A full uncommitted session's worth of changes (Aug 5, authorship unconfirmed - Timothy believes it may have been Codex/Vale, no potch entry exists for that session to confirm) was sitting on disk since the last commit (`0f5e47b`). This entry covers what was found in it and what was fixed on top of it. Nothing from the Aug 5 session was discarded; three real problems in it were fixed and one deliberate regression in it was reverted.

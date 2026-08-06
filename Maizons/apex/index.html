@@ -830,9 +830,14 @@
         }
 
         /* Only the top bar moves the editor; fields and controls keep their
-           normal precise cursors. */
-        #palette-container .palette-header { cursor: grab; }
-        #palette-container .palette-header:active { cursor: grabbing; }
+           normal precise cursors. tool-palette.js injects its own runtime
+           stylesheet with `#palette-container { cursor: default !important; }`
+           (to give the editor a normal pointer everywhere by default) - that
+           !important always wins over a plain, non-!important rule here
+           regardless of selector specificity, so the drag handle silently
+           never showed its grab cursor until these got !important too. */
+        #palette-container .palette-header { cursor: grab !important; }
+        #palette-container .palette-header:active { cursor: grabbing !important; }
         #palette-container button:not(:disabled) { cursor: pointer; }
         #palette-container input,
         #palette-container textarea,
