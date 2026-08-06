@@ -1090,6 +1090,15 @@ class ToolPalette {
         if (!this.container) return; // Defensive check
         this.container.classList.remove('palette-standby');
         this.container.classList.add('hidden');
+        // update()'s "SYNC ONLY" fast path compares a fresh hover's axId
+        // against this.currentElement and skips its own re-render (including
+        // clearing palette-standby) whenever they match - correct while the
+        // panel is genuinely still open on that element, but this never got
+        // reset on close. Reopening and hovering the SAME element again then
+        // silently matched a stale reference and never left standby, only
+        // "fixed" by accident once a later hover landed on a different
+        // element. Closing the panel means nothing is currently loaded in it.
+        this.currentElement = null;
     }
 
     showEditControls(visible) {

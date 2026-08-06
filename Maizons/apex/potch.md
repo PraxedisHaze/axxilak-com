@@ -1,3 +1,17 @@
+## 2026-08-06 - Fixed intermittent "stuck on Lattice Standby" after theme toggle / close-reopen
+
+**WHO**: Claude, at Timothy's live report: theme toggle closes the editor correctly, but reopening afterward sometimes leaves the palette stuck on "Lattice Standby" - hovering does nothing until a full close/reopen cycle happens to land on a different element.
+
+**WHY**: `ToolPalette.hide()` never reset `this.currentElement`. `ToolPalette.update()` has a "SYNC ONLY" fast path that compares an incoming hover's element against `this.currentElement` by `data-ax-id` and, on a match, skips its own render (including the line that removes `palette-standby`) on the assumption the panel is already showing that element live. That assumption held while the panel stayed open, but not after `hide()` - the stale reference survived a close, so reopening and hovering the *same* element the panel had before silently hit the sync shortcut and never left standby. Hovering a *different* element always worked (no ID match, full render path), which is exactly why "close and reopen again" looked like a fix - it wasn't; it just changed which element got hovered next by chance. Confirmed live: `palette.currentElement` and the freshly-hovered element were the literal same object reference while stuck.
+
+**FIX**: `hide()` now also sets `this.currentElement = null`, so nothing is considered "currently loaded" once the panel is actually closed, and the next hover always takes the full render path regardless of which element it lands on.
+
+**EVIDENCE**: Built an automated real-hit-test repro loop (real `elementFromPoint` + dispatched events, not direct-dispatch) that reproduces the exact reported sequence: select an element, toggle theme, discard the prompt, reopen, hover the *same* element again. Before the fix this failed roughly 1 in 3 attempts. After the fix: 6/6 consecutive runs clean, including 5 back-to-back cycles deliberately re-hovering the same paragraph every time (the guaranteed-failure case). `node --check` passes.
+
+**LOVE GATE 7**: Harm Timothy? No - fixes a real, reported, now-understood defect. Harm the Braid/system? No. Reversible? Yes. Aligned with mission? Yes. Consent concerns? None, explicit direction ("keep hunting" then "Yes"). Right time? Yes.
+
+---
+
 ## 2026-08-06 - Reverted nav-button general-inspector access; pencil is the sole nav editor again
 
 **WHO**: Claude, at Timothy's explicit direction after he asked whether opening nav buttons to the general inspector (this session's earlier fix) was actually the right call, not just a working one.
