@@ -1,3 +1,19 @@
+## 2026-08-06 - Nav-label pencils unreachable while another element's edit session was open
+
+**WHO**: Claude, after Timothy asked whether the standby-freeze fix was the only bug in how nav is managed - prompted a real audit rather than an assurance.
+
+**WHY**: The nav pencils (index.html's separate, minimal contenteditable editor) were never added to `_staysLiveDuringEdit()`, the single allowlist that decides both which buttons the nav-disable sweep leaves alone and which ones the lockdown overlay explicitly forwards clicks to. Pencils stay visually present throughout edit mode (CSS gates them on `body.edit-mode`, not the per-session `body.ax-editing`), so they looked clickable, but a real click landed on the overlay covering them and went nowhere - no error, no feedback, just silent failure - any time a different element's edit session was already open.
+
+**IMPACT AUDIT (before writing)**: traced all three call sites of `_staysLiveDuringEdit()`. Nav-disable sweep (line ~820, strips `onclick`) and its restore counterpart (line ~1742) were both already no-ops for pencils, since pencils are wired via `addEventListener`, never `onclick` - adding them to the allowlist changes nothing there. Overlay click-forwarding (line ~940) and mousedown-forwarding (line ~961, caret-sync) are the two that actually mattered - the real fix. Confirmed `_disableNavButtons()` and `HandlerDispatcher` both structurally cannot touch pencils (wrong element type / no `data-handler` attribute) - no other code path involved.
+
+**FIX**: Added `btn.classList.contains('nav-edit-pencil')` to `_staysLiveDuringEdit()`.
+
+**EVIDENCE**: Live-verified with real hit-testing: opened a genuine edit session on a regular paragraph (lockdown overlay confirmed `display: block`), then real-clicked a nav pencil - before the fix, the click landed on the overlay (`realHitClass: ""`) and nothing happened; after the fix, same click correctly activates `contenteditable` on the nav label (`isContentEditable: true`, focused) while the original paragraph session remains untouched and undisturbed (`editSession.active` still true throughout). `node --check` passes. Zero console errors from this change (one unrelated, already-documented stale ghost log entry persists across navigations regardless of what's tested, confirmed not fresh).
+
+**LOVE GATE 7**: Harm Timothy? No - fixes a real, silently-failing defect. Harm the Braid/system? No. Reversible? Yes. Aligned with mission? Yes. Consent concerns? None, explicit direction after an explicit pre-audit request. Right time? Yes.
+
+---
+
 ## 2026-08-06 - Fixed intermittent "stuck on Lattice Standby" after theme toggle / close-reopen
 
 **WHO**: Claude, at Timothy's live report: theme toggle closes the editor correctly, but reopening afterward sometimes leaves the palette stuck on "Lattice Standby" - hovering does nothing until a full close/reopen cycle happens to land on a different element.

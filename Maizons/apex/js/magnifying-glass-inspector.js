@@ -1002,7 +1002,15 @@ export default class MagnifyingGlassInspector {
         const handler = btn.getAttribute('data-handler') || '';
         const isThemeToggle = handler.startsWith('toggleTheme');
         const isEditToggle = handler.startsWith('toggleEditMode');
-        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle || isEditToggle;
+        // Nav label pencils (index.html's initNavLabelEditing/startNavLabelEdit)
+        // are their own separate, minimal editor - plain contenteditable, no
+        // editSession involved - and stay visible throughout edit mode (CSS
+        // gates them on body.edit-mode, not the per-session ax-editing class).
+        // They were missing from this list, so the lockdown overlay swallowed
+        // every click on them whenever a different element's session was open,
+        // with no error and no visible feedback.
+        const isNavPencil = btn.classList.contains('nav-edit-pencil');
+        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle || isEditToggle || isNavPencil;
     }
 
     _disableNavButtons() {
