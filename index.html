@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AXXILAK | Something Extraordinary Is Being Built</title>
-  <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. Coming soon.">
+  <title>AXXILAK | Bespoke Digital Architectures</title>
+  <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative.">
 
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
   <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
@@ -248,10 +248,55 @@
       .form-row { flex-direction: column; }
       button[type="submit"] { width: 100%; }
     }
+
+    /* Nav */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+      padding: 1.25rem 1rem;
+      background: linear-gradient(to bottom, rgba(3,3,3,0.9), transparent);
+    }
+
+    .site-nav a {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(240, 240, 240, 0.55);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .site-nav a:hover {
+      color: var(--primary);
+    }
+
+    body { justify-content: flex-start; padding-top: 6.5rem; }
+
+    @media (max-width: 480px) {
+      .site-nav { gap: 1rem; padding: 1rem 0.75rem; }
+      .site-nav a { font-size: 0.68rem; }
+      body { padding-top: 7.5rem; }
+    }
   </style>
 </head>
 
 <body>
+
+  <nav class="site-nav">
+    <a href="about.html">About</a>
+    <a href="discovery_gateway.html">Discover</a>
+    <a href="axxilak_forge.html">The Forge</a>
+    <a href="free-stuff.html">Free Stuff</a>
+  </nav>
 
   <canvas id="particles"></canvas>
   <div class="glow-top"></div>
