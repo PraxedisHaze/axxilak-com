@@ -1,367 +1,183 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AXXILAK | Something Extraordinary Is Being Built</title>
-  <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. Coming soon.">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Axxilak makes small, carefully built software for memory, attention, and meaningful work.">
+  <title>Axxilak | Useful software that belongs to you</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
   <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
-  <link rel="apple-touch-icon" href="favicon.png?v=2026020101">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
-
   <style>
     :root {
-      --primary: #d4af37;
-      --primary-dim: rgba(212, 175, 55, 0.15);
-      --bg: #030303;
-      --glass: rgba(16, 16, 16, 0.6);
-      --border: rgba(255, 255, 255, 0.07);
-      --silver: rgba(209, 220, 232, 0.35);
+      --ink: #f4f1e8;
+      --muted: #a8a7a3;
+      --bg: #070708;
+      --line: rgba(244, 241, 232, .15);
+      --gold: #d6ad4d;
+      --cyan: #69d9e5;
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      background: var(--bg);
-      color: #f0f0f0;
-      font-family: 'Outfit', sans-serif;
+      margin: 0;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 76% 8%, rgba(214, 173, 77, .14), transparent 27rem),
+        radial-gradient(circle at 12% 28%, rgba(105, 217, 229, .08), transparent 24rem),
+        var(--bg);
+      font: 16px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     }
-
-    h1, h2, h3, .serif { font-family: 'Cinzel', serif; }
-
-    /* Particle canvas */
-    canvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
+    a { color: inherit; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .skip { position: absolute; left: 12px; top: 12px; transform: translateY(-180%); padding: 9px 12px; background: var(--ink); color: #111; border-radius: 8px; z-index: 10; }
+    .skip:focus { transform: none; }
+    .site-header { position: sticky; top: 0; z-index: 5; border-bottom: 1px solid rgba(244, 241, 232, .1); background: rgba(7, 7, 8, .84); backdrop-filter: blur(18px); }
+    .nav { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { color: var(--ink); text-decoration: none; font-size: 1.15rem; font-weight: 800; letter-spacing: .25em; text-transform: uppercase; }
+    .brand::before { content: ""; display: inline-block; width: 9px; height: 9px; margin: 0 10px 2px 0; border-radius: 50%; background: var(--gold); box-shadow: 0 0 20px var(--gold); }
+    .nav-links { display: flex; align-items: center; gap: 22px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .87rem; }
+    .nav-links a:hover, .nav-links a:focus { color: var(--ink); }
+    main { overflow: hidden; }
+    .hero { padding: clamp(76px, 12vw, 150px) 0 88px; }
+    .eyebrow { color: var(--cyan); font-size: .72rem; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 850px; margin: 18px 0 24px; font: 600 clamp(3.1rem, 8vw, 7.4rem)/.94 Georgia, "Times New Roman", serif; letter-spacing: -.065em; }
+    h1 em { color: var(--gold); font-style: normal; }
+    .hero-copy { max-width: 690px; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.28rem); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 18px; border: 1px solid var(--line); border-radius: 9px; text-decoration: none; font-weight: 750; }
+    .button.primary { color: #101313; border-color: transparent; background: linear-gradient(110deg, var(--cyan), #9ae6d3); }
+    .button.secondary:hover, .button.secondary:focus { border-color: var(--gold); }
+    .promise { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(135deg, rgba(105, 217, 229, .08), rgba(214, 173, 77, .07)); }
+    .promise-card { padding: clamp(26px, 5vw, 56px); border: 1px solid rgba(244, 241, 232, .1); border-radius: 12px; background: rgba(8, 8, 9, .62); }
+    .promise-card h2 { max-width: 560px; margin: 10px 0 14px; font: 600 clamp(2rem, 4.5vw, 4.4rem)/.98 Georgia, serif; letter-spacing: -.055em; }
+    .promise-card p { max-width: 560px; margin-bottom: 0; color: var(--muted); }
+    .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .principle { padding: 22px; border: 1px solid var(--line); border-radius: 12px; }
+    .principle strong { display: block; margin-bottom: 22px; color: var(--gold); font: 800 1rem "Courier New", monospace; }
+    .principle h3 { margin-bottom: 6px; font-size: 1rem; }
+    .principle p { margin: 0; color: var(--muted); font-size: .9rem; }
+    section { padding: 94px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 26px; }
+    .section-head h2 { margin: 8px 0 0; font: 600 clamp(2.3rem, 5vw, 5rem)/.95 Georgia, serif; letter-spacing: -.06em; }
+    .section-head > p { max-width: 390px; margin: 0; color: var(--muted); }
+    .product { display: grid; grid-template-columns: 1.05fr .95fr; gap: 22px; padding: clamp(24px, 5vw, 58px); border: 1px solid rgba(105, 217, 229, .38); border-radius: 20px; background: linear-gradient(135deg, rgba(15, 38, 47, .8), rgba(21, 18, 13, .72)); }
+    .product h3 { margin: 12px 0 12px; font: 600 clamp(2rem, 4vw, 3.8rem)/1 Georgia, serif; letter-spacing: -.05em; }
+    .product-copy { color: #c2c1bb; }
+    .product-copy p { max-width: 540px; }
+    .product-price { display: inline-flex; align-items: baseline; gap: 10px; margin: 16px 0 24px; }
+    .product-price strong { color: var(--gold); font: 900 2.1rem "Courier New", monospace; }
+    .product-price span { color: var(--muted); }
+    .product-proof { display: grid; gap: 10px; align-content: center; }
+    .proof { padding: 18px; border-left: 3px solid var(--cyan); background: rgba(7, 7, 8, .38); }
+    .proof strong { display: block; margin-bottom: 4px; }
+    .proof span { color: var(--muted); font-size: .9rem; }
+    .fine-print { margin-top: 18px; color: var(--muted); font-size: .78rem; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .step { padding: 24px; border-top: 1px solid var(--gold); background: rgba(255, 255, 255, .025); }
+    .step-number { color: var(--gold); font: 800 .9rem "Courier New", monospace; }
+    .step h3 { margin: 20px 0 8px; }
+    .step p { margin: 0; color: var(--muted); }
+    footer { padding: 38px 0 52px; border-top: 1px solid var(--line); color: var(--muted); }
+    .footer-row { display: flex; justify-content: space-between; gap: 22px; }
+    footer p { margin: 0; font-size: .85rem; }
+    footer a { color: var(--ink); text-decoration: none; }
+    footer a:hover, footer a:focus { color: var(--gold); }
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 28px, 620px); }
+      .nav-links { gap: 12px; }
+      .nav-links a[href="#product"] { display: none; }
+      .promise, .product { grid-template-columns: 1fr; }
+      .principles, .steps { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head > p { margin-top: 16px; }
+      .footer-row { display: block; }
+      footer .footer-links { margin-top: 12px; }
     }
-
-    /* Ambient glow */
-    .glow-top {
-      position: fixed;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60vw;
-      height: 40vh;
-      background: radial-gradient(ellipse, rgba(212, 175, 55, 0.07) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .glow-bottom {
-      position: fixed;
-      bottom: -20%;
-      left: 30%;
-      width: 40vw;
-      height: 30vh;
-      background: radial-gradient(ellipse, rgba(209, 220, 232, 0.04) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Main card */
-    .card {
-      position: relative;
-      z-index: 1;
-      background: var(--glass);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--silver);
-      border-top: 1px solid rgba(236, 242, 248, 0.45);
-      border-radius: 2px;
-      padding: 4rem 3.5rem;
-      max-width: 560px;
-      width: 90%;
-      text-align: center;
-      animation: rise 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      opacity: 0;
-    }
-
-    @keyframes rise {
-      0%   { opacity: 0; transform: translateY(20px) scale(0.97); }
-      70%  { opacity: 1; transform: translateY(-3px) scale(1.01); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* Logo */
-    .logo {
-      font-family: 'Cinzel', serif;
-      font-size: 1.1rem;
-      font-weight: 400;
-      letter-spacing: 0.45em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 2.5rem;
-    }
-
-    /* Gold rule */
-    .gold-rule {
-      width: 48px;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--primary), transparent);
-      margin: 0 auto 2.5rem;
-    }
-
-    /* Headline */
-    .headline {
-      font-family: 'Cinzel', serif;
-      font-size: clamp(1.5rem, 5vw, 2.1rem);
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      line-height: 1.3;
-      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: shine 8s linear infinite;
-      margin-bottom: 1.5rem;
-    }
-
-    @keyframes shine {
-      0%   { background-position: 0% center; }
-      100% { background-position: 200% center; }
-    }
-
-    /* Subtext */
-    .subtext {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 200;
-      font-size: 0.95rem;
-      color: rgba(240, 240, 240, 0.55);
-      line-height: 1.75;
-      margin-bottom: 2.5rem;
-      letter-spacing: 0.01em;
-    }
-
-    .subtext strong {
-      color: rgba(240, 240, 240, 0.8);
-      font-weight: 400;
-    }
-
-    /* Divider */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 auto 2.5rem;
-      width: 80%;
-    }
-
-    /* Form */
-    .notify-label {
-      font-size: 0.7rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 1rem;
-      display: block;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    input[type="email"] {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border);
-      border-radius: 1px;
-      color: #f0f0f0;
-      font-family: 'Outfit', sans-serif;
-      font-size: 0.875rem;
-      padding: 0.75rem 1rem;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-
-    input[type="email"]::placeholder {
-      color: rgba(255,255,255,0.2);
-    }
-
-    input[type="email"]:focus {
-      border-color: rgba(212, 175, 55, 0.5);
-    }
-
-    button[type="submit"] {
-      background: var(--primary);
-      color: #030303;
-      border: none;
-      border-radius: 1px;
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      padding: 0.75rem 1.25rem;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.2s;
-      white-space: nowrap;
-    }
-
-    button[type="submit"]:hover {
-      opacity: 0.85;
-      transform: translateY(-1px);
-    }
-
-    .form-status {
-      font-size: 0.75rem;
-      color: rgba(212, 175, 55, 0.7);
-      margin-top: 0.75rem;
-      min-height: 1.2em;
-      letter-spacing: 0.05em;
-    }
-
-    /* Footer note */
-    .footer-note {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1;
-      font-size: 0.65rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.12);
-      white-space: nowrap;
-    }
-
-    @media (max-width: 480px) {
-      .card { padding: 2.5rem 1.75rem; }
-      .form-row { flex-direction: column; }
-      button[type="submit"] { width: 100%; }
-    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
-
 <body>
-
-  <canvas id="particles"></canvas>
-  <div class="glow-top"></div>
-  <div class="glow-bottom"></div>
-
-  <div class="card">
-    <div class="logo">Axxilak</div>
-    <div class="gold-rule"></div>
-
-    <h1 class="headline">Something extraordinary<br>is being built here.</h1>
-
-    <p class="subtext">
-      <strong>Weblings.</strong> Bespoke digital architectures for the sovereign creative.
-      High-performance. Yours forever. Built with love.
-    </p>
-
-    <hr class="divider">
-
-    <span class="notify-label">Be first to know</span>
-
-    <form
-      class="notify-form"
-      action="https://formspree.io/f/mkojaejr"
-      method="POST"
-      id="notifyForm"
-    >
-      <div class="form-row">
-        <input
-          type="email"
-          name="email"
-          placeholder="your@email.com"
-          required
-          autocomplete="email"
-        />
-        <button type="submit">Notify me</button>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap nav">
+      <a class="brand" href="/">Axxilak</a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#product">CloudSherpa</a>
+        <a href="#principles">Our approach</a>
+        <a href="privacy/">Privacy</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero">
+      <div class="wrap">
+        <div class="eyebrow">Axxilak · Digital tools with a human center</div>
+        <h1>Useful software should feel like it <em>belongs to you.</em></h1>
+        <p class="hero-copy">We make small, carefully built tools for memory, attention, and the meaningful work between them. Clear purpose. Honest boundaries. No rent-seeking by default.</p>
+        <div class="actions">
+          <a class="button primary" href="#product">Meet CloudSherpa</a>
+          <a class="button secondary" href="privacy/">Read our privacy policy</a>
+        </div>
       </div>
-      <p class="form-status" id="formStatus"></p>
-    </form>
-  </div>
-
-  <p class="footer-note">Axxilak &nbsp;·&nbsp; Digital Architectures &nbsp;·&nbsp; Est. 2026</p>
-
-  <script>
-    // Particle field
-    const canvas = document.getElementById('particles');
-    const ctx = canvas.getContext('2d');
-    let W, H, particles;
-
-    function resize() {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-
-    function initParticles() {
-      particles = Array.from({ length: 60 }, () => ({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: Math.random() * 1.2 + 0.3,
-        dx: (Math.random() - 0.5) * 0.18,
-        dy: (Math.random() - 0.5) * 0.18,
-        alpha: Math.random() * 0.35 + 0.05
-      }));
-    }
-
-    function drawParticles() {
-      ctx.clearRect(0, 0, W, H);
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
-        ctx.fill();
-        p.x += p.dx;
-        p.y += p.dy;
-        if (p.x < 0) p.x = W;
-        if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H;
-        if (p.y > H) p.y = 0;
-      }
-      requestAnimationFrame(drawParticles);
-    }
-
-    resize();
-    initParticles();
-    drawParticles();
-    window.addEventListener('resize', () => { resize(); initParticles(); });
-
-    // Form — AJAX submit to stay on page
-    const form = document.getElementById('notifyForm');
-    const status = document.getElementById('formStatus');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      status.textContent = 'Sending…';
-      try {
-        const res = await fetch(form.action, {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
-        });
-        if (res.ok) {
-          status.textContent = 'You\'re on the list. We\'ll find you when it\'s ready.';
-          form.reset();
-        } else {
-          status.textContent = 'Something went wrong. Try again or email us directly.';
-        }
-      } catch {
-        status.textContent = 'Could not send. Check your connection.';
-      }
-    });
-  </script>
-
+    </section>
+    <section id="principles">
+      <div class="wrap">
+        <div class="promise">
+          <article class="promise-card">
+            <div class="eyebrow">The standard</div>
+            <h2>Build something worth keeping.</h2>
+            <p>Our products should be understandable, useful, and respectful of the person using them. We would rather ship one honest capability than a crowded promise.</p>
+          </article>
+          <div class="principles">
+            <article class="principle"><strong>01</strong><h3>Useful first</h3><p>Every feature has a job, and every job should be visible to the person using it.</p></article>
+            <article class="principle"><strong>02</strong><h3>Local where possible</h3><p>Your work should not leave your machine merely because an app was built with a network.</p></article>
+            <article class="principle"><strong>03</strong><h3>Truth in the handoff</h3><p>We separate what is built, what is tested, and what is still being made.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="product">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Available now</div><h2>One useful thing.</h2></div>
+          <p>CloudSherpa gives your browser a private, searchable memory for websites you want to remember.</p>
+        </div>
+        <article class="product">
+          <div class="product-copy">
+            <div class="eyebrow">CloudSherpa · Browser memory</div>
+            <h3>Find the good pages again.</h3>
+            <p>Save a website with a rating and notes. CloudSherpa brings that record back into your search results, so familiar resources stay recognizable when you encounter them again.</p>
+            <div class="product-price"><strong>$12</strong><span>one time</span></div>
+            <div class="actions"><a class="button primary" href="https://axxilak.gumroad.com/l/cloudsherpa">Get CloudSherpa</a><a class="button secondary" href="privacy/">Privacy details</a></div>
+            <p class="fine-print">Private mode stores your library in this browser. No account or subscription is required for the extension itself.</p>
+          </div>
+          <div class="product-proof" aria-label="CloudSherpa product details">
+            <div class="proof"><strong>Remember once</strong><span>Keep a page with its rating, notes, category, and favorite state.</span></div>
+            <div class="proof"><strong>Search it later</strong><span>Find saved records by title, URL, category, notes, or rating.</span></div>
+            <div class="proof"><strong>Keep ownership local</strong><span>Your private library stays in your browser unless you explicitly choose the optional local companion.</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+    <section>
+      <div class="wrap">
+        <div class="section-head"><div><div class="eyebrow">The rhythm</div><h2>Small steps. Real memory.</h2></div></div>
+        <div class="steps">
+          <article class="step"><div class="step-number">01</div><h3>Notice something useful</h3><p>Keep the page that earned your attention instead of trusting yourself to rediscover it later.</p></article>
+          <article class="step"><div class="step-number">02</div><h3>Give it context</h3><p>A rating and a note turn a browser visit into a piece of personal knowledge.</p></article>
+          <article class="step"><div class="step-number">03</div><h3>Meet it again</h3><p>When search brings the page back, your own memory is there with it.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap footer-row">
+      <p>Axxilak · Digital tools with a human center · Est. 2026</p>
+      <p class="footer-links"><a href="privacy/">Privacy policy</a> · <a href="https://axxilak.gumroad.com/l/cloudsherpa">CloudSherpa</a></p>
+    </div>
+  </footer>
 </body>
 </html>
