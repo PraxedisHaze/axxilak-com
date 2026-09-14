@@ -1,6 +1,6 @@
 import { MagnifyingGlass } from './lens-ui.js?v=editor-20260729-crosshair1';
-import ElementDetector from './elementDetector.js?v=editor-20260806-gallery-image-select-fix1';
-import { ToolPalette } from './tool-palette.js?v=editor-20260806-standby-freeze-fix1';
+import ElementDetector from './elementDetector.js?v=editor-20260805-mixed-text-parent1';
+import { ToolPalette } from './tool-palette.js?v=editor-20260805-mobile-standby1';
 
 export default class MagnifyingGlassInspector {
     constructor(weblingName = null) {
@@ -302,12 +302,6 @@ export default class MagnifyingGlassInspector {
                 return;
             }
 
-            if (property === 'delete') {
-                const target = value || this.palette.currentElement;
-                if (!target || !confirm('Delete this item permanently?')) return;
-                this.applyEdit(target, 'delete', true);
-                return;
-            }
             // Session control actions
             if (property === 'save-session') {
                 this._saveEditSession();
@@ -1002,15 +996,7 @@ export default class MagnifyingGlassInspector {
         const handler = btn.getAttribute('data-handler') || '';
         const isThemeToggle = handler.startsWith('toggleTheme');
         const isEditToggle = handler.startsWith('toggleEditMode');
-        // Nav label pencils (index.html's initNavLabelEditing/startNavLabelEdit)
-        // are their own separate, minimal editor - plain contenteditable, no
-        // editSession involved - and stay visible throughout edit mode (CSS
-        // gates them on body.edit-mode, not the per-session ax-editing class).
-        // They were missing from this list, so the lockdown overlay swallowed
-        // every click on them whenever a different element's session was open,
-        // with no error and no visible feedback.
-        const isNavPencil = btn.classList.contains('nav-edit-pencil');
-        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle || isEditToggle || isNavPencil;
+        return btn.id === 'edit-mode-btn' || btn.id.startsWith('toolbar-') || !!btn.closest('#palette-container') || isThemeToggle || isEditToggle;
     }
 
     _disableNavButtons() {
@@ -1413,18 +1399,8 @@ export default class MagnifyingGlassInspector {
             const newPos = currentPos === 'static' ? 'relative' : currentPos;
             el.style.position = newPos;
             el.style.zIndex = value;
-        } else if (property === 'transform') {
-            el.style.setProperty('transform', value, 'important');
         } else {
             el.style[property] = value;
-            // Same fixed-line-height trap as applyEdit() below: Tailwind's
-            // text-* classes pair a fixed line-height with each font-size
-            // step, so scaling font-size alone during live preview still
-            // overlaps until Save calls applyEdit. Force it here too.
-            if (property === 'fontSize') {
-                el.style.lineHeight = '1.5';
-                this.editSession.pendingChanges['lineHeight'] = '1.5';
-            }
         }
     }
 
@@ -1457,25 +1433,7 @@ export default class MagnifyingGlassInspector {
             if (this.detector._isEditable(clickedElement)) break;
             clickedElement = clickedElement.parentElement;
         }
-
-        // Fallback only - the walk above already succeeds on its own for a
-        // precise click directly on real caption text (a <span> with its own
-        // text passes _isEditable immediately, no redirect needed). This only
-        // kicks in when that walk found nothing at all: a click that landed
-        // on empty space within a hover-reveal overlay (opacity-0, group-
-        // hover-only) sitting on top of an <img> for hit-testing. Mirrors
-        // resolveTextSibling in reverse - that walk only looks UP the DOM
-        // tree, never sideways, so the image (a sibling of the overlay, not
-        // an ancestor of anything in that chain) could never be reached by a
-        // real click on such an overlay at all without this.
-        if (!clickedElement || clickedElement === document.body) {
-            const revealOverlay = rawTarget.closest ? rawTarget.closest('.opacity-0') : null;
-            const imgSibling = revealOverlay && revealOverlay.parentElement
-                ? Array.from(revealOverlay.parentElement.children).find(c => c.tagName === 'IMG')
-                : null;
-            if (!imgSibling) return false;
-            clickedElement = imgSibling;
-        }
+        if (!clickedElement || clickedElement === document.body) return false;
 
         clickedElement = this.detector.resolveMixedTextParent(this.detector.resolveTextSibling(clickedElement));
         if (!clickedElement.dataset.axId) {
@@ -2028,20 +1986,16 @@ export default class MagnifyingGlassInspector {
             if (!this.edits[selector]) this.edits[selector] = {};
             this.edits[selector]['deleted'] = true;
             this.saveEdits();
-            // Delete is distinct from Close/Cancel: it removes this item,
-            // then returns the editor to standby for the next selection.
+            // The deleted element is often the one the active edit session is
+            // pointed at. Without tearing the session down here, the lockdown
+            // overlay, scroll lock, and nav-button disable all stay stuck on
+            // a session that now references a detached node.
             if (this.editSession.active && this.editSession.element === el) {
                 this._endEditSession();
-                if (this.isActive) {
-                    this.activate();
-                    document.body.classList.add('edit-mode');
-                    if (typeof window.__apexSetEditModeState === 'function') {
-                        window.__apexSetEditModeState(true);
-                    }
-                }
             }
             return;
         }
+
         if (property === 'textContent') {
             this.detector._setTextNodes(el, value);
             el.style.whiteSpace = typeof value === 'string' && /\r?\n/.test(value) ? 'pre-wrap' : 'normal';
@@ -2065,17 +2019,6 @@ export default class MagnifyingGlassInspector {
             return;
         } else {
             el.style[property] = value;
-            // Tailwind's text-* utility classes pair each font-size step with a
-            // FIXED line-height (e.g. text-lg = 18px font / 28px line-height).
-            // Scaling font-size alone leaves that fixed line-height behind, so
-            // large custom sizes overlap their own lines. Force a proportional,
-            // unitless line-height whenever font-size is edited so it always
-            // scales with whatever size ends up applied.
-            if (property === 'fontSize') {
-                el.style.lineHeight = '1.5';
-                if (!this.edits[selector]) this.edits[selector] = {};
-                this.edits[selector]['lineHeight'] = '1.5';
-            }
         }
 
         // 5. STORAGE SHIELD: Only save valid data

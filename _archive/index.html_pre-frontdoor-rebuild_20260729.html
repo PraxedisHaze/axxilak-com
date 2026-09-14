@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXXILAK | Something Extraordinary Is Being Built</title>
+  <meta name="description" content="Bespoke portfolio weblings and digital architectures. Designed for the sovereign creative. Coming soon.">
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
+  <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
+  <link rel="apple-touch-icon" href="favicon.png?v=2026020101">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@200;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #d4af37;
+      --primary-dim: rgba(212, 175, 55, 0.15);
+      --bg: #030303;
+      --glass: rgba(16, 16, 16, 0.6);
+      --border: rgba(255, 255, 255, 0.07);
+      --silver: rgba(209, 220, 232, 0.35);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: #f0f0f0;
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    h1, h2, h3, .serif { font-family: 'Cinzel', serif; }
+
+    /* Particle canvas */
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Ambient glow */
+    .glow-top {
+      position: fixed;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60vw;
+      height: 40vh;
+      background: radial-gradient(ellipse, rgba(212, 175, 55, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glow-bottom {
+      position: fixed;
+      bottom: -20%;
+      left: 30%;
+      width: 40vw;
+      height: 30vh;
+      background: radial-gradient(ellipse, rgba(209, 220, 232, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Main card */
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--glass);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--silver);
+      border-top: 1px solid rgba(236, 242, 248, 0.45);
+      border-radius: 2px;
+      padding: 4rem 3.5rem;
+      max-width: 560px;
+      width: 90%;
+      text-align: center;
+      animation: rise 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      opacity: 0;
+    }
+
+    @keyframes rise {
+      0%   { opacity: 0; transform: translateY(20px) scale(0.97); }
+      70%  { opacity: 1; transform: translateY(-3px) scale(1.01); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Logo */
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 2.5rem;
+    }
+
+    /* Gold rule */
+    .gold-rule {
+      width: 48px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--primary), transparent);
+      margin: 0 auto 2.5rem;
+    }
+
+    /* Headline */
+    .headline {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.5rem, 5vw, 2.1rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.3;
+      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: shine 8s linear infinite;
+      margin-bottom: 1.5rem;
+    }
+
+    @keyframes shine {
+      0%   { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* Subtext */
+    .subtext {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 200;
+      font-size: 0.95rem;
+      color: rgba(240, 240, 240, 0.55);
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.01em;
+    }
+
+    .subtext strong {
+      color: rgba(240, 240, 240, 0.8);
+      font-weight: 400;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0 auto 2.5rem;
+      width: 80%;
+    }
+
+    /* Form */
+    .notify-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="email"] {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 1px;
+      color: #f0f0f0;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="email"]::placeholder {
+      color: rgba(255,255,255,0.2);
+    }
+
+    input[type="email"]:focus {
+      border-color: rgba(212, 175, 55, 0.5);
+    }
+
+    button[type="submit"] {
+      background: var(--primary);
+      color: #030303;
+      border: none;
+      border-radius: 1px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+    }
+
+    button[type="submit"]:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    .form-status {
+      font-size: 0.75rem;
+      color: rgba(212, 175, 55, 0.7);
+      margin-top: 0.75rem;
+      min-height: 1.2em;
+      letter-spacing: 0.05em;
+    }
+
+    /* Footer note */
+    .footer-note {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.12);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 2.5rem 1.75rem; }
+      .form-row { flex-direction: column; }
+      button[type="submit"] { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="particles"></canvas>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+
+  <div class="card">
+    <div class="logo">Axxilak</div>
+    <div class="gold-rule"></div>
+
+    <h1 class="headline">Something extraordinary<br>is being built here.</h1>
+
+    <p class="subtext">
+      <strong>Weblings.</strong> Bespoke digital architectures for the sovereign creative.
+      High-performance. Yours forever. Built with love.
+    </p>
+
+    <hr class="divider">
+
+    <span class="notify-label">Be first to know</span>
+
+    <form
+      class="notify-form"
+      action="https://formspree.io/f/mkojaejr"
+      method="POST"
+      id="notifyForm"
+    >
+      <div class="form-row">
+        <input
+          type="email"
+          name="email"
+          placeholder="your@email.com"
+          required
+          autocomplete="email"
+        />
+        <button type="submit">Notify me</button>
+      </div>
+      <p class="form-status" id="formStatus"></p>
+    </form>
+  </div>
+
+  <p class="footer-note">Axxilak &nbsp;·&nbsp; Digital Architectures &nbsp;·&nbsp; Est. 2026</p>
+
+  <script>
+    // Particle field
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles;
+
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function initParticles() {
+      particles = Array.from({ length: 60 }, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.3,
+        dx: (Math.random() - 0.5) * 0.18,
+        dy: (Math.random() - 0.5) * 0.18,
+        alpha: Math.random() * 0.35 + 0.05
+      }));
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, W, H);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(212, 175, 55, ${p.alpha})`;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+      }
+      requestAnimationFrame(drawParticles);
+    }
+
+    resize();
+    initParticles();
+    drawParticles();
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+
+    // Form — AJAX submit to stay on page
+    const form = document.getElementById('notifyForm');
+    const status = document.getElementById('formStatus');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+        if (res.ok) {
+          status.textContent = 'You\'re on the list. We\'ll find you when it\'s ready.';
+          form.reset();
+        } else {
+          status.textContent = 'Something went wrong. Try again or email us directly.';
+        }
+      } catch {
+        status.textContent = 'Could not send. Check your connection.';
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* Particle Dimmer by Axxilak Studios. If this helps your site, please leave this small credit in place. */
+:root {
+  --particle-dimmer-light: #d9fffb;
+  --particle-dimmer-gold: #d4af37;
+  --particle-dimmer-track: rgba(129, 151, 145, .38);
+  --particle-opacity: 1;
+}
+.particle-field {
+  position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%;
+  pointer-events: none; opacity: var(--particle-opacity); transition: opacity .28s ease;
+}
+.particle-dimmer {
+  display: grid; gap: 9px; max-width: 34rem; padding: 16px 18px;
+  border: 1px solid rgba(212,175,55,.38); border-radius: 14px;
+  background: rgba(10,17,16,.75); color: #eafffa;
+}
+.particle-dimmer__row { display:flex; justify-content:space-between; gap:10px; font:800 12px/1.3 system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+.particle-dimmer output { min-width:48px; color:var(--particle-dimmer-gold); text-align:right; }
+.particle-dimmer input { width:100%; height:9px; appearance:none; border-radius:999px; cursor:pointer; background:linear-gradient(to right,var(--particle-dimmer-gold) 0,var(--particle-dimmer-gold) var(--particle-dimmer-value,100%),var(--particle-dimmer-track) var(--particle-dimmer-value,100%),var(--particle-dimmer-track) 100%); }
+.particle-dimmer input::-webkit-slider-thumb { appearance:none; width:18px; height:18px; border:0; border-radius:50%; background:var(--particle-dimmer-gold); box-shadow:0 0 13px rgba(212,175,55,.55); }
+.particle-dimmer input::-moz-range-thumb { width:18px; height:18px; border:0; border-radius:50%; background:var(--particle-dimmer-gold); box-shadow:0 0 13px rgba(212,175,55,.55); }
+@media (prefers-reduced-motion: reduce) { .particle-field { transition:none; } }

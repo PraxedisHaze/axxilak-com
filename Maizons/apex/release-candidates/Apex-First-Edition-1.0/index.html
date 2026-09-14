@@ -404,9 +404,9 @@
 
             <!-- Desktop Menu -->
             <div class="hidden md:flex gap-8 items-center text-sm font-medium">
-                <span class="nav-label-group"><button id="nav-solutions-btn" data-nav-pair="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link hover:text-[var(--accent)] transition">Solutions</button><button class="nav-edit-pencil" data-edit-target="nav-solutions-btn" aria-label="Edit Solutions label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-solutions-btn" data-nav-pair="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link hover:text-[var(--accent)] transition">Solutions</button><button class="nav-edit-pencil" data-edit-target="nav-solutions-btn" aria-label="Edit Solutions label" title="Edit label">&#9998;</button></span>
                 <span class="nav-label-group"><button id="nav-about-btn" data-nav-pair="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link hover:text-[var(--accent)] transition">About</button><button class="nav-edit-pencil" data-edit-target="nav-about-btn" aria-label="Edit About label" title="Edit label">&#9998;</button></span>
-                <span class="nav-label-group"><button id="nav-getstarted-btn" data-nav-pair="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button><button class="nav-edit-pencil" data-edit-target="nav-getstarted-btn" aria-label="Edit Get Started label" title="Edit label">&#9998;</button></span>
+                <span class="nav-label-group"><button id="nav-getstarted-btn" data-nav-pair="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm" style="border: none; cursor: pointer;">Get Started</button><button class="nav-edit-pencil" data-edit-target="nav-getstarted-btn" aria-label="Edit Get Started label" title="Edit label">&#9998;</button></span>
                 <button data-handler="toggleTheme()" class="theme-toggle" aria-label="Toggle Dark Mode">
                     <img id="theme-icon" src="icons/sun.svg" alt="Toggle theme" width="24" height="24">
                 </button>
@@ -428,9 +428,9 @@
         <!-- Mobile Menu Dropdown -->
         <div id="mobile-menu"
             class="hidden md:hidden absolute w-full bg-white border-b border-zinc-200 p-4 flex flex-col gap-4 shadow-xl">
-            <button id="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
+            <button id="nav-solutions-btn-mobile" data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">Solutions</button>
             <button id="nav-about-btn-mobile" data-handler="scrollTo('#about-text')" class="btn-link text-sm font-medium hover:text-[var(--accent)] text-left">About</button>
-            <button id="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
+            <button id="nav-getstarted-btn-mobile" data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm text-center" style="border: none; cursor: pointer; width: 100%;">Get Started</button>
         </div>
     </nav>
 
@@ -457,8 +457,8 @@
                 Built for speed, optimized for conversion, crystallized for the future.
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
-                <button data-handler="scrollTo('#contact')" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize Project</button>
-                <button data-handler="scrollTo('#solutions')" class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View Solutions</button>
+                <button data-handler="scrollTo('#contact')" data-ax-editable="true" class="btn-apex rounded-sm text-lg shadow-lg shadow-blue-500/20" style="border: none; cursor: pointer;">Initialize Project</button>
+                <button data-handler="scrollTo('#solutions')" data-ax-editable="true" class="px-8 py-3 border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 transition rounded-sm text-lg font-medium dark-theme-button">View Solutions</button>
             </div>
         </div>
     </header>
@@ -689,7 +689,7 @@
                 <div class="flex flex-col gap-6">
                     <div class="text-xs font-bold uppercase tracking-widest text-zinc-500"><span class="apex-stat-text">Navigation</span></div>
                     <nav class="flex flex-col gap-4">
-                        <button data-handler="scrollTo('#solutions')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
+                        <button data-handler="scrollTo('#solutions')" data-ax-editable="true" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">Solutions</button>
                         <button data-handler="scrollTo('#about-text')" class="btn-link text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left">About</button>
                         <a href="https://axxilak.com" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left" data-ax-locked="true">Axxilak.com</a>
                         <a href="/free-stuff.html" class="text-sm text-zinc-400 hover:text-[var(--accent)] transition-colors text-left" data-ax-locked="true">Free Stuff</a>
@@ -830,14 +830,9 @@
         }
 
         /* Only the top bar moves the editor; fields and controls keep their
-           normal precise cursors. tool-palette.js injects its own runtime
-           stylesheet with `#palette-container { cursor: default !important; }`
-           (to give the editor a normal pointer everywhere by default) - that
-           !important always wins over a plain, non-!important rule here
-           regardless of selector specificity, so the drag handle silently
-           never showed its grab cursor until these got !important too. */
-        #palette-container .palette-header { cursor: grab !important; }
-        #palette-container .palette-header:active { cursor: grabbing !important; }
+           normal precise cursors. */
+        #palette-container .palette-header { cursor: grab; }
+        #palette-container .palette-header:active { cursor: grabbing; }
         #palette-container button:not(:disabled) { cursor: pointer; }
         #palette-container input,
         #palette-container textarea,
@@ -1103,17 +1098,6 @@
             border-color: #d9c08a !important;
         }
 
-        /* Advanced selector paths are reference text, not faded decoration. */
-        #palette-container .palette-selector-value {
-            color: #e4e4e7;
-            background: #111827;
-            border: 1px solid #3f3f46;
-        }
-        [data-theme="light"] #palette-container .palette-selector-value {
-            color: #111111 !important;
-            background: #fffaf0 !important;
-            border-color: #bfa56a !important;
-        }
         /* Tool Palette Control Styles */
         .tool-palette {
             font-family: Inter, sans-serif;
@@ -2182,17 +2166,17 @@
             <div class="text-[var(--accent)] font-mono text-xs tracking-widest mb-8 relative z-10"><span class="apex-stat-text">PROFESSIONAL LINE ART ENGINE</span></div>
             
             <div class="flex justify-center items-center gap-4 mb-8 relative z-10">
-                <span class="text-4xl font-extrabold text-white">FREE ONLINE</span>
+                <span class="text-zinc-500 line-through text-2xl font-light">$0.99</span>
+                <span class="text-4xl font-extrabold text-white">FREE</span>
             </div>
             
             <p class="text-zinc-400 text-sm mb-8 leading-relaxed relative z-10">
-                Use Edge Electrify here in your browser at no cost. Want a copy you can keep and use offline? Own it for $1.
+                This premium add-on is unlocked and included perpetually with your Axxilak APEX license.
             </p>
             
             <button onclick="window.openEdgeElectrify()" class="w-full btn-apex py-4 rounded-sm text-sm font-bold relative z-10 tracking-widest uppercase shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:shadow-[0_0_30px_rgba(37,99,235,0.6)]">
-                Use online — free
+                Initialize Engine
             </button>
-            <a href="https://axxilak.gumroad.com/l/edge_electrify_and_line_art" target="_blank" rel="noopener noreferrer" class="block mt-3 text-xs font-mono text-[var(--accent)] hover:text-white relative z-10 transition-colors">[ OWN OFFLINE — $1 ]</a>
             <button onclick="window.closeEdgeUpsell()" class="mt-4 text-xs font-mono text-zinc-600 hover:text-zinc-400 relative z-10 transition-colors">
                 [ ABORT ]
             </button>
@@ -2208,7 +2192,7 @@
             </span>
             <button onclick="window.closeEdgeElectrify()" class="text-zinc-400 hover:text-white transition-colors font-mono text-sm tracking-widest">[ BACK TO APEX ]</button>
         </div>
-        <iframe id="edge-electrify-frame" data-src="https://keystoneconstellation.com/applings/edge_electrify/index.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
+        <iframe src="https://keystoneconstellation.com/applings/edge_electrify/index.html" class="w-full flex-1 border-none bg-zinc-950" title="Edge Electrify"></iframe>
     </div>
 
     </div><!-- END apex-3d-scene -->
@@ -2225,7 +2209,7 @@
     </script>
 
     <script type="module">
-        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260806-fontsize-lineheight-fix2';
+        import MagnifyingGlassInspector from './js/magnifying-glass-inspector.js?v=editor-20260805-cancel-reset1';
         import './js/handler-dispatcher.js?v=editor-20260804-mobileheader3';
 
         // Edit Mode State: Inspector can toggle this to disable buttons
@@ -2439,7 +2423,6 @@
         }
         const edgeUpsellModal = document.getElementById('edge-upsell-modal');
         const edgeFullscreenContainer = document.getElementById('edge-fullscreen-container');
-        const edgeElectrifyFrame = document.getElementById('edge-electrify-frame');
         let edgeOverlayHistoryOpen = false;
 
         function openEdgeUpsell() {
@@ -2457,9 +2440,6 @@
         function openEdgeElectrify() {
             closeEdgeUpsell();
             if (!edgeFullscreenContainer) return;
-            if (edgeElectrifyFrame && !edgeElectrifyFrame.getAttribute('src')) {
-                edgeElectrifyFrame.setAttribute('src', edgeElectrifyFrame.dataset.src);
-            }
             edgeFullscreenContainer.classList.remove('hidden');
             edgeFullscreenContainer.classList.add('flex');
             if (!edgeOverlayHistoryOpen) {

@@ -120,3 +120,38 @@ Love first. When you buy an Axxilak Webling, you're not buying software. You're 
 - **WHY**: Timothy asked to get axxilak live. Mid-session, a real trust breach happened: I wrote "Checked — no [prior working version exists]" without having actually run `git log` — it turned out a prior front-door rebuild existed and had been reverted (`fc90693 Revert homepage to coming-soon placeholder`). Timothy named the pattern directly: verification claimed but not performed, repeatedly, across whatever session happens to be running, with no session ever held accountable for the last one's shortcuts. `LAUNCH_PROCEDURE.md` exists so the next session — mine or not — follows a real, checked, one-step-at-a-time process instead of repeating this. `checkout.html` (fake — disabled card field, JS `alert()` posing as a real purchase) and `customer_dashboard.html` (fabricated purchase history) were found and deliberately left unlinked. `about.html`'s fabricated stats ("500+ Creators," "$2.4M+ Revenue") were found and flagged, not yet fixed.
 - **VERIFIED**: Final 4-link nav state loaded live on `http://localhost:8878/index.html`, zero console errors, exact `git diff` shown to Timothy and matched against the rendered page text.
 - **NOT DONE**: Not pushed to GitHub. Nothing here is live on axxilak.com yet.
+
+## 2026-08-24 - Public Privacy & Disclaimers route for CloudSherpa Store submission
+
+WHO: Vale / Codex, at Timothy's explicit direction.
+
+WHY: `https://axxilak.com/privacy` was the intended public policy address for CloudSherpa's Chrome Web Store listing, but the live route returned 404 because the static site had no `privacy/` page. A public Store disclosure must point to a real, truthful page.
+
+CHANGED: Added `privacy/index.html` as the Axxilak Privacy & Disclaimers page. It accurately covers the Axxilak Formspree email form, CloudSherpa's local browser storage, broad page/search feature access, same-computer-only Shared Local Library, explicit Gumroad license verification, third-party boundaries, user controls, and support contact. Added one `Privacy` link to the root Axxilak header. No checkout, product behavior, customer data, or third-party configuration changed.
+
+VERIFY BEFORE DEPLOY: confirm `privacy/index.html` exists, `index.html` links to `privacy/`, `git diff --check` passes, and the deployed `https://axxilak.com/privacy/` returns 200 before entering it in Chrome Web Store.
+
+### 2026-08-25 - Voice correction
+
+The first privacy-page draft was factually accurate but too generic for Axxilak. At Timothy's direction, the page now leads with the house promise: no silent collection, explicit yes before more data, and tools made for people rather than extraction. The CloudSherpa disclosures remain specific and unchanged in substance.
+
+Added a small kitten sign-off at Timothy's direction: a harmless, gentle visual endpoint with no data collection or external asset.
+### 2026-08-25 - Original-script correction
+
+Timothy rejected copy that explained its own warmth as performative. The page now follows the original 99CentApps privacy-policy structure and plain language, adapted only for Axxilak and CloudSherpa's actual disclosures. The final kitten is preceded by Timothy's intentionally candid brownie-points line and followed by his invitation to call someone loved; the point is honest vulnerability, not concealed persuasion.
+
+## 2026-09-14 - Revenue storefront placement and honest Bolt pricing
+
+WHY: Timothy clarified that Axxilak is the higher-value storefront and that displayed prices should state the real amount instead of using nine-nine endings.
+
+CHANGED: Added the Anothen Bolt Engine desktop/mobile bundle to the local Axxilak homepage, added the verified free Chrome install path for CloudSherpa, and rounded Bolt display pricing to $5.00 while the Gumroad owner dashboard remains awaiting sign-in.
+
+BOUNDARY: Local preview only. No public deployment, Gumroad account change, DNS change, or package change occurred.
+
+PROOF: Axxilak local page at port 8878 rendered both product cards and the exact $5.00 label; Gumroad checkout is the existing hosted bundle URL.
+
+## 2026-09-14 - Gumroad Bolt price aligned
+
+CHANGED: Updated the published Anothen Bolt Engine — Desktop + Mobile Gumroad bundle so its minimum price is $5.00. The public checkout now shows $5+ with the former $5.99 total crossed out; this matches the local Axxilak card's honest $5.00 intro price.
+
+PROOF: Gumroad owner editor showed “Changes saved!” and the public checkout rendered $5+. No Axxilak public deployment was performed.

@@ -1,0 +1,111 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]: "> INITIALIZING APEX PROTOCOL..."
+  - navigation [ref=e5]:
+    - generic [ref=e6]:
+      - link "APEX" [ref=e7] [cursor=pointer]:
+        - /url: "#"
+      - generic [ref=e10]:
+        - button "Solutions" [ref=e12] [cursor=pointer]
+        - button "About" [ref=e14] [cursor=pointer]
+        - button "Get Started" [ref=e16] [cursor=pointer]
+        - button "Toggle Dark Mode" [ref=e17] [cursor=pointer]:
+          - img "Toggle theme" [ref=e18]
+        - button "Edit Mode" [ref=e19] [cursor=pointer]: EDIT
+  - generic [ref=e20]:
+    - banner [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: SYSTEM ONLINE v2.0
+        - heading "Scale Your Digital Authority." [level=1] [ref=e26]
+        - paragraph [ref=e27]: High-performance architecture for startups and consultants. Built for speed, optimized for conversion, crystallized for the future.
+        - generic [ref=e28]:
+          - button "Initialize Project" [ref=e29] [cursor=pointer]
+          - button "View Solutions" [ref=e30] [cursor=pointer]
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: 100%
+        - generic [ref=e35]: Precision
+      - generic [ref=e36]:
+        - generic [ref=e37]: 0.2s
+        - generic [ref=e38]: Latency
+      - generic [ref=e39]:
+        - generic [ref=e40]: 500+
+        - generic [ref=e41]: Deployments
+      - generic [ref=e42]:
+        - generic [ref=e43]: ∞
+        - generic [ref=e44]: Scalability
+    - generic [ref=e46]:
+      - generic [ref=e47]:
+        - heading "Fast-Track Build" [level=3] [ref=e51]
+        - paragraph [ref=e52]: Rapid deployment architecture for time-sensitive missions. No bloat, just performance.
+      - generic [ref=e53]:
+        - heading "Sovereign Security" [level=3] [ref=e56]
+        - paragraph [ref=e57]: Built-in privacy and data integrity. Your presence is your own, locked and secure.
+      - generic [ref=e58]:
+        - heading "Global Reach" [level=3] [ref=e61]
+        - paragraph [ref=e62]: Responsive across all devices and regions. Your authority knows no boundaries.
+      - generic [ref=e63]:
+        - heading "Cloud Infrastructure" [level=3] [ref=e66]
+        - paragraph [ref=e67]: Elastic scaling that breathes with your traffic. Always up, always ready.
+      - generic [ref=e68]:
+        - heading "Advanced Analytics" [level=3] [ref=e71]
+        - paragraph [ref=e72]: Deep insights into every interaction. Data isn't just numbers; it's authority.
+      - generic [ref=e73]:
+        - heading "AI Integration" [level=3] [ref=e76]
+        - paragraph [ref=e77]: Neural-optimized workflows for the next era of enterprise. Intelligence is the baseline.
+    - generic [ref=e79]:
+      - generic [ref=e80]:
+        - heading "The Architect." [level=2] [ref=e81]
+        - paragraph [ref=e82]: We do not build websites. We build infrastructure for authority. Apex was born from the need for a digital presence that moves as fast as you do. Every pixel is calculated. Every interaction is optimized.
+        - paragraph [ref=e83]: Designed for founders, consultants, and visionaries who demand precision.
+      - img "High-Performance Architecture" [ref=e86]
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - img "Infrastructure A" [ref=e90]
+        - generic [ref=e91]: Neural Grid
+      - generic [ref=e93]:
+        - img "Infrastructure B" [ref=e94]
+        - generic [ref=e95]: Sovereign Core
+      - generic [ref=e97]:
+        - img "Infrastructure C" [ref=e98]
+        - generic [ref=e99]: Apex Logic
+    - contentinfo [ref=e101]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: Initialize Partnership
+          - generic [ref=e105]:
+            - textbox "Full Name" [ref=e106]
+            - textbox "Email Address" [ref=e107]
+            - textbox "Your Mission Requirements" [ref=e108]
+            - button "Initiate Protocol" [ref=e109] [cursor=pointer]
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - link "APEX ." [ref=e112]:
+              - /url: "#"
+              - generic [ref=e114]: APEX
+              - generic [ref=e115]: .
+            - paragraph [ref=e116]: Elevating digital presence for the world's most ambitious leaders. High-performance architecture for startups and consultants.
+            - generic [ref=e117]:
+              - generic [ref=e118]: Version 2.0.4
+              - generic [ref=e119]: Axxilak Sovereign
+          - generic [ref=e120]:
+            - generic [ref=e121]: Navigation
+            - navigation [ref=e122]:
+              - button "Solutions" [ref=e123] [cursor=pointer]
+              - button "About" [ref=e124] [cursor=pointer]
+              - link "Axxilak.com" [ref=e125] [cursor=pointer]:
+                - /url: https://axxilak.com
+              - link "Free Stuff" [ref=e126] [cursor=pointer]:
+                - /url: /free-stuff.html
+      - generic [ref=e128]:
+        - generic [ref=e129]: © 2026 Axxilak
+        - link "Powered by Axxilak" [ref=e130] [cursor=pointer]:
+          - /url: https://axxilak.com
+        - link "Free Stuff" [ref=e133]:
+          - /url: /free-stuff.html
+    - generic [ref=e134] [cursor=pointer]:
+      - img "Edge Electrify" [ref=e135]
+      - generic [ref=e136]: ELECTRIFY
+  - link "Visit Axxilak.com" [ref=e137] [cursor=pointer]:
+    - /url: https://axxilak.com
+    - generic [ref=e138]: "?"
+    - generic [ref=e139]: AXXILAK.COM

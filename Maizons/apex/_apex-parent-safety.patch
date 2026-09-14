@@ -1,0 +1,15 @@
+diff --git a/Maizons/apex/js/magnifying-glass-inspector.js b/Maizons/apex/js/magnifying-glass-inspector.js
+--- a/Maizons/apex/js/magnifying-glass-inspector.js
++++ b/Maizons/apex/js/magnifying-glass-inspector.js
+@@ -269,8 +269,9 @@ export default class MagnifyingGlassInspector {
+             if (property === 'select-parent') {
+                 const parent = value && value.parentElement;
+                 if (!parent || parent === document.body || this.detector._isInternal(parent)) return;
+-                if (this.editSession.active) this._cancelEditSession();
+-                this._startEditSession(parent);
++                // Follow the same switch path as a real content click so
++                // pending work gets the Save/Discard decision instead of a
++                // silent cancel.
++                this._processContentClick(parent);
+                 return;
+             }
