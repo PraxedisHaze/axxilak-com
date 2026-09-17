@@ -68,7 +68,7 @@
     @keyframes chase { to { background-position: -240px 0; } }
 
     /* â”€â”€ HEADER â”€â”€ */
-    .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: rgba(11, 7, 16, .86); backdrop-filter: blur(14px); }
+    .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: var(--ink); background: color-mix(in srgb, var(--ink) 88%, transparent); backdrop-filter: blur(14px); }
     .nav { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
     .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--vellum); text-decoration: none; font-family: var(--mono); font-size: .95rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
     .brand-mark { width: 10px; height: 10px; border-radius: 50%; background: var(--magenta); box-shadow: 0 0 12px var(--magenta), 0 0 24px var(--magenta); animation: pulse-dot 1.6s ease-in-out infinite; }
@@ -210,7 +210,7 @@
     .hud-controls { display: flex; align-items: center; gap: 16px; }
     .hud-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 999px;
+      background: rgba(255,255,255,.04); background: color-mix(in srgb, var(--vellum) 8%, transparent); border: 1px solid var(--line); border-radius: 999px;
       color: var(--vellum-dim); font-size: .78rem; padding: 7px 12px; cursor: pointer;
       transition: border-color .15s ease, color .15s ease;
     }
@@ -228,11 +228,11 @@
     #theme-slider::-webkit-slider-thumb {
       appearance: none; -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
       background: var(--gold); box-shadow: 0 0 8px rgba(255,201,60,.6); cursor: pointer;
-      border: 2px solid var(--ink);
+      border: 2px solid var(--vellum);
     }
     #theme-slider::-moz-range-thumb {
       width: 16px; height: 16px; border-radius: 50%; background: var(--gold);
-      box-shadow: 0 0 8px rgba(255,201,60,.6); cursor: pointer; border: 2px solid var(--ink);
+      box-shadow: 0 0 8px rgba(255,201,60,.6); cursor: pointer; border: 2px solid var(--vellum);
     }
     @media (max-width: 760px) {
       .hud-controls { gap: 8px; }
@@ -268,12 +268,12 @@
       </nav>
       <div class="hud-controls">
         <button class="hud-btn" id="motion-toggle" type="button" aria-pressed="false" title="Pause all page animations">
-          <span aria-hidden="true">â¸</span><span class="hud-btn-label">Pause motion</span>
+          <span aria-hidden="true">&#x23F8;</span><span class="hud-btn-label">Pause motion</span>
         </button>
         <div class="theme-slider-wrap">
-          <span class="hud-icon" aria-hidden="true">â˜¾</span>
+          <span class="hud-icon" aria-hidden="true">&#x263E;</span>
           <input type="range" id="theme-slider" min="0" max="100" value="0" aria-label="Brighten or dim the page, dark to light">
-          <span class="hud-icon" aria-hidden="true">â˜€</span>
+          <span class="hud-icon" aria-hidden="true">&#x2600;</span>
         </div>
       </div>
     </div>
@@ -438,7 +438,7 @@
         document.body.classList.toggle('motion-paused', paused);
         btn.setAttribute('aria-pressed', String(paused));
         label.textContent = paused ? 'Resume motion' : 'Pause motion';
-        icon.textContent = paused ? 'â–¶' : 'â¸';
+        icon.textContent = paused ? '\u25B6' : '\u23F8';
         document.querySelectorAll('.plate-media video').forEach(v => {
           if (paused) v.pause(); else if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) v.play().catch(() => {});
         });
@@ -477,6 +477,8 @@
         root.style.setProperty('--ink-2', `rgb(${mix(DARK.ink2, LIGHT.ink2, t)})`);
         root.style.setProperty('--vellum', `rgb(${mix(DARK.vellum, LIGHT.vellum, t)})`);
         root.style.setProperty('--vellum-dim', `rgb(${mix(DARK.vellumDim, LIGHT.vellumDim, t)})`);
+        root.style.setProperty('--line', `rgba(${mix(DARK.vellum, LIGHT.vellum, t)},${0.14 + (0.06 * t)})`);
+        root.style.setProperty('--line-bright', `rgba(${mix(DARK.gold, LIGHT.gold, t)},.5)`);
         root.style.setProperty('--gold', `rgb(${mix(DARK.gold, LIGHT.gold, t)})`);
         root.style.setProperty('--cyan', `rgb(${mix(DARK.cyan, LIGHT.cyan, t)})`);
         root.style.setProperty('--magenta', `rgb(${mix(DARK.magenta, LIGHT.magenta, t)})`);
