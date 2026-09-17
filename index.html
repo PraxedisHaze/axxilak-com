@@ -3,7 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Axxilak builds small instruments that work for you, not for whoever bought your data. Four tools you own outright — CloudSherpa, ScreenToAI, Anothen Bolt Engine, Edge Electrify.">
+    <meta name="description" content="Axxilak Studios is an app store and custom app design offering: small tools you own outright, plus bespoke instruments built around a real need.">
+  <link rel="canonical" href="https://axxilak.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://axxilak.com/">
+  <meta property="og:title" content="Axxilak Studios | Instruments, not accounts">
+  <meta property="og:description" content="An app store and custom app design studio for useful tools you can own.">
+  <meta property="og:image" content="https://axxilak.com/media/axxilak-social-preview.svg">
+  <meta property="og:image:alt" content="Axxilak Studios � Instruments, not accounts">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Axxilak Studios | Instruments, not accounts">
+  <meta name="twitter:description" content="An app store and custom app design studio for useful tools you can own.">
+  <meta name="twitter:image" content="https://axxilak.com/media/axxilak-social-preview.svg">
   <title>Axxilak | Instruments, not accounts</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
   <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
@@ -87,6 +98,7 @@
       text-shadow: 0 0 40px rgba(255,46,154,.25);
     }
     .hero h1 em { color: var(--magenta-bright); font-style: italic; font-weight: 600; text-shadow: 0 0 24px rgba(255,107,193,.55); }
+    .hero-fact { max-width: 620px; margin: 0 0 12px; color: var(--gold); font-family: var(--mono); font-size: .82rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
     .hero-copy { max-width: 620px; color: var(--vellum-dim); font-size: clamp(1.02rem, 1.6vw, 1.18rem); }
     .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
     .button {
@@ -194,28 +206,6 @@
       * { transition: none !important; }
     }
 
-    /* ── POLYMORPH EDITOR (reskinned) ── */
-    [data-ax-id] { cursor: default; }
-    body.ax-editing [data-ax-id] { cursor: pointer; }
-    body.ax-editing [data-ax-id]:hover { outline: 1px dashed var(--cyan); outline-offset: 3px; }
-    #ax-lockdown-overlay { position: fixed; inset: 0; z-index: 998; background: rgba(0,0,0,.12); display: none; }
-    body.ax-editing #ax-lockdown-overlay { display: block; }
-    #ax-palette {
-      position: fixed; bottom: 20px; right: 20px; width: min(380px, calc(100vw - 40px));
-      background: var(--ink-2); border: 1px solid var(--line-bright); border-radius: 10px;
-      box-shadow: 0 24px 60px rgba(0,0,0,.5); z-index: 1000; padding: 18px; display: none;
-      font-family: var(--body);
-    }
-    #ax-palette.open { display: block; }
-    #ax-palette-label { font-family: var(--mono); font-size: .7rem; color: var(--cyan); margin-bottom: 10px; letter-spacing: .06em; }
-    #ax-editor-area { width: 100%; min-height: 96px; background: var(--ink); color: var(--vellum); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 13px/1.5 var(--mono); resize: vertical; }
-    #ax-palette .actions { margin-top: 12px; gap: 8px; }
-    #ax-palette .button { flex: 1; min-height: 38px; }
-    #ax-toggle {
-      position: fixed; bottom: 20px; left: 20px; z-index: 999;
-      font-family: var(--mono); font-size: .72rem; letter-spacing: .08em;
-    }
-
     /* ── HUD CONTROLS: pause-motion + brighten/dim slider ── */
     .hud-controls { display: flex; align-items: center; gap: 16px; }
     .hud-btn {
@@ -271,7 +261,7 @@
     <div class="wrap nav">
       <span class="brand-spacer" aria-hidden="true" style="width:58px;display:inline-block;"></span>
       <nav class="nav-links" aria-label="Main navigation">
-        <a href="free-stuff.html">Free stuff</a>
+        <a href="free-stuff.html">Free stuff</a><a href="about.html">Studios</a>
         <a href="#instruments">The instruments</a>
         <a href="#refusal">The refusal</a>
         <a href="privacy/">Privacy</a>
@@ -294,11 +284,13 @@
       <div class="wrap">
         <div class="eyebrow">Heresy, practiced daily</div>
         <h1>Your attention is not <em>inventory.</em></h1>
+        <p class="hero-fact">Axxilak Studios is an app store and custom app design offering.</p>
         <p class="hero-copy">Every platform you use was built to sell what it can measure about you. Axxilak builds the opposite kind of thing: four small instruments you own outright, that run on your machine, that answer to you and no one buying access to you.</p>
         <div class="actions">
           <a class="button primary" href="#instruments">Enter the workshop</a>
           <a class="button secondary" href="#refusal">Read the refusal</a>
         </div>
+        <p class="hero-note"><a href="about.html">Need an instrument that does not exist yet? Ask the studio.</a></p>
       </div>
     </section>
 
@@ -313,7 +305,7 @@
       <div class="wrap">
         <div class="section-head">
           <div><div class="eyebrow">The catalog</div><h2>Four instruments.</h2></div>
-          <p>Each one solves a single, specific theft — of your memory, your time, your image, your image again — and hands it back.</p>
+          <p>Each one solves a single, specific theft — of your memory, your time, your image, or your work — and hands it back.</p>
         </div>
 
         <article class="plate rebel" id="cloudsherpa">
@@ -427,133 +419,8 @@
     </div>
   </footer>
 
-  <div id="ax-lockdown-overlay"></div>
-  <div id="ax-palette" role="dialog" aria-label="Edit this text">
-    <div id="ax-palette-label"></div>
-    <textarea id="ax-editor-area"></textarea>
-    <div class="actions">
-      <button class="button primary" id="ax-save" type="button">Save</button>
-      <button class="button secondary" id="ax-cancel" type="button">Cancel</button>
-    </div>
-  </div>
-  <button class="button ghost" id="ax-toggle" type="button" aria-pressed="false">Edit text</button>
-
-  <script>
-    // ── POLYMORPH (reskinned, scoped to real page content only) ──
-    (function () {
-      class PolymorphEngine {
-        constructor(name) {
-          this.name = name;
-          this.active = false;
-          this.edits = new Map();
-          this.isCodeMutating = false;
-          this.storageKey = `${this.name}-edits`;
-        }
-        init() {
-          this.loadEdits();
-          this.initLattice();
-          this.applyEditsToDOM();
-          this.setupObserver();
-          this.setupUI();
-        }
-        initLattice() {
-          const tags = 'h1,h2,h3,p,span,a,button,li';
-          document.querySelectorAll(`main ${tags.replace(/,/g, ', main ')}`).forEach(el => {
-            if (el.closest('#ax-palette') || el.closest('#ax-toggle') || el.dataset.axSkip !== undefined) return;
-            if (!el.dataset.axId) {
-              el.dataset.axId = 'ax-' + Math.random().toString(36).slice(2, 9);
-            }
-          });
-        }
-        sanitize(content) {
-          const div = document.createElement('div');
-          div.textContent = content;
-          const clean = div.innerHTML;
-          const blocked = ['<script', 'javascript:', 'onclick', 'onerror', 'onload'];
-          for (const p of blocked) {
-            if (clean.toLowerCase().includes(p)) return '[blocked]';
-          }
-          return clean;
-        }
-        setupObserver() {
-          this.observer = new MutationObserver(() => {});
-          this.observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-        }
-        mutateDOM(fn) {
-          this.isCodeMutating = true;
-          try { fn(); } finally { this.isCodeMutating = false; }
-        }
-        saveEdit(axId, content) {
-          const clean = this.sanitize(content);
-          this.edits.set(axId, { content: clean, ts: Date.now() });
-          localStorage.setItem(this.storageKey, JSON.stringify(Array.from(this.edits.entries())));
-          this.mutateDOM(() => {
-            const el = document.querySelector(`[data-ax-id="${axId}"]`);
-            if (el) el.textContent = clean;
-          });
-        }
-        loadEdits() {
-          try {
-            const raw = localStorage.getItem(this.storageKey);
-            if (raw) this.edits = new Map(JSON.parse(raw));
-          } catch (e) { this.edits = new Map(); }
-        }
-        applyEditsToDOM() {
-          this.mutateDOM(() => {
-            this.edits.forEach((data, axId) => {
-              const el = document.querySelector(`[data-ax-id="${axId}"]`);
-              if (el) el.textContent = data.content;
-            });
-          });
-        }
-        setupUI() {
-          const toggle = document.getElementById('ax-toggle');
-          const palette = document.getElementById('ax-palette');
-          const label = document.getElementById('ax-palette-label');
-          const textarea = document.getElementById('ax-editor-area');
-
-          document.addEventListener('click', (e) => {
-            if (!this.active) return;
-            const target = e.target.closest('[data-ax-id]');
-            if (target && !target.closest('#ax-palette')) {
-              this.currentId = target.dataset.axId;
-              label.textContent = `Editing: ${target.tagName.toLowerCase()}`;
-              textarea.value = target.textContent;
-              palette.classList.add('open');
-              textarea.focus();
-            }
-          });
-
-          toggle.addEventListener('click', () => {
-            this.active = !this.active;
-            document.body.classList.toggle('ax-editing', this.active);
-            toggle.setAttribute('aria-pressed', String(this.active));
-            toggle.textContent = this.active ? 'Editing on — click text' : 'Edit text';
-            if (!this.active) palette.classList.remove('open');
-          });
-
-          document.getElementById('ax-save').addEventListener('click', () => {
-            if (this.currentId) this.saveEdit(this.currentId, textarea.value);
-            palette.classList.remove('open');
-          });
-          document.getElementById('ax-cancel').addEventListener('click', () => {
-            palette.classList.remove('open');
-          });
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && palette.classList.contains('open')) {
-              palette.classList.remove('open');
-            }
-          });
-        }
-      }
-      window.addEventListener('load', () => {
-        const engine = new PolymorphEngine('axxilak-home');
-        engine.init();
-        window.AxxilakEditor = engine;
-      });
-    })();
-
-    // Pause the Bolt Engine loop for reduced-motion users instead of never starting it —
+    <script>
+// Pause the Bolt Engine loop for reduced-motion users instead of never starting it —
     // still a static first frame, no forced motion.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       document.querySelectorAll('.plate-media video').forEach(v => { v.removeAttribute('autoplay'); v.pause(); });

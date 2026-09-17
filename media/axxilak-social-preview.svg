@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Axxilak Studios - Instruments, not accounts</title>
+  <desc id="desc">An app store and custom app design studio for useful tools you can own.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b0710"/><stop offset=".55" stop-color="#150c22"/><stop offset="1" stop-color="#26102f"/></linearGradient>
+    <radialGradient id="pink"><stop stop-color="#ff2e9a" stop-opacity=".55"/><stop offset="1" stop-color="#ff2e9a" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cyan"><stop stop-color="#00e5ff" stop-opacity=".35"/><stop offset="1" stop-color="#00e5ff" stop-opacity="0"/></radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="12" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="130" cy="100" r="290" fill="url(#pink)"/>
+  <circle cx="1050" cy="70" r="260" fill="url(#cyan)"/>
+  <path d="M0 548h1200" stroke="#ffc93c" stroke-opacity=".38"/>
+  <g transform="translate(86 92)" filter="url(#glow)">
+    <rect width="76" height="76" rx="18" fill="#ff2e9a" fill-opacity=".14" stroke="#ffc93c" stroke-width="2"/>
+    <path d="M38 13l10 17 18 9-18 9-10 18-10-18-18-9 18-9z" fill="none" stroke="#00e5ff" stroke-width="4"/>
+    <circle cx="38" cy="38" r="8" fill="#ffc93c"/>
+  </g>
+  <text x="86" y="278" fill="#ffc93c" font-family="JetBrains Mono, monospace" font-size="19" font-weight="700" letter-spacing="5">AXXILAK STUDIOS</text>
+  <text x="86" y="365" fill="#fdf6ff" font-family="Georgia, serif" font-size="72" font-weight="700">Instruments,</text>
+  <text x="86" y="445" fill="#ff6bc1" font-family="Georgia, serif" font-size="72" font-style="italic" font-weight="700">not accounts.</text>
+  <text x="86" y="523" fill="#cbb8de" font-family="Inter, sans-serif" font-size="24">An app store and custom app design studio for useful tools you can own.</text>
+  <text x="1115" y="570" fill="#00e5ff" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="16" letter-spacing="3">AXXILAK.COM</text>
+</svg>
