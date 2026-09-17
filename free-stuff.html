@@ -418,14 +418,22 @@
     </style>
 </head>
 <body>
+    <a href="/" class="ax-brand-anchor" aria-label="Axxilak home">
+      <img src="/favicon.png" alt="Axxilak" width="42" height="42">
+    </a>
+    <style>
+      .ax-brand-anchor{position:fixed;top:14px;left:20px;z-index:99999;display:block;line-height:0;text-decoration:none;}
+      .ax-brand-anchor img{display:block;width:42px;height:42px;border-radius:10px;}
+      .ax-brand-anchor:hover{opacity:.85;}
+      @media (max-width:640px){.ax-brand-anchor{top:10px;left:12px;}.ax-brand-anchor img{width:34px;height:34px;}}
+    </style>
     <!-- Celebratory Background Canvas -->
     <canvas id="celebrationCanvas"></canvas>
 
     <!-- Navigation Header -->
     <header class="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
         <nav class="flex items-center justify-between px-6 md:px-12 py-6">
-            <a href="index.html" class="flex items-center gap-4 hover:opacity-80 transition group">
-                <img src="favicon.png" alt="Axxilak Logo" class="h-[50px] w-auto drop-shadow-[0_0_15px_rgba(212,175,55,0.6)] group-hover:scale-105 transition duration-500">
+            <a href="index.html" class="flex items-center gap-4 hover:opacity-80 transition group" style="padding-left:58px;">
                 <div class="flex flex-col justify-center items-start animate-blub text-left">
                     <div class="serif font-bold text-2xl tracking-[0.05em] text-white leading-none">
                         AXXILAK <span class="font-light opacity-80">Studios</span>

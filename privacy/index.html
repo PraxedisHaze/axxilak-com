@@ -25,6 +25,15 @@
   </style>
 </head>
 <body>
+  <a href="/" class="ax-brand-anchor" aria-label="Axxilak home">
+    <img src="/favicon.png" alt="Axxilak" width="42" height="42">
+  </a>
+  <style>
+    .ax-brand-anchor{position:fixed;top:14px;left:20px;z-index:99999;display:block;line-height:0;text-decoration:none;}
+    .ax-brand-anchor img{display:block;width:42px;height:42px;border-radius:10px;}
+    .ax-brand-anchor:hover{opacity:.85;}
+    @media (max-width:640px){.ax-brand-anchor{top:10px;left:12px;}.ax-brand-anchor img{width:34px;height:34px;}}
+  </style>
   <nav class="site-nav" aria-label="Axxilak navigation">
     <a href="/">Home</a>
     <a href="/about.html">About</a>
