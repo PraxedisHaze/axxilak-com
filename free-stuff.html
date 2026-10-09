@@ -8,10 +8,10 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Cinzel -->
+    <!-- Google Fonts: Cinzel & Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         @keyframes blub-in {
@@ -53,7 +53,7 @@
             width: 100%;
             height: 100vh;
             z-index: -2;
-            opacity: 0.3;
+            opacity: 0.85;
             pointer-events: none;
         }
 
@@ -415,37 +415,357 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ── OFFICIAL AXXILAK BRAND BUTTON ── */
+        /* ── UNIFIED MASTER INSIGNIA ── */
+        .axxilak-master-insignia {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            background: radial-gradient(ellipse at 20% 50%, rgba(36, 7, 65, 0.95) 0%, rgba(10, 4, 18, 0.98) 50%, rgba(3, 2, 6, 0.99) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.32);
+            border-radius: 999px;
+            padding: 5px 16px 5px 8px;
+            box-shadow: 0 4px 22px rgba(0, 0, 0, 0.7), 0 0 16px rgba(212, 175, 55, 0.12);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            user-select: none;
+            transition: all 0.25s ease;
+        }
+        .axxilak-master-insignia:hover {
+            border-color: rgba(255, 201, 60, 0.6);
+            box-shadow: 0 6px 28px rgba(0, 0, 0, 0.8), 0 0 24px rgba(255, 201, 60, 0.25);
+        }
+        .warp-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .insignia-axxilak {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        .insignia-axxilak:hover {
+            transform: translateY(-1px);
+        }
+        /* ── INVARIANT: ZERO GLOW BEHIND LOGO (RULE 11) ──
+           filter: none !important at all times on all states. */
+        .axxilak-mark-lens {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .axxilak-mark-img {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            border-radius: 6px;
+            filter: none !important;
+            transition: transform 0.25s ease;
+        }
+        .insignia-axxilak:hover .axxilak-mark-img {
+            transform: scale(1.05);
+            filter: none !important;
+        }
+        /* Stacked typography with line under AXXILAK + 2-line motto to the right */
+        .ax-stack-wrap {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 12px;
+        }
+        .ax-btn-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            width: fit-content;
+        }
+        .ax-btn-top {
+            font-family: 'Cinzel', serif;
+            font-size: 0.84rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            color: #ffc93c;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 201, 60, 0.35);
+        }
+        .ax-btn-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #ffc93c, transparent);
+            margin: 2px 0;
+        }
+        .ax-btn-sub {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.58rem;
+            font-weight: 600;
+            letter-spacing: 0.26em;
+            color: #00e5ff;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
+        }
+        .ax-motto-stack {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.18;
+            text-align: left;
+        }
+        .ax-motto-top {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #ffc93c;
+            opacity: 0.9;
+            white-space: nowrap;
+        }
+        .ax-motto-bottom {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #e2e8f0;
+            white-space: nowrap;
+        }
+        .insignia-99cent {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            text-decoration: none;
+            padding-left: 14px;
+            transition: transform 0.2s ease;
+        }
+        .insignia-99cent:hover {
+            transform: translateY(-1px);
+        }
+        /* Logo 2: Full coin, sized right, NO borders, ZERO GLOW */
+        .penni-coin-lens {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .penni-coin-img {
+            height: 34px;
+            width: auto;
+            object-fit: contain;
+            filter: none;
+            transition: transform 0.25s ease;
+        }
+        .insignia-99cent:hover .penni-coin-img {
+            transform: scale(1.08) rotate(4deg);
+            filter: none;
+        }
+        .cent-brand-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            line-height: 1.15;
+            text-align: left;
+        }
+        .cent-title {
+            font-family: 'Cinzel', serif;
+            font-size: 0.96rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: #ffc93c;
+            text-shadow: 0 0 10px rgba(255, 201, 60, 0.35);
+            white-space: nowrap;
+        }
+        .cent-sub {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.64rem;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            color: #38bdf8;
+            text-transform: uppercase;
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+        .nobr {
+            white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+            .axxilak-master-insignia { flex-direction: column; border-radius: 18px; padding: 8px 14px; gap: 8px; align-items: center; }
+            .insignia-axxilak { border-right: none; padding-right: 0; padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.12); width: 100%; justify-content: center; }
+            .insignia-99cent { padding-left: 0; width: 100%; justify-content: center; }
+        }
+
+        /* Mounted Dimmer Switch on Free Stuff card */
+        .mounted-dimmer-wrap {
+            margin: 14px 0 16px 0;
+            display: flex;
+            justify-content: flex-start;
+        }
+        .mounted-dimmer-plate {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(30, 20, 48, 0.95), rgba(12, 6, 20, 0.98));
+            border: 1px solid rgba(255, 201, 60, 0.45);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7), 0 0 16px rgba(255, 201, 60, 0.15);
+            transform: rotate(-7deg);
+            transform-origin: center left;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .mounted-dimmer-plate:hover {
+            transform: rotate(-4deg) scale(1.02);
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8), 0 0 22px rgba(255, 201, 60, 0.25);
+        }
+        .mounted-dimmer-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #ffc93c;
+            opacity: 0.9;
+        }
+        .mounted-dimmer-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .mounted-dimmer-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .mounted-dimmer-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #ffc93c;
+            font-weight: 700;
+            min-width: 44px;
+        }
+        #particle-dimmer-snippet:target {
+            outline: 2px solid #ffc93c;
+            box-shadow: 0 0 30px rgba(255, 201, 60, 0.35);
+            transition: all 0.5s ease;
+        }
+
+        .nav-glow {
+            text-shadow:
+                0 0 4px rgba(0, 0, 0, 1),
+                0 0 10px rgba(0, 0, 0, 1),
+                0 0 16px rgba(0, 0, 0, 0.98),
+                0 0 28px rgba(0, 0, 0, 0.92),
+                0 0 42px rgba(0, 0, 0, 0.85);
+            filter:
+                drop-shadow(0 0 4px rgba(0, 0, 0, 1))
+                drop-shadow(0 0 12px rgba(0, 0, 0, 0.96))
+                drop-shadow(0 0 20px rgba(0, 0, 0, 0.9));
+        }
+
+        .nav-slider-glow {
+            filter:
+                drop-shadow(0 0 5px rgba(0, 0, 0, 1))
+                drop-shadow(0 0 14px rgba(0, 0, 0, 0.96))
+                drop-shadow(0 0 24px rgba(0, 0, 0, 0.9));
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 0, 0, 0.65);
+            border-radius: 999px;
+        }
+
+        .site-nav-header {
+            z-index: 2200 !important;
+            mix-blend-mode: normal !important;
+            isolation: isolate;
+        }
+
+        .site-nav-shell {
+            background: linear-gradient(to bottom, rgba(2, 6, 23, 0.78), rgba(2, 6, 23, 0.38));
+            backdrop-filter: blur(6px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+        }
+
+        /* Mobile: Compact nav layout */
+        @media (max-width: 639px) {
+            .site-nav-shell {
+                align-items: center;
+            }
+
+            .site-nav-shell #particle-dimmer {
+                width: 80px !important;
+            }
+
+            .site-nav-shell #dimmer-value {
+                font-size: 0.65rem !important;
+                width: 32px !important;
+            }
+
+            .site-nav-shell a.nav-glow {
+                font-size: 0.72rem !important;
+                letter-spacing: 0.12em !important;
+            }
+        }
     </style>
 </head>
 <body>
-    <a href="/" class="ax-brand-anchor" aria-label="Axxilak home">
-      <img src="/favicon.png" alt="Axxilak" width="42" height="42">
-    </a>
-    <style>
-      .ax-brand-anchor{position:fixed;top:14px;left:20px;z-index:99999;display:block;line-height:0;text-decoration:none;}
-      .ax-brand-anchor img{display:block;width:42px;height:42px;border-radius:10px;}
-      .ax-brand-anchor:hover{opacity:.85;}
-      @media (max-width:640px){.ax-brand-anchor{top:10px;left:12px;}.ax-brand-anchor img{width:34px;height:34px;}}
-    </style>
     <!-- Celebratory Background Canvas -->
     <canvas id="celebrationCanvas"></canvas>
 
     <!-- Navigation Header -->
-    <header class="fixed top-0 left-0 right-0 z-50 mix-blend-difference">
-        <nav class="flex items-center justify-between px-6 md:px-12 py-6">
-            <a href="index.html" class="flex items-center gap-4 hover:opacity-80 transition group" style="padding-left:58px;">
-                <div class="flex flex-col justify-center items-start animate-blub text-left">
-                    <div class="serif font-bold text-2xl tracking-[0.05em] text-white leading-none">
-                        AXXILAK <span class="font-light opacity-80">Studios</span>
-                    </div>
-                    <div class="text-[10px] tracking-[0.3em] text-amber-400/60 font-light mt-1" style="font-family: 'Outfit', sans-serif;">
-                        We make beautiful apps.
-                    </div>
+    <header class="fixed top-0 left-0 right-0 z-50">
+        <nav class="flex flex-col sm:flex-row items-center justify-between px-6 md:px-12 py-4 gap-3">
+                <div class="axxilak-master-insignia">
+                    <canvas class="warp-canvas"></canvas>
+                    <!-- Left Zone: Axxilak Studios -->
+                    <a href="index.html" class="insignia-axxilak" title="Axxilak Studios Home">
+                        <div class="axxilak-mark-lens">
+                            <img src="axxilak_logo_true_alpha.png" alt="Axxilak Studios" class="axxilak-mark-img">
+                        </div>
+                        <div class="ax-stack-wrap">
+                            <div class="ax-btn-stack">
+                                <span class="ax-btn-top">AXXILAK</span>
+                                <span class="ax-btn-divider"></span>
+                                <span class="ax-btn-sub">STUDIOS</span>
+                            </div>
+                            <div class="ax-motto-stack">
+                                <span class="ax-motto-top">We make</span>
+                                <span class="ax-motto-bottom">Beautiful apps.</span>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- Right Zone: 99CentApps.com -->
+                    <a href="https://99centapps.com/" target="_blank" rel="noopener" class="insignia-99cent" title="Visit 99CentApps.com">
+                        <div class="penni-coin-lens">
+                            <img src="Penni_coin.png" alt="99CentApps Penni Coin" class="penni-coin-img">
+                        </div>
+                        <div class="cent-brand-text">
+                            <div class="cent-title">99CENTAPPS.COM</div>
+                            <div class="cent-sub">Small Tools &middot; <span class="nobr">Fair Price</span></div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-            <div class="flex items-center gap-4">
-                <a href="https://keystoneconstellation.com/free-stuff.html" class="hidden md:inline-flex items-center gap-2 text-amber-300 hover:text-white transition font-mono text-xs tracking-wider"><img src="assets/keystone_constellation_logo.png" alt="" width="24" height="24" loading="lazy" class="w-6 h-6 object-contain">Keystone Constellation</a>
-                <a href="https://99centapps.com/" class="inline-flex items-center gap-2 text-amber-300 hover:text-white transition font-mono text-xs tracking-wider"><img src="assets/99centapps_favicon.svg" alt="" width="24" height="24" loading="lazy" class="w-6 h-6 object-contain">99CentApps &gt;</a>
+            <div class="flex items-center gap-6">
+                <a href="index.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition" style="color: #cbd5e1; text-decoration: none;">Home</a>
+                <a href="about.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition" style="color: #cbd5e1; text-decoration: none;">Studios</a>
             </div>
         </nav>
     </header>
@@ -591,9 +911,22 @@
                     <div class="resource-desc">Script automation for Windows. Automate repetitive tasks, create custom hotkeys.</div>
                     <div class="resource-link">Get AutoHotkey</div>
                 </a>
-                <div class="resource-card">
+                <div class="resource-card" id="particle-dimmer-snippet" style="position: relative; overflow: hidden;">
                     <div class="resource-title">Particle Dimmer</div>
                     <div class="resource-desc">A plug-and-play animated background fader for your own website. Gold particles, a simple Blast-to-Off control, no dependencies, and reduced-motion support.</div>
+                    
+                    <!-- Live Mounted Dimmer Switch (Cocked at Angle) -->
+                    <div class="mounted-dimmer-wrap" title="Interactive Live Dimmer Preview">
+                        <div class="mounted-dimmer-plate">
+                            <span class="mounted-dimmer-badge">Live Hardware Test</span>
+                            <div class="mounted-dimmer-controls">
+                                <label for="fs-particle-dimmer" class="mounted-dimmer-label">Dim</label>
+                                <input type="range" id="fs-particle-dimmer" min="0" max="100" value="100" class="nav-slider-glow" style="width: 130px; cursor: pointer;">
+                                <span id="fs-dimmer-value" class="mounted-dimmer-val">Blast</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex gap-3 mt-4">
                         <a href="components/particle-dimmer/demo.html" class="resource-link flex-1">Try Demo</a>
                         <a href="components/particle-dimmer.zip" download class="resource-link flex-1">Download Free</a>
@@ -757,51 +1090,81 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
+        let dimmerFactor = 1.0;
+
         class CelebratoryParticle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 1.5;
-                this.isGold = Math.random() < 0.05;
+                const speed = 0.5 + Math.random() * 1.0;
+                const angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.baseSize = 1.2 + Math.random() * 1.8;
+                this.isGold = Math.random() < 0.22;
+                this.pulse = Math.random() * Math.PI * 2;
+                this.pulseSpeed = 0.025 + Math.random() * 0.035;
             }
 
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.pulse += this.pulseSpeed;
+                const speedMul = 0.25 + 0.75 * dimmerFactor;
+                this.x += this.vx * speedMul;
+                this.y += this.vy * speedMul;
 
-                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                // Seamless wrapping
+                if (this.x < -10) this.x = canvas.width + 10;
+                else if (this.x > canvas.width + 10) this.x = -10;
+                if (this.y < -10) this.y = canvas.height + 10;
+                else if (this.y > canvas.height + 10) this.y = -10;
             }
 
             draw() {
-                ctx.fillStyle = this.isGold ? '#d4af37' : '#ffffff';
-                ctx.globalAlpha = this.isGold ? 0.5 : 0.3;
+                if (dimmerFactor <= 0.01) return;
+                const shimmer = 0.65 + 0.35 * Math.sin(this.pulse);
+                ctx.fillStyle = this.isGold ? '#ffc93c' : '#ffffff';
+                ctx.globalAlpha = (this.isGold ? 0.85 : 0.45) * dimmerFactor * shimmer;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.baseSize * (this.isGold ? 1.1 : 0.9), 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 1;
             }
         }
 
         const particles = [];
-        const particleCount = Math.max(20, Math.floor((canvas.width * canvas.height) / 15000));
+        const particleCount = Math.max(35, Math.floor((canvas.width * canvas.height) / 12000));
 
         for (let i = 0; i < particleCount; i++) {
             particles.push(new CelebratoryParticle());
         }
 
+        const dimmerSlider = document.getElementById('fs-particle-dimmer');
+        const dimmerValDisplay = document.getElementById('fs-dimmer-value');
+        if (dimmerSlider && dimmerValDisplay) {
+            dimmerSlider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value, 10);
+                dimmerFactor = val / 100;
+                if (val === 0) dimmerValDisplay.textContent = 'Off';
+                else if (val < 25) dimmerValDisplay.textContent = 'Whisper';
+                else if (val < 50) dimmerValDisplay.textContent = 'Glow';
+                else if (val < 80) dimmerValDisplay.textContent = 'Mid';
+                else if (val < 95) dimmerValDisplay.textContent = 'High';
+                else dimmerValDisplay.textContent = 'Blast';
+            });
+        }
+
         function drawLines() {
+            if (dimmerFactor <= 0.02) return;
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
                     const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const distance = Math.hypot(dx, dy);
 
-                    if (distance < 150) {
-                        ctx.strokeStyle = `rgba(212, 175, 55, ${0.1 * (1 - distance / 150)})`;
-                        ctx.lineWidth = 0.5;
+                    if (distance < 140) {
+                        const lineAlpha = 0.16 * (1 - distance / 140) * dimmerFactor;
+                        ctx.strokeStyle = `rgba(255, 201, 60, ${lineAlpha})`;
+                        ctx.lineWidth = 0.6;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -812,15 +1175,16 @@
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            particles.forEach((p) => {
-                p.update();
-                p.draw();
-            });
+            if (dimmerFactor > 0.01) {
+                for (let i = 0; i < particles.length; i++) {
+                    particles[i].update();
+                    particles[i].draw();
+                }
+                drawLines();
+            }
 
-            drawLines();
             requestAnimationFrame(animate);
         }
 
@@ -832,5 +1196,6 @@
             canvas.height = window.innerHeight;
         });
     </script>
+    <script src="axxilak-warp.js" defer></script>
 </body>
 </html>

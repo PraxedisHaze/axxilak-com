@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Keep internal tooling and build artifacts out of search
+Disallow: /node_modules/
+Disallow: /_archive/
+Disallow: /_tools/
+
+Sitemap: https://keystoneconstellation.com/sitemap.xml

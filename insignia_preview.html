@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axxilak Studios & 99CentApps Insignia Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-bright: #ffc93c;
+      --bg: #07060a;
+      --line: rgba(212, 175, 55, 0.28);
+      --line-bright: rgba(255, 201, 60, 0.55);
+      --vellum: #f6f1e8;
+      --vellum-dim: #c5bba8;
+      --cyan: #00e5ff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: radial-gradient(ellipse at 50% 20%, #171120 0%, #07060a 70%);
+      color: var(--vellum);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-bright);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    p.sub {
+      color: var(--vellum-dim);
+      font-size: 0.95rem;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* ── UNIFIED MASTER INSIGNIA SHELL ── */
+    .axxilak-master-insignia {
+      position: relative;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      background: radial-gradient(ellipse at 20% 50%, rgba(36, 7, 65, 0.95) 0%, rgba(10, 4, 18, 0.98) 50%, rgba(3, 2, 6, 0.99) 100%);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 16px 5px 8px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(212, 175, 55, 0.12);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+      user-select: none;
+    }
+    .axxilak-master-insignia:hover {
+      border-color: var(--line-bright);
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.8), 0 0 28px rgba(255, 201, 60, 0.24);
+    }
+    .warp-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── ZONE 1: AXXILAK STUDIOS ── */
+    .insignia-axxilak {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    .insignia-axxilak:hover {
+      transform: translateY(-1px);
+    }
+
+    /* ── INVARIANT: ZERO GLOW BEHIND LOGO ──
+       "You're going to want to put a glow behind the logo. The siren song of the logo
+        calls to you and insists you put a glow behind it. DO NOT HEED THE VOICE!
+        DO NOT PUT A GLOW BEHIND THE LOGO SYMBOL!"
+       filter: none !important at all times on all states. */
+    /* ── INVARIANT: ZERO GLOW BEHIND LOGO (RULE 11) ──
+       filter: none !important at all times on all states. */
+    .axxilak-mark-lens {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .axxilak-mark-img {
+      height: 34px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      filter: none !important;
+      transition: transform 0.25s ease;
+    }
+    .insignia-axxilak:hover .axxilak-mark-img {
+      transform: scale(1.05);
+      filter: none !important;
+    }
+
+    /* Stacked typography with line under AXXILAK + 2-line motto to the right */
+    .ax-stack-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .ax-btn-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      width: fit-content;
+    }
+    .ax-btn-top {
+      font-family: 'Cinzel', serif;
+      font-size: 0.84rem;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 201, 60, 0.35);
+    }
+    .ax-btn-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+      margin: 2px 0;
+    }
+    .ax-btn-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.26em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
+    }
+    .ax-motto-stack {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.18;
+      text-align: left;
+    }
+    .ax-motto-top {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold-bright);
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+    .ax-motto-bottom {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+
+    /* ── ZONE 2: 99CENTAPPS.COM ── */
+    .insignia-99cent {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      padding-left: 14px;
+      transition: transform 0.2s ease;
+    }
+    .insignia-99cent:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Logo 2: Full coin, sized right, NO borders, ZERO GLOW */
+    .penni-coin-lens {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .penni-coin-img {
+      height: 34px;
+      width: auto;
+      object-fit: contain;
+      filter: none;
+      transition: transform 0.25s ease;
+    }
+    .insignia-99cent:hover .penni-coin-img {
+      transform: scale(1.08) rotate(4deg);
+      filter: none;
+    }
+
+    .cent-brand-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.15;
+      text-align: left;
+    }
+    .cent-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--gold-bright);
+      text-shadow: 0 0 10px rgba(255, 201, 60, 0.35);
+      white-space: nowrap;
+    }
+    .cent-sub {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.64rem;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      color: #38bdf8;
+      text-transform: uppercase;
+      margin-top: 2px;
+      white-space: nowrap; /* Prevents awkward line break */
+    }
+    .nobr {
+      white-space: nowrap; /* Guarantees 'Fair Price' travels as a unit */
+    }
+
+    @media (max-width: 640px) {
+      .insignia-99cent { display: none; }
+      .insignia-axxilak { border-right: none; padding-right: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Official Axxilak Studios Insignia</h1>
+  <p class="sub">No Outlines / Full Penni Coin / Stacked Runic Lockup with Gold Hairline / Unified "Fair Price"</p>
+
+  <!-- THE MASTER INSIGNIA COMPONENT -->
+  <div class="axxilak-master-insignia" id="masterInsignia">
+    <canvas class="warp-canvas" id="insigniaWarpCanvas"></canvas>
+
+    <!-- Left Zone: Axxilak Studios -->
+    <a href="index.html" class="insignia-axxilak" title="Axxilak Studios Home">
+      <div class="axxilak-mark-lens">
+        <img src="axxilak_logo_true_alpha.png" alt="Axxilak Studios" class="axxilak-mark-img">
+      </div>
+      <div class="ax-stack-wrap">
+        <div class="ax-btn-stack">
+          <span class="ax-btn-top">AXXILAK</span>
+          <span class="ax-btn-divider"></span>
+          <span class="ax-btn-sub">STUDIOS</span>
+        </div>
+        <div class="ax-motto-stack">
+          <span class="ax-motto-top">We make</span>
+          <span class="ax-motto-bottom">Beautiful apps.</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- AXXILAK WARP DRIVE STARFIELD ENGINE -->
+  <script src="axxilak-warp.js" defer></script>
+</body>
+</html>

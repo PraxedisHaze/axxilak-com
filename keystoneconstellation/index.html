@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      ===============================================================
+      THE LOVEWARE DECLARATION
+      ===============================================================
+      This architecture operates on an absolute zero-telemetry
+      framework. We do not track your clicks. We do not harvest
+      your attention. We do not pipe analytics to third-party brokers.
+
+      You are sovereign software operators. Your data belongs to you.
+      This codebase was engineered as a sanctuary, not an extractor.
+
+      Made with Love.
+      - The Braid
+      ===============================================================
+    -->
+    <title>Keystone Constellation | Business Operating System</title>
+    <meta name="description" content="Applings â€” focused tools for creative work, AI workflows, and ideas that deserve their own space.">
+
+    <!-- Open Graph Protocol Implementation (Anothen Standard) -->
+    <meta property="og:title" content="Keystone Constellation | Business Operating System">
+    <meta property="og:description" content="Applings â€” focused tools for AI workflows and creative work. Privacy-respecting. Made with love.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://keystoneconstellation.com">
+    <meta property="og:image" content="https://keystoneconstellation.com/keystone_constellation_logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026020101">
+    <link rel="icon" type="image/png" href="favicon.png?v=2026020101">
+    <link rel="apple-touch-icon" href="favicon.png?v=2026020101">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Cinzel + Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@200;400;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #d4af37;
+            --bg: #030303;
+            --glass: rgba(20, 20, 20, 0.4);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+
+        @keyframes blub-in {
+            0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+            70% { opacity: 1; transform: translateY(-2px) scale(1.02); }
+            100% { opacity: 1; transform: translateY(0) scale(1.0); }
+        }
+
+        @keyframes reverse-spin-fast {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        .animate-blub {
+            animation: blub-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .animate-spin-slow {
+            animation: spin 12s linear infinite;
+        }
+
+        .animate-spin-reverse-fast {
+            animation: reverse-spin-fast 4s linear infinite;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        *:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 4px;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            border-radius: 2px;
+            transition: outline-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+
+        /* Custom Cinematic Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 2px;
+            border-radius: 2px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        input[type="range"]:hover::-webkit-slider-thumb {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.9);
+        }
+        input[type="range"]::-moz-range-thumb {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+        }
+        input[type="range"]:hover::-moz-range-thumb {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.9);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+        }
+        input[type="range"]:hover::-moz-range-thumb {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.9);
+        }
+
+        body {
+            background: radial-gradient(ellipse at bottom, #111a22 0%, #030303 100%);
+            color: #f0f0f0;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            cursor: auto;
+        }
+
+        h1,
+        h2,
+        h3,
+        .serif {
+            font-family: 'Cinzel', serif;
+        }
+
+        .front-door-principle {
+            border: 1px solid rgba(212, 175, 55, 0.42);
+            background: linear-gradient(135deg, rgba(20, 20, 20, 0.72), rgba(3, 3, 3, 0.52));
+            box-shadow: 0 0 45px rgba(212, 175, 55, 0.08);
+        }
+
+        .front-door-principle blockquote {
+            text-wrap: balance;
+        }
+
+        /* Custom Cursor */
+        #cursor-dot,
+        #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            opacity: 1;
+        }
+
+        #cursor-outline {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--primary);
+            opacity: 0.7;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Gold Gradient Text */
+        .gold-text {
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: shine 20s linear infinite;
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: -1000px;
+            }
+
+            100% {
+                background-position: 1000px;
+            }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Dynamic Mouseover Physics */
+        .hover-trigger {
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .hover-trigger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.3), rgba(0, 212, 255, 0.2), transparent);
+            transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hover-trigger::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 2px;
+            background: linear-gradient(135deg, #ffd700, #00d4ff, #ffc700);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hover-trigger > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hover-trigger:hover {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(0, 212, 255, 0.08) 100%);
+            border-color: rgba(255, 215, 0, 0.9);
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(255, 215, 0, 0.3),
+                        0 0 30px rgba(0, 212, 255, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .hover-trigger:hover::before {
+            left: 100%;
+        }
+
+        .hover-trigger:hover::after {
+            opacity: 0.6;
+        }
+
+        /* Marquee */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(212, 175, 55, 0.02);
+        }
+
+        .marquee-content {
+            display: flex;
+            width: max-content;
+            animation: scroll 24s linear infinite;
+            will-change: transform;
+        }
+
+        .marquee-group {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+        }
+
+        .marquee-content span {
+            flex: 0 0 auto;
+            margin-right: 3rem;
+            opacity: 0.72;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        .marquee:hover .marquee-content,
+        .marquee:focus-within .marquee-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .marquee-content { animation: none; }
+        }
+
+        /* Form */
+        input,
+        textarea {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: border-color 0.3s;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-bottom-color: var(--primary);
+        }
+
+        .form-button {
+            background: white;
+            color: black;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .form-button:hover {
+            background-color: var(--primary);
+        }
+
+        /* Particle Canvas */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            /* opacity: 0.5; REMOVED: This was artificially ghosting the entire physical WebGL scene into the DOM! */
+        }
+
+        /* Section Spacing */
+        section {
+            padding: 6rem 5%;
+        }
+
+        @media (max-width: 768px) {
+            section {
+                padding: 3rem 5%;
+            }
+        }
+
+        /* Flagship Liquid Gold Section */
+        .flagship-section {
+            position: relative;
+            overflow: hidden;
+            padding: 6rem 5%;
+        }
+
+        #flagshipCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .flagship-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 80px 40px;
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .flagship-title {
+            font-size: 56px;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+
+        .flagship-tagline {
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 48px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+
+        .flagship-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .flagship-feature-item {
+            padding: 32px;
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .flagship-feature-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .flagship-feature-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .flagship-feature-title {
+            font-weight: 600;
+            font-family: 'Cinzel', serif;
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .flagship-feature-desc {
+            color: #f0f0f0;
+            font-size: 13px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+        }
+
+        .flagship-button {
+            padding: 14px 28px;
+            background: white;
+            border: none;
+            color: black;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            letter-spacing: 1.2px;
+            font-family: 'Outfit', sans-serif;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .flagship-button:hover {
+            background-color: var(--primary);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Cursor: Restored to user ownership -->
+
+    <!-- 3D Cinematic Canvas Container -->
+    <img id="saturnMap" src="saturn.webp" style="display:none;" />
+    <div id="space-background" style="position: fixed; inset: 0; z-index: -2; background: url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?q=80&w=2560&auto=format&fit=crop') center center / cover no-repeat; opacity: 0; transition: opacity 2s ease-in-out;"></div>
+    <div id="strucity-container" style="position: fixed; inset: 0; z-index: -1;"></div>
+
+    <!-- Navigation (Isolated to preserve position: fixed during animation) -->
+    <header id="cinematic-header" class="fixed top-0 left-0 right-0 z-50 mix-blend-difference" role="banner">
+        <nav class="flex items-center justify-between px-6 md:px-12 py-6" aria-label="Main Navigation">
+            <a href="index.html" class="flex items-center gap-4 hover:opacity-80 transition group" aria-label="Keystone Constellation Home">
+                <img src="keystone_constellation_logo.png" alt="Keystone Logo" class="h-[50px] w-auto group-hover:scale-105 transition duration-500 rounded-lg" aria-hidden="true">
+                <div class="flex flex-col justify-center items-start animate-blub text-left" aria-hidden="true">
+                    <div class="serif font-bold text-2xl tracking-[0.05em] text-white leading-none">
+                        KEYSTONE <span class="font-light opacity-80">Constellation</span>
+                    </div>
+                    <div class="text-[8px] tracking-[0.2em] text-amber-400/80 font-bold mt-1 uppercase" style="font-family: 'Outfit', sans-serif;">
+                        Working together to make the world a better place.
+                    </div>
+                </div>
+            </a>
+            <div class="flex gap-8 items-center" role="navigation">
+                <a href="../index.html" class="text-sm uppercase tracking-widest hover:text-amber-400 transition" aria-label="Axxilak Studios Home">Axxilak</a>
+                <a href="#tools" class="text-sm uppercase tracking-widest hover:text-amber-400 transition" aria-label="Browse Keystone applings">Applings</a>
+                <a href="index.html#contact" class="text-sm uppercase tracking-widest hover:text-amber-400 transition" aria-label="Contact Timothy">Contact</a>
+                <a href="about.html" class="text-sm uppercase tracking-widest hover:text-amber-400 transition">About Me</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Cinematic UI Wrapper -->
+    <div id="cinematic-ui-layer" style="opacity: 0; transform: translateY(10vh);">
+        <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col items-center justify-center gap-8 text-center">
+        <div class="front-door-principle max-w-5xl p-8 md:p-14 rounded-sm" aria-labelledby="front-door-principle-heading">
+            <p class="text-xs md:text-sm uppercase tracking-[0.28em] text-amber-400 font-semibold mb-6">
+                A Keystone Constellation principle
+            </p>
+            <blockquote id="front-door-principle-heading" class="serif text-3xl md:text-5xl font-light leading-tight text-white">
+                We do not know enough to justify cruelty, exclusion, or domination.<br>
+                <span class="gold-text">We know enough to begin building something better.</span>
+            </blockquote>
+        </div>
+        <div class="glass-panel max-w-4xl p-8 md:p-14 rounded-sm">
+            <h1 class="text-6xl md:text-8xl font-light serif leading-tight mb-8">
+                Geometric <span class="gold-text">VISUALIZATION</span>
+            </h1>
+            <p class="text-lg md:text-xl text-slate-300 mb-6 font-light max-w-3xl mx-auto">
+                Small instruments for beautiful, difficult, impossible-to-ignore work.<br>Built to give one powerful capability a place of its own.
+            </p>
+            <p class="text-base text-slate-200 mb-8 font-light max-w-3xl mx-auto">
+                <span class="serif">APPLINGS:</span> Self-contained HTML, CSS, and JavaScript toolsâ€”named, versioned, and made to live inside a site or stand on their own as focused creative tools.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <a href="#tools"
+                    class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
+                    View Tools
+                </a>
+                <a href="#contact"
+                    class="inline-block px-8 py-4 border-2 border-white text-white font-semibold hover:bg-white hover:text-black transition">
+                    Request Build
+                </a>
+            </div>
+            </div>
+            <div class="glass-panel max-w-5xl p-8 md:p-12 rounded-sm">
+                <h2 class="text-4xl md:text-6xl font-light serif leading-tight text-white mb-6">
+                    The <span class="gold-text">Constellation</span>
+                </h2>
+                <p class="text-lg md:text-xl text-slate-300 font-light max-w-3xl mx-auto">
+                    Keystone is the hub. Applings are the tools. Maisons are the larger spaces where they come fully to life.
+                </p>
+            </div>
+    </section>
+
+    <!-- Marquee Separator -->
+    <div class="marquee py-8">
+        <div class="marquee-content" aria-label="Keystone principles">
+            <div class="marquee-group">
+                <span>PRIVACY-RESPECTING TOOLS</span>
+                <span>BUILT TO SCALE CLEANLY</span>
+                <span>SELF-CONTAINED APPLINGS</span>
+            </div>
+            <div class="marquee-group" aria-hidden="true">
+                <span>PRIVACY-RESPECTING TOOLS</span>
+                <span>BUILT TO SCALE CLEANLY</span>
+                <span>SELF-CONTAINED APPLINGS</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Value Proposition -->
+    <section class="py-20 relative overflow-hidden group">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-panel p-8 md:p-10 rounded-sm mb-10">
+                <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">The Shape of an Appling</h2>
+                <p class="text-center text-slate-300 font-light italic">A reusable module with one clear purposeâ€”small enough to understand, flexible enough to fit into many workflows.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-lock-open"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Local Use</h3>
+                    <p class="text-slate-300 font-light">
+                        An appling does its work close to you: in the page, on your device, and in the part of your workflow where the idea actually happens.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 100ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">No Hidden Tracking</h3>
+                    <p class="text-slate-300 font-light">
+                        The instruments are made without behavioral tracking. They are here to help you make somethingâ€”not to turn your attention into a product.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 200ms;">
+                    <div class="text-4xl mb-6 text-amber-400">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <h3 class="serif text-2xl mb-4">Focused Scope</h3>
+                    <p class="text-slate-300 font-light">
+                        One useful capability, shaped with intention. An appling is small enough to understand and specific enough to feel like an instrument rather than another sprawling platform.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Applings Inventory -->
+    <section id="tools" class="py-20 relative z-10">
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-panel p-8 md:p-10 rounded-sm mb-10">
+                <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">The Applings</h2>
+                <p class="text-center text-slate-300 text-sm font-light italic">Targeted tools. Built for local use where documented. Capabilities stated plainly.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Context Counter (Hidden for Launch)
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="serif text-2xl text-white">Context Counter</h3>
+                        <span class="text-xs uppercase tracking-widest text-amber-400 border border-amber-400/30 px-2 py-1 rounded-sm">Free demo</span>
+                    </div>
+                    <p class="text-slate-300 font-light mb-6">
+                        Paste text. Instantly read the LLM token cost. Protect your context budget before you send.
+                    </p>
+                    <a href="products/context_counter/index.html" class="inline-block px-6 py-2 bg-white/10 text-white text-xs uppercase tracking-widest hover:bg-amber-400 hover:text-black transition">Open Tool</a>
+                </div>
+                -->
+
+                <!-- Edge Electrify -->
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal" style="transition-delay: 100ms;">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="serif text-2xl text-white">Edge Electrify & Line Art</h3>
+                        <span class="text-xs uppercase tracking-widest text-amber-400 border border-amber-400/30 px-2 py-1 rounded-sm">Free online</span>
+                    </div>
+                    <p class="text-slate-300 font-light mb-6">
+                        Turn images into Sobel edge art and neon glow free in your browser. Want a copy you can keep and use offline? Own it for $1.
+                    </p>
+                    <a href="applings/edge_electrify/index.html" class="inline-block px-6 py-2 bg-white/10 text-white hover:bg-amber-400 hover:text-black text-xs uppercase tracking-widest transition relative z-10 font-bold border border-white/5 hover:border-amber-400 rounded-sm">Use online — free</a>
+                    <a href="https://axxilak.gumroad.com/l/edge_electrify_and_line_art" class="inline-block px-6 py-2 bg-amber-400/10 text-amber-400 hover:bg-amber-400 hover:text-black text-xs uppercase tracking-widest transition relative z-10 font-bold border border-amber-400/30 rounded-sm">Own offline — $1</a>
+                </div>
+
+                <!-- Anothen Bolt Generator -->
+                <div class="glass-panel p-8 rounded-sm hover-trigger reveal border-l-2 border-l-amber-400 md:col-span-2" style="transition-delay: 200ms;">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="serif text-2xl text-white">Anothen Bolt Generator</h3>
+                        <span class="text-xs uppercase tracking-widest text-slate-400">Suggested retail: $14.99</span>
+                    </div>
+                    <div class="flex items-center gap-4 mb-4 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
+                        <span><i class="fas fa-desktop mr-1.5 text-amber-400/70"></i> Desktop</span>
+                        <span><i class="fab fa-android mr-1.5 text-amber-400/70"></i> Android</span>
+                    </div>
+                    <p class="text-slate-300 font-light mb-6">
+                        Anothen Bolt Engine is a Keystone Constellation product, sold and delivered through Axxilak Studios. The bundle includes Desktop and Android versions. Suggested retail: $14.99; Gumroad pricing starts at $4.99.
+                    </p>
+                    <a href="applings/anothen_bolt/index.html" class="inline-block px-6 py-2 bg-white/10 text-white hover:bg-amber-400 hover:text-black text-xs uppercase tracking-widest transition relative z-10 font-bold border border-white/5 hover:border-amber-400 rounded-sm">View Architecture</a>
+                     <a href="https://axxilak.gumroad.com/l/bolt-engine-bundle" class="inline-block px-6 py-2 bg-amber-400/10 text-amber-400 hover:bg-amber-400 hover:text-black text-xs uppercase tracking-widest transition relative z-10 font-bold border border-amber-400/30 rounded-sm">Buy through Axxilak Studios</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-20">
+        <div class="max-w-2xl mx-auto">
+            <div class="glass-panel p-8 md:p-10 rounded-sm mb-10">
+                <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">Questions? Ideas?</h2>
+                <p class="text-center text-slate-300 font-light">Need something custom? Have feedback about the Maisons or applings?<br><br><span class="text-amber-400">Let's talk. We'll tell you what we can and cannot verify.</span></p>
+            </div>
+
+            <form id="contact-form" action="https://formspree.io/f/mkojaejr" method="POST"
+                class="glass-panel p-8 md:p-12 space-y-6 rounded-sm reveal">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                    <input type="text" name="name" required placeholder="Your name"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" required placeholder="your@email.com"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
+                    <textarea name="message" rows="5" required placeholder="Tell us about your project..."
+                        class="w-full bg-transparent py-3 text-white" style="resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit"
+                    class="w-full form-button py-4 rounded-sm text-center uppercase tracking-widest font-semibold">
+                    Send Message
+                </button>
+
+                <p class="text-xs text-slate-500 text-center">Or email: <a href="mailto:admin@keystoneconstellation.com"
+                        class="text-amber-400 hover:underline">admin@keystoneconstellation.com</a> <button id="copy-email" class="text-amber-400 hover:text-amber-300 transition ml-2" title="Copy email to clipboard" style="background: none; border: none; cursor: pointer; padding: 0; font-size: 0.75rem; vertical-align: baseline;">
+                        <i class="fas fa-copy"></i>
+                    </button></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div>
+                    <h4 class="serif text-xl mb-4">KEYSTONE <span class="font-light opacity-60">Constellation</span></h4>
+                    <p class="text-slate-400 text-sm font-light">
+                        Applings are designed for creators who want tools with a point of viewâ€”and room to make that point of view their own.<br><br>
+                        <span class="text-amber-400">Your voice. Your work. Your constellation.</span>
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Explore</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#tools" class="hover:text-amber-400 transition">Browse Applings</a></li>
+                        <li><a href="#tools" class="hover:text-amber-400 transition">Browse Applings</a></li>
+                        <li><a href="#contact" class="hover:text-amber-400 transition">Get in Touch</a></li>
+                        <li><a href="about.html" class="hover:text-amber-400 transition">Our Story</a></li>
+                        <li class="pt-2"><a href="https://axxilak.com" class="text-amber-400 hover:text-white transition font-semibold"><i class="fas fa-link mr-2"></i>Partner Site: Axxilak.com</a></li>
+                    </ul>
+                </div>
+                <!-- <div>
+                    <h4 class="text-sm uppercase tracking-widest mb-4">Social</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition">Twitter</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">Instagram</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition">LinkedIn</a></li>
+                    </ul>
+                </div> -->
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+                <p class="mb-4">&copy; 2026 Keystone Constellation. All rights reserved.</p>
+                <p class="text-xs text-slate-600 italic">
+                    Explore each appling. You might notice some thoughtful details along the way.
+                </p>
+            </div>
+        </div>
+    </footer>
+    </div> <!-- End Cinematic UI Wrapper -->
+
+    <!-- Focus Slider -->
+    <div class="fixed bottom-8 right-8 z-[100] flex flex-col items-center gap-2 group">
+        <label for="opacitySlider" class="text-[10px] uppercase tracking-widest text-slate-500 group-hover:text-amber-400 transition cursor-pointer">UI Focus</label>
+        <input type="range" id="opacitySlider" min="0" max="1" step="0.01" value="1" class="w-24 opacity-30 hover:opacity-100 transition duration-500 cursor-pointer">
+    </div>
+
+    <!-- Transition Engine -->
+    <script src="js/circle-reveal-global.js"></script>
+
+    <script>
+        window.uiFocusLevel = 1.0;
+        document.getElementById('opacitySlider').addEventListener('input', (e) => {
+            window.uiFocusLevel = parseFloat(e.target.value);
+            const uiLayer = document.getElementById('cinematic-ui-layer');
+            const uiHeader = document.getElementById('cinematic-header');
+            if (uiLayer) uiLayer.style.opacity = window.uiFocusLevel;
+            if (uiHeader) uiHeader.style.opacity = window.uiFocusLevel;
+        });
+
+        </script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "./js/three.module.min.js",
+        "three-custom-shader-material/vanilla": "./js/csm.es.js"
+      }
+    }
+    </script>
+    <script src="js/textures.js"></script>
+    <script type="module" src="js/flower_of_life_3d.js"></script>
+    <script>
+        // Initialize the Cinematic Strucity 3D Engine
+        document.addEventListener('DOMContentLoaded', () => {
+            window.flowerEngine = new CinematicStrucity3D('strucity-container');
+        });
+
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const revealOnScroll = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    revealOnScroll.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        reveals.forEach((reveal) => revealOnScroll.observe(reveal));
+
+        // Transition system removed for MVP. See _archive/transition-system/ to restore.
+    </script>
+
+    <!-- Transition system removed for MVP. Archived in _archive/transition-system/ -->
+</body>
+
+</html>
+

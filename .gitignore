@@ -71,3 +71,5 @@ node_modules/
 **/*.pdb
 **/electron.exe
 archives-organized/
+original_index.html
+storefront_instruments_backup.html
