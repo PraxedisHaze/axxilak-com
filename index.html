@@ -66,20 +66,47 @@
             cursor: auto;
         }
 
-        #maizons,
-        #instruments,
-        #contact,
-        #featured-velvet {
+        #contact {
             scroll-margin-top: 9rem;
         }
-
         @media (max-width: 768px) {
-            #maizons,
-            #instruments,
-            #contact,
-            #featured-velvet {
+            #contact {
                 scroll-margin-top: 14rem;
             }
+        }
+
+        #saturn-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            pointer-events: none;
+            overflow: hidden;
+            background: #030303;
+        }
+        #saturn-stage,
+        #saturn-stage canvas,
+        .saturn-fallback {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .saturn-fallback {
+            object-fit: cover;
+            object-position: center 42%;
+            opacity: 0;
+        }
+        .saturn-fallback.is-visible { opacity: 1; }
+        .saturn-fallback.is-behind { opacity: 0; }
+        #saturn-stage { opacity: 0; }
+        #saturn-stage.is-ready { opacity: 1; }
+        #saturn-veil {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            /* No tint over the hero — only fade to solid below the fold so body copy stays readable. */
+            background: linear-gradient(to bottom, rgba(3, 3, 3, 0) 0%, rgba(3, 3, 3, 0) 58%, rgba(3, 3, 3, 0.55) 82%, rgba(3, 3, 3, 0.94) 100%);
         }
 
         .home-hero {
@@ -173,124 +200,6 @@
             .webling-art-card {
                 min-height: 280px;
             }
-        }
-
-        /* ── MAIZON ART CARDS (UNIFIED BESPOKE ATMOSPHERIC PREVIEWS) ── */
-        .maizon-art-card {
-            position: relative;
-            min-height: 400px;
-            border-radius: 6px;
-            background: #06080d;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid rgba(212, 175, 55, 0.28);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
-        }
-        .maizon-art-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.85), 0 0 25px rgba(212, 175, 55, 0.2);
-        }
-        .maizon-art-canvas {
-            position: relative;
-            height: 220px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            overflow: hidden;
-        }
-        .maizon-art-ornament {
-            position: absolute;
-            inset: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 4px;
-            pointer-events: none;
-        }
-        .maizon-art-glyph {
-            font-size: 40px;
-            margin-bottom: 12px;
-            filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.85));
-            transition: transform 0.35s ease;
-        }
-        .maizon-art-card:hover .maizon-art-glyph {
-            transform: scale(1.12);
-        }
-        .maizon-art-title {
-            font-family: 'Cinzel', serif;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #ffffff;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
-            margin-bottom: 4px;
-            text-align: center;
-        }
-        .maizon-art-vibe {
-            font-size: 9px;
-            letter-spacing: 0.32em;
-            text-transform: uppercase;
-            font-weight: 700;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
-        }
-        .maizon-art-body {
-            padding: 20px 22px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            background: linear-gradient(180deg, rgba(14, 16, 22, 0.95), rgba(7, 9, 13, 0.99));
-        }
-        .maizon-art-desc {
-            font-size: 13px;
-            line-height: 1.55;
-            color: #94a3b8;
-            font-weight: 300;
-            margin-bottom: 18px;
-            flex: 1;
-        }
-        .maizon-forge-strip {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            margin-top: auto;
-        }
-        .maizon-forge-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 999px;
-            border: 1px solid rgba(212, 175, 55, 0.45);
-            background: linear-gradient(135deg, rgba(34, 24, 10, 0.85), rgba(16, 12, 5, 0.95));
-            color: #f6dc87;
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-        .maizon-explore-link {
-            font-size: 11px;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: #cbd5e1;
-            font-weight: 600;
-            text-decoration: none;
-            transition: color 0.2s ease, transform 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .maizon-explore-link:hover {
-            color: #ffc93c;
-            transform: translateX(2px);
         }
 
         /* Gold Gradient Text */
@@ -399,8 +308,25 @@
             transition: background-color 0.3s;
         }
 
+
         .form-button:hover {
             background-color: var(--primary);
+        }
+
+        #contact-form {
+            position: relative;
+        }
+
+        .bot-trap {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            z-index: -1;
+            overflow: hidden;
         }
 
         /* Particle Canvas */
@@ -849,6 +775,15 @@
             transform: translateY(-1px);
         }
         /* Logo 2: Full coin, sized right, NO borders, ZERO GLOW */
+        .penni-coin-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            gap: 3px;
+            max-width: 7.6rem;
+        }
         .penni-coin-lens {
             display: flex;
             align-items: center;
@@ -861,6 +796,16 @@
             object-fit: contain;
             filter: none;
             transition: transform 0.25s ease;
+        }
+        .penni-tagline {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.52rem;
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: 0.01em;
+            color: #d4af37;
+            text-align: center;
+            white-space: normal;
         }
         .insignia-99cent:hover .penni-coin-img {
             transform: scale(1.08) rotate(4deg);
@@ -1104,11 +1049,172 @@
             border-radius: 50%;
         }
 
+        .cftr-hero {
+            position: relative;
+            z-index: 1;
+            padding: 11.5rem 5% 3rem;
+            background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .cftr-hero {
+                padding-top: 16rem;
+                padding-bottom: 2rem;
+            }
+        }
+
+        .cftr-stage {
+            position: relative;
+            width: min(100%, 960px);
+            margin: 0 auto;
+            height: min(68vh, 620px);
+            min-height: 280px;
+            background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .cftr-stage {
+                height: min(58vh, 420px);
+                min-height: 260px;
+            }
+        }
+
+        .cftr-fallback {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            background: transparent;
+            z-index: 1;
+        }
+
+        .cftr-fallback.is-behind {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cftr-viewer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .cftr-viewer.is-ready {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cftr-viewer canvas {
+            background: transparent !important;
+            touch-action: pan-y;
+            cursor: grab;
+        }
+
+        .cftr-caption {
+            max-width: 960px;
+            margin: 0.85rem auto 0;
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        .cftr-caption a {
+            color: #d4af37;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .polymorph-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.4rem;
+            max-width: 960px;
+            margin: 0.85rem auto 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .polymorph-tabs button {
+            appearance: none;
+            background: rgba(8, 8, 12, 0.55);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            color: #e2e8f0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.4rem 0.7rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.18s, border-color 0.18s, color 0.18s;
+        }
+
+        .polymorph-tabs button:hover {
+            border-color: rgba(212, 175, 55, 0.7);
+            color: #fff;
+        }
+
+        .polymorph-tabs button.is-active {
+            background: rgba(212, 175, 55, 0.2);
+            border-color: #d4af37;
+            color: #f8e7b0;
+        }
+
+        @media (max-width: 768px) {
+            .polymorph-tabs button {
+                font-size: 0.62rem;
+                padding: 0.35rem 0.55rem;
+                letter-spacing: 0.05em;
+            }
+        }
+
+        .viz-copy {
+            position: relative;
+            z-index: 1;
+            padding: 2rem 5% 4rem;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(3, 3, 3, 0.2) 0%, #030303 36%, #030303 100%);
+        }
+
+        .viz-copy h2 {
+            font-family: 'Cinzel', serif;
+            font-weight: 300;
+        }
+
+        .home-hero {
+            padding-top: 3rem;
+            min-height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .home-hero {
+                padding-top: 2.5rem;
+            }
+        }
+
     </style>
 </head>
 
 <body>
     <!-- Cursor: Restored to user ownership -->
+
+    <div id="saturn-bg" aria-hidden="true">
+        <img id="saturn-fallback" class="saturn-fallback" src="assets/saturn/saturn-still.webp" alt="">
+        <div id="saturn-stage"></div>
+    </div>
+    <div id="saturn-veil" aria-hidden="true"></div>
 
     <!-- Particle Canvas -->
     <canvas id="particleCanvas"></canvas>
@@ -1139,8 +1245,11 @@
                     </a>
                     <!-- Right Zone: 99CentApps.com -->
                     <a href="https://99centapps.com/" target="_blank" rel="noopener" class="insignia-99cent" title="Visit 99CentApps.com">
-                        <div class="penni-coin-lens">
-                            <img src="Penni_coin.png" alt="99CentApps Penni Coin" class="penni-coin-img">
+                        <div class="penni-coin-stack">
+                            <div class="penni-coin-lens">
+                                <img src="Penni_coin_v2.png" alt="99CentApps Penni Coin" class="penni-coin-img">
+                            </div>
+                            <span class="penni-tagline">Working together to make this world a better place</span>
                         </div>
                         <div class="cent-brand-text">
                             <div class="cent-title">99CENTAPPS.COM</div>
@@ -1149,7 +1258,6 @@
                     </a>
                 </div>
                 <div class="flex gap-6 sm:gap-8 items-center">
-                    <a href="keystoneconstellation/index.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">Keystone</a>
                     <a href="free-stuff.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">Free Stuff</a>
                     <a href="#contact" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">Contact</a>
                     <a href="about.html" class="nav-glow text-sm uppercase tracking-widest hover:text-amber-400 transition">About Me</a>
@@ -1165,6 +1273,37 @@
         </nav>
     </header>
 
+    <!-- CFTR Polymorph hero: four forms of the AlphaFold model, in front of Saturn -->
+    <section class="cftr-hero" aria-label="CFTR protein model">
+        <div id="cftr-stage" class="cftr-stage">
+            <div id="cftr-viewer" class="cftr-viewer"></div>
+        </div>
+        <div class="polymorph-tabs" role="tablist" aria-label="CFTR model forms">
+            <button type="button" role="tab" data-view="mechanical" class="is-active" aria-selected="true">Mechanical</button>
+            <button type="button" role="tab" data-view="ribbon" aria-selected="false">Ribbon + Beads</button>
+            <button type="button" role="tab" data-view="buckyball" aria-selected="false">vdW Spheres</button>
+            <button type="button" role="tab" data-view="cutaway" aria-selected="false">Cutaway</button>
+        </div>
+        <p class="cftr-caption">CFTR model from AlphaFold <a href="https://alphafold.ebi.ac.uk/entry/P13569" rel="noopener noreferrer">AF-P13569-F1</a>, shown in four representations.</p>
+    </section>
+
+    <section class="viz-copy">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl sm:text-5xl md:text-7xl font-light serif leading-tight mb-6">
+                Geometric <span class="gold-text">VISUALIZATION</span>
+            </h2>
+            <p class="text-lg md:text-xl text-slate-300 mb-6 font-light">
+                The architecture of our codebase is deterministic.<br>We build tools that can be run exclusively on local hardware.
+            </p>
+            <p class="text-base text-slate-200 mb-8 font-light">
+                <span class="serif">APPLINGS:</span> Small, sharp, zero-telemetry tools. Built to serve exactly one function perfectly. Download once, own forever, use offline.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#contact" class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">Request Build</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Hero Section -->
     <section class="home-hero min-h-screen flex flex-col items-center justify-start md:justify-center gap-8 text-center">
         <div class="max-w-3xl">
@@ -1174,14 +1313,7 @@
             <p class="text-lg md:text-xl text-slate-300 mb-6 font-light max-w-3xl mx-auto">
                 Look around. Try some stuff.<br>Don't miss our collection of <a href="free-stuff.html" class="text-amber-400 font-semibold hover:underline">FREE STUFF</a> we've found over the years.
             </p>
-            <p class="text-base text-slate-200 mb-8 font-light max-w-3xl mx-auto">
-                <span class="serif">MAIZON:</span> A self-contained digital architecture, each equipped with an APEX visual editor so people can customize them without code. Buy once, own forever, use offline. No subscriptions. No surveillance. Pure creative sovereignty.
-            </p>
             <div id="hero-cta-box" class="relative inline-flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <a href="#featured-velvet"
-                    class="inline-block px-8 py-4 bg-white text-black font-semibold hover:bg-amber-400 transition">
-                    Meet The Maizons
-                </a>
                 <button id="demoEditBtn"
                     class="inline-block px-8 py-4 border-2 border-white text-white font-semibold hover:bg-white hover:text-black transition">
                     Try Editing Now
@@ -1214,145 +1346,6 @@
         </div>
     </div>
 
-    <!-- Value Proposition -->
-    <section class="py-20">
-        <div class="max-w-6xl mx-auto">
-            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">How Maizons Work</h2>
-            <p class="text-center text-slate-400 mb-16 font-light italic">Designed for actual ownership. Your vision,
-                your terms, forever.</p>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Card 1 -->
-                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal">
-                    <div class="text-4xl mb-6 text-amber-400">
-                        <i class="fas fa-lock-open"></i>
-                    </div>
-                    <h3 class="serif text-2xl mb-4">Actual Ownership</h3>
-                    <p class="text-slate-300 font-light">
-                        Download once. Own forever. One-time purchase, zero ongoing costs. Your site, your data, your
-                        rules.
-                    </p>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 100ms;">
-                    <div class="text-4xl mb-6 text-amber-400">
-                        <i class="fas fa-wand-magic-sparkles"></i>
-                    </div>
-                    <h3 class="serif text-2xl mb-4">Edit Without Code</h3>
-                    <p class="text-slate-300 font-light">
-                        Visual editor built-in. Click to edit text, swap images, change colors. No technical knowledge
-                        required.
-                    </p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="glass-panel p-8 md:p-12 rounded-sm hover-trigger reveal" style="transition-delay: 200ms;">
-                    <div class="text-4xl mb-6 text-amber-400">
-                        <i class="fas fa-sliders-h"></i>
-                    </div>
-                    <h3 class="serif text-2xl mb-4">Fully Customizable</h3>
-                    <p class="text-slate-300 font-light">
-                        Colors, fonts, layout, content. Change everything. Extend with your own code. It's yours to reshape.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-    <!-- Featured Webling (Split View) -->
-    <section id="featured-velvet" class="py-12 sm:py-16 md:py-20">
-        <div class="max-w-6xl mx-auto">
-            <div class="glass-panel rounded-sm overflow-hidden flex flex-col md:flex-row hover-trigger reveal">
-
-                <!-- Left: Content -->
-                <div
-                    class="velvet-slate-surface-left p-6 sm:p-8 md:p-12 md:w-1/2 flex flex-col justify-center border-b md:border-b-0 md:border-r border-white/10">
-                    <div class="text-lg sm:text-2xl uppercase tracking-widest text-amber-400 mb-4 font-light">Featured Architecture</div>
-                    <h2 class="serif text-3xl sm:text-4xl md:text-5xl text-white mb-6"><a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="hover:text-amber-400 transition">Velvet</a></h2>
-                    <p class="text-sm sm:text-base text-slate-300 font-light leading-relaxed mb-8">
-                        In a world of noise, we choose signal.
-                        <span class="text-amber-400">In a world of clutter, we choose void.</span>
-                    </p>
-                    <p class="text-xs sm:text-sm text-slate-300 font-light italic mb-8">
-                        Velvet is not just a template; it is a frame for your masterpiece.
-                    </p>
-
-                    <ul class="space-y-2 sm:space-y-3 mb-8 sm:mb-10 text-xs sm:text-sm text-slate-400 font-light">
-                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Cinematic Transitions</li>
-                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Elegant Typography System</li>
-                        <li class="flex items-center gap-2 sm:gap-3"><span class="text-amber-400 flex-shrink-0">❖</span> Custom Theme Toggle</li>
-                    </ul>
-
-                    <div class="mt-auto pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 sm:gap-6">
-                        <div class="flex flex-col items-stretch sm:items-end gap-2">
-                            <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer"
-                                class="velvet-action-btn gold-glint-btn px-6 sm:px-10 py-3 sm:py-4 text-xs uppercase tracking-widest font-bold transition transform hover:-translate-y-1 rounded-sm text-center">
-                                Explore Architecture
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Visual -->
-                <div class="md:w-1/2 relative group overflow-hidden min-h-[300px] sm:min-h-[400px] md:min-h-[auto]">
-                    <div
-                        class="velvet-preview-bg absolute inset-0 group-hover:scale-105 transition duration-700">
-                    </div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="velvet-inner-card text-center p-6 sm:p-8 backdrop-blur-sm border border-white/10 rounded-sm">
-                            <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="inline-block">
-                                <div class="serif text-3xl sm:text-4xl md:text-5xl gold-text tracking-widest mb-2 hover:text-amber-300 transition">VELVET</div>
-                                <div class="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] sm:tracking-[0.5em] text-white/70 hover:text-amber-200 transition">SILK & SHADOW</div>
-                            </a>
-                            <div class="mt-5">
-                                <a href="Weblings/velvet/index.html" target="_blank" rel="noopener noreferrer" class="velvet-preview-link text-xs sm:text-sm">Explore Architecture</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Portfolio Collection -->
-    <section id="maizons" class="py-20">
-        <div id="instruments"></div>
-        <div class="max-w-6xl mx-auto">
-            <h2 class="text-4xl md:text-5xl serif font-light text-center mb-4">The Maizons Collection</h2>
-            <p class="text-center text-slate-400 text-sm mb-12 font-light italic">
-                Thirteen distinct digital architectures for sovereign creators.
-            </p>
-
-            <!-- Editor Discovery Section -->
-            <div class="glass-panel p-8 mb-12 rounded-sm border border-amber-400/30 bg-amber-400/5 text-center reveal">
-                <p class="text-amber-400 font-light mb-2 text-sm uppercase tracking-widest">✓ Included with Every
-                    Maizon</p>
-                <h3 class="serif text-2xl mb-4">Visual Editor</h3>
-                <p class="text-slate-300 font-light mb-6 max-w-2xl mx-auto">
-                    Customize your architecture directly in the browser. <span class="text-amber-400 font-semibold">Click text to
-                        modify. Swap images. Rearrange sections.</span>
-                    Export clean, portable HTML and own your digital home forever.
-                </p>
-                <p class="text-slate-400 text-sm italic">
-                    Click the <span class="text-amber-400 font-semibold">✏️ Edit This Site</span> button on any architecture
-                    preview to explore.
-                </p>
-            </div>
-
-            <!-- Grid Container -->
-            <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Javascript will inject cards here -->
-            </div>
-
-            <div id="empty-state" class="hidden text-center py-20 text-slate-500">
-                <p>No architectures found in this category.</p>
-            </div>
-        </div>
-    </section>
-
     <!-- Contact Section -->
     <section id="contact" class="py-20">
         <div class="max-w-2xl mx-auto">
@@ -1363,15 +1356,32 @@
                 <span class="text-amber-400">Let's talk. We're here to listen.</span>
             </p>
 
-            <div class="glass-panel p-8 md:p-12 rounded-sm reveal text-center space-y-4">
-                <p class="text-xs uppercase tracking-widest text-slate-500">Email the studio</p>
-                <p class="text-lg md:text-xl">
-                    <a href="mailto:contact@axxilak.com" class="text-amber-400 hover:underline">contact@axxilak.com</a>
-                    <button id="copy-email" class="text-amber-400 hover:text-amber-300 transition ml-2" title="Copy email to clipboard" style="background: none; border: none; cursor: pointer; padding: 0; font-size: 0.75rem; vertical-align: baseline;">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                </p>
-            </div>
+            <form id="contact-form" action="https://formspree.io/f/mkojaejr" method="POST"
+                class="glass-panel p-8 md:p-12 space-y-6 rounded-sm reveal">
+                <input type="text" name="_gotcha" class="bot-trap" tabindex="-1" autocomplete="off" aria-hidden="true">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                    <input type="text" name="name" required placeholder="Your name"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                    <input type="email" name="email" required placeholder="your@email.com"
+                        class="w-full bg-transparent py-3 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Project Vision</label>
+                    <textarea name="message" rows="5" required placeholder="Tell us about your project..."
+                        class="w-full bg-transparent py-3 text-white" style="resize: vertical;"></textarea>
+                </div>
+
+                <button type="submit"
+                    class="w-full form-button py-4 rounded-sm text-center uppercase tracking-widest font-semibold">
+                    Send Message
+                </button>
+            </form>
         </div>
     </section>
 
@@ -1382,14 +1392,12 @@
                 <div>
                     <h4 class="serif text-xl mb-4">AXXILAK <span class="font-light opacity-60">Studios</span></h4>
                     <p class="text-slate-400 text-sm font-light">
-                        Maizons are designed for creators who believe ownership matters.<br><br>
                         <span class="text-amber-400">Working together to make this world a better place.</span>
                     </p>
                 </div>
                 <div>
                     <h4 class="text-sm uppercase tracking-widest mb-4">Explore</h4>
                     <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="#maizons" class="hover:text-amber-400 transition">Browse Maizons</a></li>
                         <li><a href="free-stuff.html" class="hover:text-amber-400 transition">Free Stuff</a></li>
                         <li><a href="#contact" class="hover:text-amber-400 transition">Get in Touch</a></li>
                         <li><a href="about.html" class="hover:text-amber-400 transition">Our Story</a>
@@ -1400,7 +1408,7 @@
             <div class="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
                 <p class="mb-4">&copy; 2026 AXXILAK. All rights reserved.</p>
                 <p class="text-xs text-slate-600 italic">
-                    Explore each Maizon. You might notice some thoughtful details along the way.
+                    You might notice some thoughtful details along the way.
                 </p>
             </div>
         </div>
@@ -1476,8 +1484,7 @@
 
         function animateParticles() {
             if (!particlesRunning) return;
-            ctx.fillStyle = 'rgba(3, 3, 3, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             particles.forEach((p) => {
                 p.update();
@@ -1551,213 +1558,6 @@
         // --- CATALOG LOGIC ---
         // ═══════════════════════════════════════════════════════════════════════════════
         // WEBLING CATALOG RULE
-        // ═══════════════════════════════════════════════════════════════════════════════
-        // Total: 13 weblings
-        // Grid Display: 12 weblings (gallery grid below)
-        // Featured Display: 1 webling (Velvet - premium showcase above)
-        //
-        // RULE: A webling appears in BOTH lists ONLY when filters are applied.
-        // - User filters by "Luxury" → sees all Luxury weblings (including Velvet in both grid + featured)
-        // - Default (no filter) → Velvet only in Featured, not in grid
-        // ═══════════════════════════════════════════════════════════════════════════════
-
-        const catalogData = {
-            "weblings": [
-                { "id": "liquid-gold", "name": "Liquid Gold", "vibe": "Luxury / Pro", "description": "The standard of excellence. Glassmorphism, premium gradients, and professional poise." },
-                { "id": "ether", "name": "Ether", "vibe": "Air / Sanctuary", "description": "Presence without effort. A breathing architecture for the high-frequency creator." },
-                { "id": "iron-ink", "name": "Iron & Ink", "vibe": "Earth / Archive", "description": "Truth is heavy. A brutalist, monospace repository for manifestos and logic." },
-                { "id": "neon-tokyo", "name": "Neon Tokyo", "vibe": "Fire / Cyber", "description": "The digital soul. Glitch effects, CRT scanlines, and the hum of the signal." },
-                { "id": "scholar", "name": "Scholar", "vibe": "Water / Knowledge", "description": "The architecture of thought. Tufte-Grid layout with academic sidenotes." },
-                { "id": "gaia", "name": "Gaia", "vibe": "Life / Nature", "description": "Rooted in the real. Organic curves and digital roots for sustainable growth." },
-                { "id": "aura", "name": "Aura", "vibe": "Spirit / Energy", "description": "Find your frequency. Shifting iridescent gradients for the modern mystic." },
-                { "id": "summit", "name": "Summit", "vibe": "Peak / Adventure", "description": "Beyond the peak. Tactical, high-contrast presence for the explorer." },
-                { "id": "oracle", "name": "Oracle", "vibe": "Stars / Mystic", "description": "As above, so below. A celestial signature written in stardust." },
-                { "id": "apex", "name": "Apex", "vibe": "Structure / Corporate", "description": "Precision is power. Ultra-clean, sharp architecture for tech authority." },
-                { "id": "canvas", "name": "Canvas", "vibe": "Void / Gallery", "description": "The content is the architecture. Minimalist whitespace for the fine artist." },
-                { "id": "cipher", "name": "Cipher", "vibe": "Logic / Terminal", "description": "Code is law. A terminal-first presence for the technical sovereign." },
-                { "id": "velvet", "name": "Velvet", "vibe": "Void / Luxury", "description": "Elegance is refusal. Silk and shadow for the discerning atelier." }
-            ]
-        };
-
-        const archetypeProfiles = {
-            'liquid-gold': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(212, 175, 55, 0.45) 0%, rgba(45, 30, 8, 0.95) 60%, #080603 100%)',
-                glyph: '<i class="fas fa-crown text-amber-300"></i>',
-                accentColor: '#f6dc87',
-                cardBorder: 'rgba(212, 175, 55, 0.45)',
-                subtext: 'Bespoke Luxury Standard'
-            },
-            'ether': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(125, 211, 252, 0.35) 0%, rgba(14, 38, 64, 0.95) 60%, #040912 100%)',
-                glyph: '<i class="fas fa-wind text-sky-300"></i>',
-                accentColor: '#7dd3fc',
-                cardBorder: 'rgba(125, 211, 252, 0.35)',
-                subtext: 'High-Frequency Sanctuary'
-            },
-            'iron-ink': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(245, 158, 11, 0.3) 0%, rgba(38, 28, 18, 0.95) 60%, #0a0805 100%)',
-                glyph: '<i class="fas fa-feather-pointed text-amber-400"></i>',
-                accentColor: '#f59e0b',
-                cardBorder: 'rgba(245, 158, 11, 0.35)',
-                subtext: 'Brutalist Archive'
-            },
-            'neon-tokyo': {
-                gradient: 'radial-gradient(ellipse at 75% 25%, rgba(244, 63, 94, 0.35) 0%, rgba(56, 189, 248, 0.25) 45%, rgba(24, 8, 38, 0.98) 75%, #080210 100%)',
-                glyph: '<i class="fas fa-bolt text-pink-400"></i>',
-                accentColor: '#f43f5e',
-                cardBorder: 'rgba(244, 63, 94, 0.38)',
-                subtext: 'Electric Cyber Grid'
-            },
-            'scholar': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(234, 179, 8, 0.28) 0%, rgba(15, 28, 48, 0.95) 60%, #050a12 100%)',
-                glyph: '<i class="fas fa-book-bookmark text-amber-300"></i>',
-                accentColor: '#fde047',
-                cardBorder: 'rgba(234, 179, 8, 0.35)',
-                subtext: 'Architecture of Thought'
-            },
-            'gaia': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(34, 197, 94, 0.32) 0%, rgba(10, 42, 22, 0.95) 60%, #030f07 100%)',
-                glyph: '<i class="fas fa-seedling text-emerald-400"></i>',
-                accentColor: '#4ade80',
-                cardBorder: 'rgba(34, 197, 94, 0.35)',
-                subtext: 'Organic Living Roots'
-            },
-            'aura': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(192, 132, 252, 0.35) 0%, rgba(245, 158, 11, 0.22) 50%, rgba(28, 10, 40, 0.98) 75%, #0c0414 100%)',
-                glyph: '<i class="fas fa-sun text-purple-300"></i>',
-                accentColor: '#c084fc',
-                cardBorder: 'rgba(192, 132, 252, 0.35)',
-                subtext: 'Shifting Spectral Energy'
-            },
-            'summit': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(148, 163, 184, 0.3) 0%, rgba(20, 32, 45, 0.95) 60%, #070c12 100%)',
-                glyph: '<i class="fas fa-mountain text-slate-300"></i>',
-                accentColor: '#94a3b8',
-                cardBorder: 'rgba(148, 163, 184, 0.35)',
-                subtext: 'High-Altitude Focus'
-            },
-            'oracle': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(168, 85, 247, 0.38) 0%, rgba(22, 10, 45, 0.95) 60%, #080314 100%)',
-                glyph: '<i class="fas fa-compass text-fuchsia-400"></i>',
-                accentColor: '#a855f7',
-                cardBorder: 'rgba(168, 85, 247, 0.38)',
-                subtext: 'Celestial Stardust'
-            },
-            'apex': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(212, 175, 55, 0.3) 0%, rgba(28, 32, 42, 0.95) 60%, #0a0d14 100%)',
-                glyph: '<i class="fas fa-cube text-amber-300"></i>',
-                accentColor: '#eab308',
-                cardBorder: 'rgba(212, 175, 55, 0.35)',
-                subtext: 'Precision Authority'
-            },
-            'canvas': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(226, 232, 240, 0.22) 0%, rgba(24, 24, 28, 0.95) 60%, #08080a 100%)',
-                glyph: '<i class="fas fa-palette text-slate-200"></i>',
-                accentColor: '#e2e8f0',
-                cardBorder: 'rgba(226, 232, 240, 0.3)',
-                subtext: 'Void & Exhibition'
-            },
-            'cipher': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(52, 211, 153, 0.32) 0%, rgba(8, 35, 24, 0.95) 60%, #020c06 100%)',
-                glyph: '<i class="fas fa-terminal text-emerald-400"></i>',
-                accentColor: '#34d399',
-                cardBorder: 'rgba(52, 211, 153, 0.35)',
-                subtext: 'Terminal Cryptography'
-            },
-            'velvet': {
-                gradient: 'radial-gradient(ellipse at 50% 30%, rgba(212, 175, 55, 0.28) 0%, rgba(20, 12, 18, 0.96) 60%, #050307 100%)',
-                glyph: '<i class="fas fa-moon text-amber-300"></i>',
-                accentColor: '#d4af37',
-                cardBorder: 'rgba(212, 175, 55, 0.45)',
-                subtext: 'Silk & Shadow'
-            }
-        };
-
-        function escapeHtml(value) {
-            return String(value == null ? '' : value)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        function renderGallery(weblings) {
-            const gallery = document.getElementById('gallery');
-            const emptyState = document.getElementById('empty-state');
-
-            if (!weblings || weblings.length === 0) {
-                gallery.style.display = 'none';
-                emptyState.classList.remove('hidden');
-                emptyState.style.display = 'block';
-                return;
-            }
-
-            gallery.style.display = 'grid';
-            emptyState.style.display = 'none';
-            emptyState.classList.add('hidden');
-
-            gallery.innerHTML = weblings.map((w, index) => {
-                const art = archetypeProfiles[w.id] || archetypeProfiles['apex'];
-                const href = `Weblings/${encodeURIComponent(w.id)}/index.html`;
-                const canvasContent = `<div class="maizon-art-ornament" style="border-color: ${art.cardBorder};"></div>
-                       <div class="maizon-art-glyph">${art.glyph}</div>
-                       <div class="maizon-art-title">${escapeHtml(w.name)}</div>
-                       <div class="maizon-art-vibe" style="color: ${art.accentColor};">${escapeHtml(w.vibe)}</div>`;
-
-                return `
-                <div class="glass-panel rounded-sm hover-trigger reveal maizon-art-card" data-maizon-id="${escapeHtml(w.id)}" style="animation-delay: ${index * 50}ms; border-color: ${art.cardBorder};">
-                    <div class="maizon-art-canvas" style="background: ${art.gradient};">
-                        ${canvasContent}
-                    </div>
-                    <div class="maizon-art-body">
-                        <div class="text-[10px] uppercase tracking-widest text-slate-400 mb-1 font-semibold">${art.subtext}</div>
-                        <p class="maizon-art-desc">${escapeHtml(w.description)}</p>
-                        <div class="maizon-forge-strip">
-                            <a href="${href}" class="maizon-explore-link">
-                                Explore <i class="fas fa-arrow-right text-[10px]"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `;
-            }).join('');
-
-            // Safety rule: only explicit links navigate.
-            gallery.querySelectorAll('.maizon-art-card').forEach(card => {
-                card.removeAttribute('onclick');
-                card.onclick = null;
-
-                card.addEventListener('click', (e) => {
-                    if (e.target.closest('a')) return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                }, true);
-            });
-
-            // Re-trigger reveal animation for new elements
-            const newReveals = gallery.querySelectorAll('.reveal');
-            newReveals.forEach(r => revealOnScroll.observe(r));
-        }
-
-        async function loadCatalogWeblings() {
-            const sources = ['Maizons/catalog.json', 'Weblings/catalog.json'];
-            for (const src of sources) {
-                try {
-                    const response = await fetch(src);
-                    if (!response.ok) continue;
-                    const data = await response.json();
-                    if (data && Array.isArray(data.weblings) && data.weblings.length) {
-                        return data.weblings;
-                    }
-                } catch (err) {
-                    console.warn('Catalog source failed:', src, err);
-                }
-            }
-            return catalogData.weblings;
-        }
-
-        loadCatalogWeblings().then(renderGallery);
-
         // Flagship Liquid Gold Particle Animation
         function initFlagshipParticles() {
             const canvas = document.getElementById('flagshipCanvas');
@@ -1886,22 +1686,44 @@
             });
         }
 
-        // === COPY EMAIL BUTTON ===
-        const copyEmailBtn = document.getElementById('copy-email');
-        if (copyEmailBtn) copyEmailBtn.addEventListener('click', (e) => {
+        // Form Submission
+        const contactForm = document.getElementById('contact-form');
+
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = 'contact@axxilak.com';
-            navigator.clipboard.writeText(email).then(() => {
-                const originalHTML = copyEmailBtn.innerHTML;
-                copyEmailBtn.innerHTML = '<i class="fas fa-check"></i>';
-                copyEmailBtn.title = 'Copied!';
+
+            const button = contactForm.querySelector('button');
+            const originalText = button.textContent;
+            button.textContent = 'Sending...';
+            button.disabled = true;
+
+            try {
+                const formData = new FormData(contactForm);
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    button.textContent = 'Message Received ✓';
+                    contactForm.reset();
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            } catch (error) {
+                button.textContent = 'Error - Please Try Again';
                 setTimeout(() => {
-                    copyEmailBtn.innerHTML = originalHTML;
-                    copyEmailBtn.title = 'Copy email to clipboard';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy email:', err);
-            });
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }, 3000);
+            }
         });
 
 
@@ -2184,6 +2006,11 @@
 
     <!-- Transition system removed for MVP. Archived in _archive/transition-system/ -->
     <script src="axxilak-warp.js" defer></script>
+    <script src="vendor/three.min.js" defer></script>
+    <script src="data/data_af.js" defer></script>
+    <script src="js/saturn-ring-textures.js" defer></script>
+    <script type="module" src="js/saturn-background.js"></script>
+    <script src="js/polymorph-hero.js" defer></script>
 </body>
 
 </html>

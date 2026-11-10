@@ -558,6 +558,15 @@
             transform: translateY(-1px);
         }
         /* Logo 2: Full coin, sized right, NO borders, ZERO GLOW */
+        .penni-coin-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            gap: 3px;
+            max-width: 7.6rem;
+        }
         .penni-coin-lens {
             display: flex;
             align-items: center;
@@ -570,6 +579,16 @@
             object-fit: contain;
             filter: none;
             transition: transform 0.25s ease;
+        }
+        .penni-tagline {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.52rem;
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: 0.01em;
+            color: #d4af37;
+            text-align: center;
+            white-space: normal;
         }
         .insignia-99cent:hover .penni-coin-img {
             transform: scale(1.08) rotate(4deg);
@@ -754,8 +773,11 @@
                     </a>
                     <!-- Right Zone: 99CentApps.com -->
                     <a href="https://99centapps.com/" target="_blank" rel="noopener" class="insignia-99cent" title="Visit 99CentApps.com">
-                        <div class="penni-coin-lens">
-                            <img src="Penni_coin.png" alt="99CentApps Penni Coin" class="penni-coin-img">
+                        <div class="penni-coin-stack">
+                            <div class="penni-coin-lens">
+                                <img src="Penni_coin_v2.png" alt="99CentApps Penni Coin" class="penni-coin-img">
+                            </div>
+                            <span class="penni-tagline">Working together to make this world a better place</span>
                         </div>
                         <div class="cent-brand-text">
                             <div class="cent-title">99CENTAPPS.COM</div>
